@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
+import { url } from "inspector";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,6 +27,8 @@ export default function RootLayout({
     { texto: "Extras", url: "/extras" },
     { texto: "Configuración", url: "/configuracion" },
     { texto: "Salir", url: "/logout" },
+    { texto: "Registrarse", url: "/sign-out" },
+    { texto: "Iniciar sesion", url: "/sign-in" },
   ];
 
   return (
@@ -55,7 +58,7 @@ export default function RootLayout({
               </div>
             </div>
 
-            <div className='bg-gray-300 basis-5/6 p-4'>
+            <div className='bg-withe basis-5/6 p-4'>
               <main className='flex min-h-screen flex-col items-center justify-between'>
                 <div className='flex flex-row items-center'>
                   <div className='ml-2'>
