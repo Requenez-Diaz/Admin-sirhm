@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import { type VariantProps } from "class-variance-authority";
 
 import {
   Table,
@@ -10,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 
 const bedrooms = [
   {
@@ -48,6 +52,77 @@ const bedrooms = [
     status: "Disponible",
     numberBedroom: 4,
   },
+  {
+    id: 5,
+    typeBedroom: "Suite",
+    description: "Habitación con cama king size",
+    lowSeasonPrise: 400,
+    highSeasonPrise: 600,
+    status: "Disponible",
+    numberBedroom: 5,
+  },
+  {
+    id: 6,
+    typeBedroom: "Suite",
+    description: "Habitación con cama king size",
+    lowSeasonPrise: 400,
+    highSeasonPrise: 600,
+    status: "Disponible",
+    numberBedroom: 6,
+  },
+  {
+    id: 7,
+    typeBedroom: "Suite",
+    description: "Habitación con cama king size",
+    lowSeasonPrise: 400,
+    highSeasonPrise: 600,
+    status: "Disponible",
+    numberBedroom: 7,
+  },
+  {
+    id: 8,
+    typeBedroom: "Suite",
+    description: "Habitación con cama king size",
+    lowSeasonPrise: 400,
+    highSeasonPrise: 600,
+    status: "Disponible",
+    numberBedroom: 8,
+  },
+  {
+    id: 9,
+    typeBedroom: "Suite",
+    description: "Habitación con cama king size",
+    lowSeasonPrise: 400,
+    highSeasonPrise: 600,
+    status: "Disponible",
+    numberBedroom: 9,
+  },
+  {
+    id: 10,
+    typeBedroom: "Suite",
+    description: "Habitación con cama king size",
+    lowSeasonPrise: 400,
+    highSeasonPrise: 600,
+    status: "Disponible",
+    numberBedroom: 10,
+  },
+  {
+    id: 11,
+    typeBedroom: "Suite",
+    description: "Habitación con cama king size",
+    lowSeasonPrise: 400,
+    highSeasonPrise: 600,
+    status: "Disponible",
+    numberBedroom: 11,
+  },
+  {
+    id: 12,
+    typeBedroom: "Suite",
+    description: "Habitación con cama king size",
+    lowSeasonPrise: 400,
+    highSeasonPrise: 600,
+    status: "Ocupado",
+  },
 ];
 
 const HabitacionesPage = () => {
@@ -62,20 +137,26 @@ const HabitacionesPage = () => {
             <TableHead>Temporada alta</TableHead>
             <TableHead>Estado</TableHead>
             <TableHead className='text-right'>Tamanio</TableHead>
+            <TableHead className='text-right'>Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {bedrooms.map((invoice) => (
-            <TableRow key={invoice.id}>
+          {bedrooms.map((bedroom) => (
+            <TableRow key={bedroom.id}>
               <TableCell className='font-medium'>
-                {invoice.description}
+                {bedroom.description}
               </TableCell>
-              <TableCell>{invoice.lowSeasonPrise}</TableCell>
-              <TableCell>{invoice.highSeasonPrise}</TableCell>
-              <TableCell>{invoice.status}</TableCell>
-
+              <TableCell>{bedroom.lowSeasonPrise}</TableCell>
+              <TableCell>{bedroom.highSeasonPrise}</TableCell>
+              <TableCell>{bedroom.status}</TableCell>
               <TableCell className='text-right'>
-                {invoice.typeBedroom}
+                {bedroom.typeBedroom}
+              </TableCell>
+              <TableCell className='text-right'>
+                <div className='flex justify-end'>
+                  <Button variant={"ghost"}>Editar</Button>
+                  <Button variant={"destructive"}>Eliminar</Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}
