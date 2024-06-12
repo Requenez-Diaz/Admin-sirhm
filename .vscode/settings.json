@@ -1,0 +1,27 @@
+{
+    "git.ignoreLimitWarning": true,
+    "editor.fontFamily": "'JetBrains Mono', Menlo, Monaco, 'Courier New', monospace",
+    "editor.fontLigatures": true,
+    "editor.tokenColorCustomizations": {
+        "textMateRules": [
+            {
+                "scope": [
+                    // Ajusta los scopes según tus preferencias
+                    "comment",
+                    "entity.name.type.class",
+                    "keyword",
+                    "storage.modifier",
+                    "storage.type.class.js",
+                    "storage.type.function.js",
+                    "storage.type.js",
+                    "string",
+                    "variable.parameter"
+                ],
+                "settings": {
+                    "fontStyle": "italic bold "
+                }
+            }
+        ]
+    },
+    "editor.fontWeight": "normal"
+}

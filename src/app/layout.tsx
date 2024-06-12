@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import Link from "next/link";
 import "./globals.css";
-import { url } from "inspector";
+import { Inter as FontSans } from "next/font/google";
+import { cn } from "@/lib/utils";
 
-const inter = Inter({ subsets: ["latin"] });
+const fontSans = FontSans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -13,67 +15,18 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
-  const menus = [
-    { texto: "Dashboard", url: "/" },
-    { texto: "Roles", url: "/rolles" },
-    { texto: "Usuarios", url: "/users" },
-    { texto: "Habitaciones", url: "/habitaciones" },
-    { texto: "Reservas", url: "/reservas" },
-    { texto: "Temporadas", url: "/modalidades" },
-    { texto: "Tarifas", url: "/tarifas" },
-    { texto: "Extras", url: "/extras" },
-    { texto: "Configuración", url: "/configuracion" },
-    { texto: "Salir", url: "/logout" },
-    { texto: "Registrarse", url: "/sign-out" },
-    { texto: "Iniciar sesion", url: "/sign-in" },
-  ];
-
+}>) {
   return (
-    <html lang='es' className='dark'>
-      <body className={inter.className}>
-        <div className='min-h-screen'>
-          <div className='flex flex-row'>
-            <div className='bg-gray-900 basis-1/6'>
-              <div className='m-3 mt-8'>
-                <ul>
-                  <li>
-                    <div className='text-center  text-gray-400 font-thin'>
-                      DashBoard
-                    </div>
-                  </li>
-                  {menus.map((menu) => (
-                    <li key={`menu-${menu.texto}`}>
-                      <Link
-                        href={menu.url}
-                        className='block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent'
-                      >
-                        {menu.texto}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            <div className='bg-withe basis-5/6 p-4'>
-              <main className='flex min-h-screen flex-col items-center justify-between'>
-                <div className='flex flex-row items-center'>
-                  <div className='ml-2'>
-                    <h1>
-                      UNIVERSIDAD DE LAS REGIONES AUTÓNOMAS DE LA COSTA CARIBE
-                      DE NICARAGUA
-                    </h1>
-                    <h1>URACCAN</h1>
-                  </div>
-                </div>
-                {children}
-              </main>
-            </div>
-          </div>
-        </div>
+    <html lang='en'>
+      <body
+        className={cn(
+          "min-h-screen bg-background font-sans antialiased",
+          fontSans.variable
+        )}
+      >
+        {children}
       </body>
     </html>
   );
