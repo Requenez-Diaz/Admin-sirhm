@@ -137,7 +137,12 @@ const HabitacionesPage = () => {
             <TableHead>Temporada alta</TableHead>
             <TableHead>Estado</TableHead>
             <TableHead className='text-right'>Tamanio</TableHead>
-            <TableHead className='text-right'>Acciones</TableHead>
+            <TableHead className='text-right items-center'>
+              Acciones
+              <Button variant={"ghost"} className='mr-4'>
+                Agregar reserva
+              </Button>
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -152,8 +157,8 @@ const HabitacionesPage = () => {
               <TableCell className='text-right'>
                 {bedroom.typeBedroom}
               </TableCell>
-              <TableCell className='text-right'>
-                <div className='flex justify-end'>
+              <TableCell className='text-right flex items-center justify-center'>
+                <div className='flex justify-between gap-3 '>
                   <Button variant={"ghost"}>Editar</Button>
                   <Button variant={"destructive"}>Eliminar</Button>
                 </div>
