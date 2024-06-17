@@ -1,17 +1,26 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 
+import {
+  ChevronRight,
+  LayoutDashboard,
+  Settings,
+  ShoppingCart,
+  UsersRound,
+} from 'lucide-react';
+
 const links = [
-  { name: "usuarios", href: "users" },
-  { name: "habitaciones", href: "bedrooms" },
-  { name: "reservaciones", href: "bookings" },
-  { name: "servicios", href: "services" },
-  { name: "reportes", href: "reports" },
-  { name: "configuración", href: "settings" },
-  { name: "roles", href: "roles" },
-  { name: "Iniciar Sesion", href: "signIn" },
-  { name: "Registrarse", href: "signUp" },
-]
+  { name: "usuarios", href: "users", icon: UsersRound },
+  { name: "habitaciones", href: "bedrooms", icon: LayoutDashboard },
+  { name: "reservaciones", href: "bookings", icon: ShoppingCart },
+  { name: "servicios", href: "services", },
+  { name: "reportes", href: "reports", },
+  { name: "configuración", href: "settings", icon: Settings },
+  { name: "roles", href: "roles", },
+  { name: "Iniciar Sesion", href: "signIn", },
+  { name: "Registrarse", href: "signUp",},
+];
+
 
 // .sort((a, b) => a.name.localeCompare(b.name));
 
@@ -95,12 +104,18 @@ export default function DashboardLayout({
                 </svg>
                 <span className='self-center whitespace-nowrap ml-2'>
                   {" "}
-                  Shadcn/ui
+                  SIRMH
                 </span>
               </a>
             </div>
             <div className='flex items-center'>
               {/* User Avatar */}
+              <span className="hidden text-right lg:block mr-4">
+                <span className="block text-sm font-medium text-black dark:text-white">
+                  Elliam Sánchez
+                </span>
+                <span className="block text-xs">Administrador</span>
+              </span>
               <div className='bg-blue-500 text-white p-2 rounded-full w-12 h-12 flex items-center justify-center'>
                 <Avatar>
                   <AvatarImage src='https://github.com/shadcn.png' />
@@ -127,6 +142,7 @@ export default function DashboardLayout({
                         href={link.href}
                         className='text-base capitalize text-gray-900 font-normal rounded-lg flex items-center p-2 hover:bg-gray-100 group'
                       >
+                        {link.icon && <link.icon className='w-6 h-6' />}
                         <span className='ml-3'>{link.name}</span>
                       </Link>
                     </li>
