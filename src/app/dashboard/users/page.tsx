@@ -1,3 +1,5 @@
+import { DeleteUsers } from "@/app/cards/delete-users";
+import { EditUsers } from "@/app/cards/edit-user";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -9,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Delete } from "lucide-react";
 import React from "react";
 
 export default function Page() {
@@ -56,7 +59,7 @@ export default function Page() {
             <TableHead className='text-right items-center'>
               Acciones
               <Button variant={"ghost"} className='mr-4'>
-                Agregar habitación
+                Agregar usuario
               </Button>
             </TableHead>
           </TableRow>
@@ -71,8 +74,8 @@ export default function Page() {
               <TableCell className='text-right'>{bedroom.role}</TableCell>
               <TableCell className='text-right flex items-center justify-center'>
                 <div className='flex justify-between gap-3 '>
-                  <Button variant={"ghost"}>Editar</Button>
-                  <Button variant={"destructive"}>Eliminar</Button>
+                  <EditUsers />
+                  <DeleteUsers />
                 </div>
               </TableCell>
             </TableRow>

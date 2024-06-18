@@ -23,7 +23,6 @@ import {
 } from "@radix-ui/react-icons";
 import { toast } from "sonner";
 
-
 const myCustomFilterFn: FilterFn<Payment> = (
   row: Row<Payment>,
   columnId: string,
@@ -41,16 +40,15 @@ const myCustomFilterFn: FilterFn<Payment> = (
 
 const SortedIcon = ({ isSorted }: { isSorted: false | SortDirection }) => {
   if (isSorted === "asc") {
-    return <ChevronUpIcon className="h-4 w-4" />;
+    return <ChevronUpIcon className='h-4 w-4' />;
   }
 
   if (isSorted === "desc") {
-    return <ChevronDownIcon className="h-4 w-4" />;
+    return <ChevronDownIcon className='h-4 w-4' />;
   }
 
   return null;
 };
-
 
 export const columns: ColumnDef<Payment>[] = [
   {
@@ -62,14 +60,14 @@ export const columns: ColumnDef<Payment>[] = [
           (table.getIsSomePageRowsSelected() && "indeterminate")
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
+        aria-label='Select all'
       />
     ),
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
+        aria-label='Select row'
       />
     ),
     enableSorting: false,
@@ -80,7 +78,7 @@ export const columns: ColumnDef<Payment>[] = [
     header: ({ column }) => {
       return (
         <Button
-          variant="ghost"
+          variant='ghost'
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Client Name
@@ -94,7 +92,7 @@ export const columns: ColumnDef<Payment>[] = [
     header: ({ column }) => {
       return (
         <Button
-          variant="ghost"
+          variant='ghost'
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Status
@@ -123,9 +121,9 @@ export const columns: ColumnDef<Payment>[] = [
     accessorKey: "amount",
     header: ({ column }) => {
       return (
-        <div className="text-right">
+        <div className='text-right'>
           <Button
-            variant="ghost"
+            variant='ghost'
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
             Amount
@@ -142,7 +140,7 @@ export const columns: ColumnDef<Payment>[] = [
         currency: "USD",
       }).format(amount);
 
-      return <div className="text-right font-medium">{formatted}</div>;
+      return <div className='text-right font-medium'>{formatted}</div>;
     },
   },
   {
@@ -151,7 +149,7 @@ export const columns: ColumnDef<Payment>[] = [
     header: ({ column }) => {
       return (
         <Button
-          variant="ghost"
+          variant='ghost'
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Email
@@ -169,12 +167,12 @@ export const columns: ColumnDef<Payment>[] = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <DotsHorizontalIcon className="h-4 w-4" />
+            <Button variant='ghost' className='h-8 w-8 p-0'>
+              <span className='sr-only'>Open menu</span>
+              <DotsHorizontalIcon className='h-4 w-4' />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align='end'>
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
               onClick={() => {

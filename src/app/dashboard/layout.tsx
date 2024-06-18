@@ -3,24 +3,26 @@ import Link from "next/link";
 
 import {
   ChevronRight,
+  ClipboardMinus,
+  HandPlatter,
   LayoutDashboard,
   Settings,
   ShoppingCart,
   UsersRound,
-} from 'lucide-react';
+} from "lucide-react";
+import React from "react";
 
 const links = [
   { name: "usuarios", href: "users", icon: UsersRound },
   { name: "habitaciones", href: "bedrooms", icon: LayoutDashboard },
   { name: "reservaciones", href: "bookings", icon: ShoppingCart },
-  { name: "servicios", href: "services", },
-  { name: "reportes", href: "reports", },
+  { name: "servicios", href: "services", icon: HandPlatter },
+  { name: "reportes", href: "reports", icon: ClipboardMinus },
   { name: "configuración", href: "settings", icon: Settings },
-  { name: "roles", href: "roles", },
-  { name: "Iniciar Sesion", href: "signIn", },
-  { name: "Registrarse", href: "signUp",},
+  { name: "roles", href: "roles" },
+  { name: "Iniciar Sesion", href: "signIn" },
+  { name: "Registrarse", href: "signUp" },
 ];
-
 
 // .sort((a, b) => a.name.localeCompare(b.name));
 
@@ -30,7 +32,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
+    <React.Fragment>
       <nav className='bg-white border-b border-gray-200 fixed z-30 w-full'>
         <div className='px-3 py-3 lg:px-5 lg:pl-3'>
           <div className='flex items-center justify-between'>
@@ -110,11 +112,11 @@ export default function DashboardLayout({
             </div>
             <div className='flex items-center'>
               {/* User Avatar */}
-              <span className="hidden text-right lg:block mr-4">
-                <span className="block text-sm font-medium text-black dark:text-white">
-                  Elliam Sánchez
+              <span className='hidden text-right lg:block mr-4'>
+                <span className='block text-sm font-medium text-black dark:text-white'>
+                  Admin
                 </span>
-                <span className="block text-xs">Administrador</span>
+                <span className='block text-xs'>Administrador</span>
               </span>
               <div className='bg-blue-500 text-white p-2 rounded-full w-12 h-12 flex items-center justify-center'>
                 <Avatar>
@@ -290,6 +292,6 @@ export default function DashboardLayout({
           </p>
         </div>
       </div>
-    </>
+    </React.Fragment>
   );
 }
