@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { DeleteBedrooms } from "@/app/cards/delete-beedrooms";
-import { Edit } from "lucide-react";
 import { EditBedrooms } from "@/app/cards/edit-bedrooms";
 
 const bedrooms = [
