@@ -15,7 +15,7 @@ export function DeleteUsers() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant='outline'>Eliminar Usuario</Button>
+        <Button variant='destructive'>Eliminar Usuario</Button>
       </DialogTrigger>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>

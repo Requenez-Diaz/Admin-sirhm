@@ -15,7 +15,7 @@ export function EditUsers() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant='outline'>Editar usuario</Button>
+        <Button variant='success'>Editar usuario</Button>
       </DialogTrigger>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>

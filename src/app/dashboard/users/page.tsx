@@ -56,11 +56,9 @@ export default function Page() {
             <TableHead>Email</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className='text-right'>Role</TableHead>
-            <TableHead className='text-right items-center'>
+            <TableHead className=' text-right items-center '>
               Acciones
-              <Button variant={"ghost"} className='mr-4'>
-                Agregar usuario
-              </Button>
+              <Button variant={"ghost"}>Agregar usuario</Button>
             </TableHead>
           </TableRow>
         </TableHeader>
