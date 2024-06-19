@@ -141,7 +141,7 @@ const HabitacionesPage = () => {
             <TableHead className='text-right'>Tamanio</TableHead>
             <TableHead className='text-right items-center'>
               Acciones
-              <Button variant={"ghost"} className='mr-4'>
+              <Button variant= 'success' className='mr-4'>
                 Agregar habitción
               </Button>
             </TableHead>
