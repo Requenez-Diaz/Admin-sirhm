@@ -173,7 +173,7 @@ const SignInForm = () => {
           <div className='mt-6 text-center'>
             <p>
               Si no tienes una cuenta?{" "}
-              <Link href='/sign-up' className='text-blue-700  '>
+              <Link href='/sign-out' className='text-blue-700  '>
                 Registrate
               </Link>
             </p>

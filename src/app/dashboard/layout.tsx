@@ -19,9 +19,9 @@ const links = [
   { name: "servicios", href: "services", icon: HandPlatter },
   { name: "reportes", href: "reports", icon: ClipboardMinus },
   { name: "configuración", href: "settings", icon: Settings },
-  { name: "roles", href: "roles" },
-  { name: "Iniciar Sesion", href: "signIn" },
-  { name: "Registrarse", href: "signUp" },
+  // { name: "roles", href: "roles" },
+  // { name: "Iniciar Sesion", href: "signIn" },
+  // { name: "Registrarse", href: "signUp" },
 ];
 
 // .sort((a, b) => a.name.localeCompare(b.name));

@@ -14,6 +14,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { DeleteBedrooms } from "@/app/cards/delete-beedrooms";
+import { Edit } from "lucide-react";
+import { EditBedrooms } from "@/app/cards/edit-bedrooms";
 
 const bedrooms = [
   {
@@ -140,7 +143,7 @@ const HabitacionesPage = () => {
             <TableHead className='text-right items-center'>
               Acciones
               <Button variant={"ghost"} className='mr-4'>
-                Agregar reserva
+                Agregar habitción
               </Button>
             </TableHead>
           </TableRow>
@@ -159,19 +162,19 @@ const HabitacionesPage = () => {
               </TableCell>
               <TableCell className='text-right flex items-center justify-center'>
                 <div className='flex justify-between gap-3 '>
-                  <Button variant={"ghost"}>Editar</Button>
-                  <Button variant={"destructive"}>Eliminar</Button>
+                  <EditBedrooms />
+                  <DeleteBedrooms />
                 </div>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
-        <TableFooter>
+        {/* <TableFooter>
           <TableRow>
             <TableCell colSpan={3}>Total</TableCell>
             <TableCell className='text-right'>$2,500.00</TableCell>
           </TableRow>
-        </TableFooter>
+        </TableFooter> */}
       </Table>
     </div>
   );
