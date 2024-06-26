@@ -2,7 +2,6 @@
 
 import React from "react";
 import { type VariantProps } from "class-variance-authority";
-
 import {
   Table,
   TableBody,
@@ -14,11 +13,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { DeleteBedrooms } from "@/app/cards/delete-beedrooms";
-import { Edit } from "lucide-react";
 import { EditBedrooms } from "@/app/cards/edit-bedrooms";
 import { saveBedrooms } from "@/app/actions/reservations";
 import { AddBedrooms } from "@/app/cards/add-bedrooms";
+import { DeleteBedrooms } from "@/app/cards/delete-beedrooms";
+
 const bedrooms = [
   {
     id: 1,
@@ -145,10 +144,27 @@ const HabitacionesPage = () => {
               <TableHead>Temporada baja</TableHead>
               <TableHead>Temporada alta</TableHead>
               <TableHead>Estado</TableHead>
-              <TableHead className='text-right'>Tamanio</TableHead>
+              <TableHead className='text-right'>Tamaño</TableHead>
               <TableHead className='text-right items-center'>
                 Acciones
-                <AddBedrooms />
+                <Button variant='success' className='ml-4'>
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    width='24'
+                    height='24'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    stroke-width='2'
+                    stroke-linecap='round'
+                    stroke-linejoin='round'
+                    className='lucide lucide-plus mr-2'
+                  >
+                    <path d='M5 12h14' />
+                    <path d='M12 5v14' />
+                  </svg>
+                  Agregar habitación
+                </Button>
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -165,7 +181,7 @@ const HabitacionesPage = () => {
                   {bedroom.typeBedroom}
                 </TableCell>
                 <TableCell className='text-right flex items-center justify-center'>
-                  <div className='flex justify-between gap-3 '>
+                  <div className='flex justify-between gap-3'>
                     <EditBedrooms />
                     <DeleteBedrooms />
                   </div>
@@ -173,12 +189,6 @@ const HabitacionesPage = () => {
               </TableRow>
             ))}
           </TableBody>
-          {/* <TableFooter>
-          <TableRow>
-            <TableCell colSpan={3}>Total</TableCell>
-            <TableCell className='text-right'>$2,500.00</TableCell>
-          </TableRow>
-        </TableFooter> */}
         </Table>
       </form>
     </div>
