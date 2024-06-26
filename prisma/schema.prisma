@@ -1,0 +1,172 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id       Int        @id @default(autoincrement())
+  name     String
+  lastname String
+  email    String
+  phone    Int
+  bookings Bookings[]
+  invoce   Invoce[]
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  username  String   @unique
+  password  String
+  role      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model bedrooms {
+  id              Int               @id @default(autoincrement())
+  typeBedroom     String
+  description     String
+  lowSeasonPrice  Int
+  highSeasonPrice Int
+  status          Boolean
+  numberBedroom   Int
+  bookingsDetails BookingsDetails[]
+  seasons         Seasons           @relation(fields: [seasonsId], references: [id], onDelete: Cascade)
+  seasonsId       Int
+}
+
+model Bookings {
+  id               Int                @id @default(autoincrement())
+  clientId         Int
+  status           BookingsStatus
+  created_at       DateTime           @default(now())
+  client           Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  bookingsDetails  BookingsDetails[]
+  bookingsServices bookingsServices[]
+}
+
+enum BookingsStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+model comments {
+  id         Int    @id @default(autoincrement())
+  comment    String
+  boookingId Int
+  comments   String
+}
+
+model events {
+  id         Int      @id @default(autoincrement())
+  nameEvents String
+  date       DateTime
+  hours      DateTime
+  location   String
+}
+
+model testimonials {
+  id           Int      @id @default(autoincrement())
+  name         String
+  date         DateTime
+  testimonials String
+}
+
+model historicReservations {
+  id          Int         @id @default(autoincrement())
+  bookingId   Int
+  events      EventStatus
+  description String
+  date        DateTime
+}
+
+enum EventStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+model promotions {
+  id                 Int               @id @default(autoincrement())
+  codePromotions     String
+  porcentageDescuent Int
+  dateStart          DateTime
+  dateEnd            DateTime
+  bookingsDetails    BookingsDetails[]
+}
+
+model Services {
+  id          String             @id @default(uuid())
+  nameService String
+  description String
+  price       Int
+  bookings    bookingsServices[]
+}
+
+model Seasons {
+  id         Int        @id @default(autoincrement())
+  nameSeason String 
+  dateStart  DateTime
+  dateEnd    DateTime
+  bedrooms   bedrooms[]
+}
+
+model bookingsServices {
+  id         String    @id @default(uuid())
+  bookingId  Int
+  serviceId  Int
+  price      Int
+  booking    Bookings  @relation(fields: [bookingId], references: [id])
+  services   Services? @relation(fields: [servicesId], references: [id])
+  servicesId String?
+}
+
+model BookingsDetails {
+  id           Int        @id @default(autoincrement())
+  bookingId    Int
+  bedroomId    Int
+  price        Int
+  dateStart    DateTime
+  dateEnd      DateTime
+  promotionId  Int
+  status       Status
+  created_at   DateTime   @default(now())
+  Bookings     Bookings   @relation(fields: [bookingsId], references: [id])
+  bookingsId   Int
+  bedrooms     bedrooms   @relation(fields: [bedroomsId], references: [id])
+  bedroomsId   Int
+  promotions   promotions @relation(fields: [promotionsId], references: [id])
+  promotionsId Int
+}
+
+enum Status {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+model Invoce {
+  id            Int             @id @default(autoincrement())
+  clientId      Int
+  date          DateTime
+  client        Client          @relation(fields: [clientId], references: [id])
+  invoceDetails invoceDetails[]
+}
+
+model invoceDetails {
+  id       Int    @id @default(autoincrement())
+  invoceId Int
+  item     String
+  price    Int
+  amount   Int
+  invoce   Invoce @relation(fields: [invoceId], references: [id])
+}

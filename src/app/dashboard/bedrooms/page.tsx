@@ -17,7 +17,8 @@ import { Button } from "@/components/ui/button";
 import { DeleteBedrooms } from "@/app/cards/delete-beedrooms";
 import { Edit } from "lucide-react";
 import { EditBedrooms } from "@/app/cards/edit-bedrooms";
-
+import { saveBedrooms } from "@/app/actions/reservations";
+import { AddBedrooms } from "@/app/cards/add-bedrooms";
 const bedrooms = [
   {
     id: 1,
@@ -129,53 +130,57 @@ const bedrooms = [
 ];
 
 const HabitacionesPage = () => {
+  const createBedroom = () => {
+    console.log("Crear habitación");
+  };
+
   return (
     <div>
-      <Table>
-        <TableCaption>Listado de habitaciones</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead className='w-[100px]'>Habitaciones </TableHead>
-            <TableHead>Temporada baja</TableHead>
-            <TableHead>Temporada alta</TableHead>
-            <TableHead>Estado</TableHead>
-            <TableHead className='text-right'>Tamanio</TableHead>
-            <TableHead className='text-right items-center'>
-              Acciones
-              <Button variant={"ghost"} className='mr-4'>
-                Agregar habitción
-              </Button>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {bedrooms.map((bedroom) => (
-            <TableRow key={bedroom.id}>
-              <TableCell className='font-medium'>
-                {bedroom.description}
-              </TableCell>
-              <TableCell>{bedroom.lowSeasonPrise}</TableCell>
-              <TableCell>{bedroom.highSeasonPrise}</TableCell>
-              <TableCell>{bedroom.status}</TableCell>
-              <TableCell className='text-right'>
-                {bedroom.typeBedroom}
-              </TableCell>
-              <TableCell className='text-right flex items-center justify-center'>
-                <div className='flex justify-between gap-3 '>
-                  <EditBedrooms />
-                  <DeleteBedrooms />
-                </div>
-              </TableCell>
+      <form action={saveBedrooms}>
+        <Table>
+          <TableCaption>Listado de habitaciones</TableCaption>
+          <TableHeader>
+            <TableRow>
+              <TableHead className='w-[100px]'>Habitaciones </TableHead>
+              <TableHead>Temporada baja</TableHead>
+              <TableHead>Temporada alta</TableHead>
+              <TableHead>Estado</TableHead>
+              <TableHead className='text-right'>Tamanio</TableHead>
+              <TableHead className='text-right items-center'>
+                Acciones
+                <AddBedrooms />
+              </TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-        {/* <TableFooter>
+          </TableHeader>
+          <TableBody>
+            {bedrooms.map((bedroom) => (
+              <TableRow key={bedroom.id}>
+                <TableCell className='font-medium'>
+                  {bedroom.description}
+                </TableCell>
+                <TableCell>{bedroom.lowSeasonPrise}</TableCell>
+                <TableCell>{bedroom.highSeasonPrise}</TableCell>
+                <TableCell>{bedroom.status}</TableCell>
+                <TableCell className='text-right'>
+                  {bedroom.typeBedroom}
+                </TableCell>
+                <TableCell className='text-right flex items-center justify-center'>
+                  <div className='flex justify-between gap-3 '>
+                    <EditBedrooms />
+                    <DeleteBedrooms />
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+          {/* <TableFooter>
           <TableRow>
             <TableCell colSpan={3}>Total</TableCell>
             <TableCell className='text-right'>$2,500.00</TableCell>
           </TableRow>
         </TableFooter> */}
-      </Table>
+        </Table>
+      </form>
     </div>
   );
 };
