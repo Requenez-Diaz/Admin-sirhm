@@ -16,20 +16,20 @@ export const saveBedrooms = async (formData: FormData) => {
   try {
     const newBedroom = await prisma.bedrooms.create({
       data: {
-        typeBedroom,
-        description,
-        lowSeasonPrice,
-        highSeasonPrice,
-        numberBedroom,
+        typeBedroom: typeBedroom ?? '',
+        description: description ?? '',
+        lowSeasonPrice: lowSeasonPrice,
+        highSeasonPrice: highSeasonPrice,
+        numberBedroom: numberBedroom,
         status: active,
         seasons: {
           create: {
-            nameSeason: seasons,
+            nameSeason: seasons ?? '',
             dateStart: new Date(),
-            dateEnd: new Date(),
-          },
-        },
-      },
+            dateEnd: new Date()
+          }
+        }
+      }
     });
 
     console.log("Habitación guardada con éxito", newBedroom);
