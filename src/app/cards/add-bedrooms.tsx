@@ -1,4 +1,3 @@
-// "use client";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,8 +12,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { saveBedrooms } from "../actions/reservations";
 import { bedroomsTypes } from "@/bedroomstype/bedroomsType";
+import { Form } from "react-hook-form";
+import FormBedrooms from "./form-bedrooms";
 
 export function AddBedrooms() {
+
+  // const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  //   event.preventDefault();
+  //   await saveBedrooms(new FormData(event.currentTarget));
+  // };
 
   return (
     <Dialog>
@@ -28,7 +34,7 @@ export function AddBedrooms() {
             ¿Está seguro de que desea agregar esta habitación?
           </DialogDescription>
         </DialogHeader>
-        <form>
+        {/* <form onSubmit={handleSubmit}>
           <div className='grid gap-4 py-4'>
             <div className='grid grid-cols-4 items-center gap-4'>
               <Label htmlFor='typeBedroom' className='text-right'>
@@ -105,7 +111,8 @@ export function AddBedrooms() {
             <Button variant='destructive'>Cancelar</Button>
             <Button type='submit'>Agregar</Button>
           </DialogFooter>
-        </form>
+        </form> */}
+        <FormBedrooms />
       </DialogContent>
     </Dialog>
   );

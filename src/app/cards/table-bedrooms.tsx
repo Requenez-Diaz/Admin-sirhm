@@ -12,7 +12,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { EditBedrooms } from "@/app/cards/edit-bedrooms";
-import { saveBedrooms } from "@/app/actions/reservations";
+// import { saveBedrooms } from "@/app/actions/reservations";
 import { AddBedrooms } from "@/app/cards/add-bedrooms";
 import { DeleteBedrooms } from "@/app/cards/delete-beedrooms";
 
@@ -22,7 +22,9 @@ async function TableBedrooms() {
 
     return (
         <div>
-            <form action={saveBedrooms}>
+            <form 
+            // action={saveBedrooms}
+            >
                 <Table>
                     <TableCaption>Listado de habitaciones</TableCaption>
                     <TableHeader>
@@ -54,7 +56,7 @@ async function TableBedrooms() {
                                 <TableCell className='text-right flex items-center justify-center'>
                                     <div className='flex justify-between gap-3'>
                                         <EditBedrooms />
-                                        <DeleteBedrooms />
+                                        <DeleteBedrooms bedroomsId={bedroom.id} />
                                     </div>
                                 </TableCell>
                             </TableRow>
