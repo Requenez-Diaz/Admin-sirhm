@@ -1,5 +1,4 @@
-"use client";
-import { useState } from "react";
+// "use client";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,34 +12,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { saveBedrooms } from "../actions/reservations";
+import { bedroomsTypes } from "@/bedroomstype/bedroomsType";
 
 export function AddBedrooms() {
-  const [formData, setFormData] = useState({
-    typeBedroom: "",
-    description: "",
-    lowSeasonPrice: "",
-    highSeasonPrice: "",
-    status: "",
-    numberBedroom: "",
-  });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const form = new FormData();
-    form.append("typeBedroom", formData.typeBedroom);
-    form.append("description", formData.description);
-    form.append("lowSeasonPrice", formData.lowSeasonPrice);
-    form.append("highSeasonPrice", formData.highSeasonPrice);
-    form.append("status", formData.status);
-    form.append("numberBedroom", formData.numberBedroom);
-
-    const response = await saveBedrooms(form);
-    console.log(response);
-  };
 
   return (
     <Dialog>
@@ -54,19 +28,23 @@ export function AddBedrooms() {
             ¿Está seguro de que desea agregar esta habitación?
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
+        <form>
           <div className='grid gap-4 py-4'>
             <div className='grid grid-cols-4 items-center gap-4'>
               <Label htmlFor='typeBedroom' className='text-right'>
                 Tipo de habitación
               </Label>
-              <Input
+              <select
                 id='typeBedroom'
                 name='typeBedroom'
-                value={formData.typeBedroom}
-                onChange={handleChange}
                 className='col-span-3'
-              />
+              >
+                {bedroomsTypes.map((type, index) => (
+                  <option key={index} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className='grid grid-cols-4 items-center gap-4'>
               <Label htmlFor='description' className='text-right'>
@@ -75,8 +53,6 @@ export function AddBedrooms() {
               <Input
                 id='description'
                 name='description'
-                value={formData.description}
-                onChange={handleChange}
                 className='col-span-3'
               />
             </div>
@@ -89,8 +65,6 @@ export function AddBedrooms() {
                 id='lowSeasonPrice'
                 name='lowSeasonPrice'
                 type='number'
-                value={formData.lowSeasonPrice}
-                onChange={handleChange}
                 className='col-span-3'
               />
             </div>
@@ -102,8 +76,6 @@ export function AddBedrooms() {
                 id='highSeasonPrice'
                 name='highSeasonPrice'
                 type='number'
-                value={formData.highSeasonPrice}
-                onChange={handleChange}
                 className='col-span-3'
               />
             </div>
@@ -114,8 +86,6 @@ export function AddBedrooms() {
               <Input
                 id='status'
                 name='status'
-                value={formData.status}
-                onChange={handleChange}
                 className='col-span-3'
               />
             </div>
@@ -127,8 +97,6 @@ export function AddBedrooms() {
                 id='numberBedroom'
                 name='numberBedroom'
                 type='number'
-                value={formData.numberBedroom}
-                onChange={handleChange}
                 className='col-span-3'
               />
             </div>
