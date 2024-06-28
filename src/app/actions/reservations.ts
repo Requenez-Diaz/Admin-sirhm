@@ -116,7 +116,6 @@ export const deleteBedrooms = async (id: Number) => {
       where: { id: Number(id) },
     });
     revalidatePath("/bedrooms");
-    redirect("/bedrooms");
   } catch (error) {
     return { message: "Error al eliminar la habitacion" };
   }
