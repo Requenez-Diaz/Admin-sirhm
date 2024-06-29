@@ -110,13 +110,20 @@ export const updateBedrooms = async (formData: FormData) => {
   redirect("/bedrooms");
 };
 
-export const deleteBedrooms = async (id: Number) => {
+export async function deleteBedrooms(formData: FormData) {
+  const bedroomsId = formData.get('bedroomsId')?.toString();
+  if (!bedroomsId) {
+    console.error('No se proporcionó bedroomsId');
+    return;
+  }
   try {
     await prisma.bedrooms.delete({
-      where: { id: Number(id) },
+      where: {
+        id: parseInt(bedroomsId)
+      },
     });
-    revalidatePath("/bedrooms");
+    // revalidatePath('/bedrooms');
   } catch (error) {
-    return { message: "Error al eliminar la habitacion" };
+    console.error('Error al eliminar la habitación: ', error);
   }
-};
+}
