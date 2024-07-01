@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from "@/lib/db";
+import { bedrooms } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -31,6 +32,7 @@ export const saveBedrooms = async (formData: FormData) => {
         }
       }
     });
+    revalidatePath('/bedrooms');
 
     console.log("Habitación guardada con éxito", newBedroom);
     return { message: "Success" };
@@ -50,65 +52,54 @@ export const getBedrooms = async () => {
   }
 };
 
-export const getBedroomsById = async (id: Number) => {
+export const getBedroomsById = async (id: number): Promise<bedrooms | null> => {
   try {
-    const bedrooms = await prisma.bedrooms.findUnique({
+    const bedroom = await prisma.bedrooms.findUnique({
       where: { id: Number(id) },
     });
-    return bedrooms;
+    return bedroom;
   } catch (error) {
-    throw new Error("Error al obtener la habitacion");
+    console.error("Error al obtener la habitación", error);
+    return null;
   }
 };
 
-export const updateBedrooms = async (formData: FormData) => {
-  const data = {
-    typeBedroom: formData.get("typeBedroom") as string,
-    description: formData.get("description") as string,
-    lowSeasonPrice: Number(formData.get("lowSeasonPrice")),
-    numberBedroom: Number(formData.get("numberBedroom")),
-    status: formData.get("status") as "0" | "1",
-  };
 
-  //   const validateFields = BedroomsSchema.safeParse(data);
 
-  //   if (!validateFields.success) {
-  //     console.log(
-  //       'Validation failed',
-  //       validateFields.error.flatten().fieldErrors
-  //     );
-  //     return {
-  //       Error: validateFields.error.flatten().fieldErrors
-  //     };
-  //   }
+export async function updateBedroom(formData: FormData) {
+  const bedroomsId = formData.get('bedroomsId')?.toString();
+  const typeBedroom = formData.get('typeBedroom')?.toString();
+  const description = formData.get('description')?.toString();
+  const lowSeasonPrice = formData.get('lowSeasonPrice')?.toString();
+  const highSeasonPrice = formData.get('highSeasonPrice')?.toString();
+  const status = formData.get('status')?.toString();
+  const numberBedroom = formData.get('numberBedroom')?.toString();
+
+  if (!bedroomsId) {
+    console.error('No se proporcionó bedroomsId');
+    return;
+  }
 
   try {
-    // console.log(
-    //   'Updating bedroom with id',
-    //   id,
-    //   'and data',
-    //   validateFields.data
-    // );
-    // await prisma.bedrooms.update({
-    //   data: {
-    //     typeBedroom: validateFields.data.typeBedroom,
-    //     description: validateFields.data.description,
-    //     lowSeasonPrice: validateFields.data.lowSeasonPrice,
-    //     numberBedroom: validateFields.data.numberBedroom,
-    //     status: validateFields.data.status === '1'
-    //   },
-    //   where: { id: Number(id) }
-    // });
-    // console.log('Update successful');
+    await prisma.bedrooms.update({
+      where: {
+        id: parseInt(bedroomsId)
+      },
+      data: {
+        typeBedroom,
+        description,
+        lowSeasonPrice: parseFloat(lowSeasonPrice || '0'),
+        highSeasonPrice: parseFloat(highSeasonPrice || '0'),
+        status: status === '1',
+        numberBedroom: parseInt(numberBedroom || '0')
+      }
+    });
+    revalidatePath('/bedrooms');
   } catch (error) {
-    return {
-      message: "Error al actualizar la habitacion",
-    };
+    console.error('Error al actualizar la habitación: ', error);
   }
+}
 
-  revalidatePath("/bedrooms");
-  redirect("/bedrooms");
-};
 
 export async function deleteBedrooms(formData: FormData) {
   const bedroomsId = formData.get('bedroomsId')?.toString();
@@ -122,7 +113,7 @@ export async function deleteBedrooms(formData: FormData) {
         id: parseInt(bedroomsId)
       },
     });
-    // revalidatePath('/bedrooms');
+    revalidatePath('/bedrooms');
   } catch (error) {
     console.error('Error al eliminar la habitación: ', error);
   }

@@ -12,10 +12,8 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { EditBedrooms } from "@/app/cards/edit-bedrooms";
-// import { saveBedrooms } from "@/app/actions/reservations";
 import { AddBedrooms } from "@/app/cards/add-bedrooms";
 import { DeleteBedrooms } from "@/app/cards/delete-beedrooms";
-
 
 async function TableBedrooms() {
     const bedrooms = await prisma.bedrooms.findMany();
@@ -23,7 +21,6 @@ async function TableBedrooms() {
     return (
         <div>
             <form 
-            // action={saveBedrooms}
             >
                 <Table>
                     <TableCaption>Listado de habitaciones</TableCaption>
@@ -55,7 +52,7 @@ async function TableBedrooms() {
                                 <TableCell>{bedroom.numberBedroom}</TableCell>
                                 <TableCell className='text-right flex items-center justify-center'>
                                     <div className='flex justify-between gap-3'>
-                                        <EditBedrooms />
+                                        <EditBedrooms  bedroomId={bedroom.id} />
                                         <DeleteBedrooms bedroomsId={bedroom.id} />
                                     </div>
                                 </TableCell>
