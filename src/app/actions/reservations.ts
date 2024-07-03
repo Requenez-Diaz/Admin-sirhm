@@ -3,7 +3,6 @@
 import prisma from "@/lib/db";
 import { bedrooms } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
 export const saveBedrooms = async (formData: FormData) => {
   const typeBedroom = formData.get("typeBedroom") as string;
@@ -15,6 +14,17 @@ export const saveBedrooms = async (formData: FormData) => {
   const active = formData.get("status") === "1";
 
   try {
+    const existingBedroom = await prisma.bedrooms.findFirst({
+      where: {
+        numberBedroom: numberBedroom,
+      },
+    });
+
+    if (existingBedroom) {
+      console.log(`El número de habitación ${numberBedroom} ya está registrado.`);
+      return { message: `El número de habitación ${numberBedroom} ya está registrado.` };
+    }
+
     const newBedroom = await prisma.bedrooms.create({
       data: {
         typeBedroom: typeBedroom ?? '',
@@ -63,7 +73,6 @@ export const getBedroomsById = async (id: number): Promise<bedrooms | null> => {
     return null;
   }
 };
-
 
 
 export async function updateBedroom(formData: FormData) {

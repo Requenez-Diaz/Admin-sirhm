@@ -17,13 +17,15 @@ import { DeleteBedrooms } from "@/app/cards/delete-beedrooms";
 
 async function TableBedrooms() {
     const bedrooms = await prisma.bedrooms.findMany();
+    const totalBedrooms = bedrooms.length;
 
     return (
         <div>
-            <form 
-            >
+            <form>
                 <Table>
-                    <TableCaption>Listado de habitaciones</TableCaption>
+                    <TableCaption className="text-lg font-semibold my-4">
+                    Total habitaciones: <span className="text-black">{totalBedrooms}</span>
+                    </TableCaption>
                     <TableHeader>
                         <TableRow>
                             <TableHead className='w-[100px]'>ID</TableHead>
@@ -52,7 +54,7 @@ async function TableBedrooms() {
                                 <TableCell>{bedroom.numberBedroom}</TableCell>
                                 <TableCell className='text-right flex items-center justify-center'>
                                     <div className='flex justify-between gap-3'>
-                                        <EditBedrooms  bedroomId={bedroom.id} />
+                                        <EditBedrooms bedroomId={bedroom.id} />
                                         <DeleteBedrooms bedroomsId={bedroom.id} />
                                     </div>
                                 </TableCell>

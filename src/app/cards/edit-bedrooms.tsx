@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import FormEditBedrooms from "./form-edit-bedrooms";
 import { getBedroomsById } from "../actions/reservations";
-import { bedrooms } from "@prisma/client";
+
 
 export async function EditBedrooms({ bedroomId }: { bedroomId: number }) {
   const bedroom = await getBedroomsById(bedroomId);
