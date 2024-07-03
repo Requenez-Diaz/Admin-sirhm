@@ -5,8 +5,11 @@ import { bedroomsTypes } from "@/bedroomstype/bedroomsType";
 import { bedrooms } from "@prisma/client";
 import { updateBedroom } from "../actions/reservations";
 import { useRouter } from "next/navigation";
+import { DialogClose } from "@/components/ui/dialog";
+import { useToast } from "@/components/ui/use-toast";
 
 export function FormEditBedrooms({ bedroom, }: { bedroom: bedrooms | null }) {
+    const { toast } = useToast();
     const router = useRouter();
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -96,22 +99,55 @@ export function FormEditBedrooms({ bedroom, }: { bedroom: bedrooms | null }) {
                     />
                 </div>
                 <div className='flex justify-end gap-4'>
-                    <Button variant='success'>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-undo-2 mr-2">
-                            <path d="M9 14 4 9l5-5" />
-                            <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11" />
-                        </svg>
-                        Cancelar
-                    </Button>
-                    <Button type='submit' variant='update'>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-save-all mr-2">
-                            <path d="M10 2v3a1 1 0 0 0 1 1h5" />
-                            <path d="M18 18v-6a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6" />
-                            <path d="M18 22H4a2 2 0 0 1-2-2V6" />
-                            <path d="M8 18a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9.172a2 2 0 0 1 1.414.586l2.828 2.828A2 2 0 0 1 22 6.828V16a2 2 0 0 1-2.01 2z" />
-                        </svg>
-                        Actualizar
-                    </Button>
+                    <DialogClose asChild>
+                        <Button type="button" variant="success">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="lucide lucide-undo-2 mr-2"
+                            >
+                                <path d="M9 14L4 9l5-5" />
+                                <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5 5.5 5.5 0 0 1-5.5 5.5H11" />
+                            </svg>
+                            Cancelar
+                        </Button>
+                    </DialogClose>
+                    <DialogClose asChild>
+                        <Button
+                            type='submit'
+                            variant='update'
+                            onClick={() => {
+                                toast({
+                                    title: "Habitación actualizada.",
+                                    description: "La habitación se actualizo correctamente.",
+                                });
+                            }}
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="lucide lucide-save-all mr-2">
+                                <path d="M10 2v3a1 1 0 0 0 1 1h5" />
+                                <path d="M18 18v-6a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6" />
+                                <path d="M18 22H4a2 2 0 0 1-2-2V6" />
+                                <path d="M8 18a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9.172a2 2 0 0 1 1.414.586l2.828 2.828A2 2 0 0 1 22 6.828V16a2 2 0 0 1-2.01 2z" />
+                            </svg>
+                            Actualizar
+                        </Button>
+                    </DialogClose>
                 </div>
             </div>
         </form>
