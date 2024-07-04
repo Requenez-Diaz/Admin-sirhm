@@ -122,6 +122,25 @@ export async function deleteBedrooms(formData: FormData) {
         id: parseInt(bedroomsId)
       },
     });
+
+    let bedrooms = await prisma.bedrooms.findMany({
+      orderBy: {
+        numberBedroom: 'asc',
+      },
+    });
+
+    for (let i = 0; i < bedrooms.length; i++) {
+      const currentNumber = i + 1;
+      await prisma.bedrooms.update({
+        where: {
+          id: bedrooms[i].id,
+        },
+        data: {
+          numberBedroom: currentNumber,
+        },
+      });
+    }
+
     revalidatePath('/bedrooms');
   } catch (error) {
     console.error('Error al eliminar la habitación: ', error);
