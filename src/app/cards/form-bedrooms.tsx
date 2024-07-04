@@ -14,7 +14,19 @@ export function FormBedrooms() {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        await saveBedrooms(new FormData(event.currentTarget));
+        const response = await saveBedrooms(new FormData(event.currentTarget));
+
+        if (response.success) {
+            toast({
+                title: "Habitación registrada.",
+                description: "La habitación se registró correctamente.",
+            });
+        } else {
+            toast({
+                title: "Habitación no registrada.",
+                description: "La habitación ya existe.",
+            });
+        }
 
         if (formRef.current) {
             formRef.current.reset();
@@ -125,12 +137,6 @@ export function FormBedrooms() {
                     <Button
                         type='submit'
                         variant='update'
-                        onClick={() => {
-                            toast({
-                                title: "Habitación registrada.",
-                                description: "La habitación se registro correctamente.",
-                            });
-                        }}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-save-all mr-2">
                             <path d="M10 2v3a1 1 0 0 0 1 1h5" />
