@@ -81,11 +81,13 @@ export function FormBedrooms() {
                     <label htmlFor='status' className='text-right'>
                         Estado
                     </label>
-                    <input
-                        id='status'
-                        name='status'
+                    <select id="status"
+                        name="status"
                         className='col-span-3 border border-gray-300 rounded px-2 py-1'
-                    />
+                    >
+                        <option value="0">Inactivo</option>
+                        <option value="1">Activo</option>
+                    </select>
                 </div>
                 <div className='grid grid-cols-4 items-center gap-4'>
                     <label htmlFor='numberBedroom' className='text-right'>

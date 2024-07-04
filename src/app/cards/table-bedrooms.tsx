@@ -14,17 +14,33 @@ import {
 import { EditBedrooms } from "@/app/cards/edit-bedrooms";
 import { AddBedrooms } from "@/app/cards/add-bedrooms";
 import { DeleteBedrooms } from "@/app/cards/delete-beedrooms";
+import { Badge, BadgeProps } from "@/components/ui/badge";
+
 
 async function TableBedrooms() {
-    const bedrooms = await prisma.bedrooms.findMany();
+    const bedrooms = await prisma.bedrooms.findMany({
+        orderBy: {
+            numberBedroom: 'asc',
+        },
+    });
     const totalBedrooms = bedrooms.length;
+
+    const statusVariants: Record<string, BadgeProps['variant']> = {
+        "true": "success",
+        "false": "destructive",
+    };
+
+    const statusLabels: Record<string, string> = {
+        "true": "Activo",
+        "false": "Inactivo",
+    };
 
     return (
         <div>
             <form>
                 <Table>
                     <TableCaption className="text-lg font-semibold my-4">
-                    Total habitaciones: <span className="text-black">{totalBedrooms}</span>
+                        Total habitaciones: <span className="text-black">{totalBedrooms}</span>
                     </TableCaption>
                     <TableHeader>
                         <TableRow>
@@ -50,7 +66,11 @@ async function TableBedrooms() {
                                 <TableCell>{bedroom.description}</TableCell>
                                 <TableCell>{bedroom.lowSeasonPrice}</TableCell>
                                 <TableCell>{bedroom.highSeasonPrice}</TableCell>
-                                <TableCell>{bedroom.status}</TableCell>
+                                <TableCell>
+                                    <Badge variant={statusVariants[bedroom.status.toString()]}>
+                                        {statusLabels[bedroom.status.toString()]}
+                                    </Badge>
+                                </TableCell>
                                 <TableCell>{bedroom.numberBedroom}</TableCell>
                                 <TableCell className='text-right flex items-center justify-center'>
                                     <div className='flex justify-between gap-3'>
