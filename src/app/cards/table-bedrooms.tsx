@@ -36,23 +36,23 @@ async function TableBedrooms() {
     };
 
     return (
-        <div>
+        <div className='overflow-x-auto'>
             <form>
-                <Table>
+                <Table className='min-w-full'>
                     <TableCaption className="text-lg font-semibold my-4">
                         Total habitaciones: <span className="text-black">{totalBedrooms}</span>
                     </TableCaption>
                     <TableHeader>
                         <TableRow>
-                            <TableHead className='w-[100px]'>ID</TableHead>
-                            <TableHead className='w-[100px]'>Habitaciones </TableHead>
+                            <TableHead className='w-[50px]'>ID</TableHead>
+                            <TableHead className='w-[100px]'>Tipo </TableHead>
                             <TableHead className='w-[100px]'>Descripcion </TableHead>
-                            <TableHead className='w-[100px]'>Temporada baja</TableHead>
-                            <TableHead className='w-[100px]'>Temporada alta</TableHead>
+                            <TableHead className='w-[100px]'>Temp. baja</TableHead>
+                            <TableHead className='w-[100px]'>Temp. alta</TableHead>
                             <TableHead className='w-[100px]'>Estado</TableHead>
-                            <TableHead className='w-[100px]'>Numero de habitacion</TableHead>
+                            <TableHead className='w-[50px]'>N°</TableHead>
                             <TableHead className='w-[100px]'>Acciones
-                                <AddBedrooms />
+                            <AddBedrooms />
                             </TableHead>
                         </TableRow>
                     </TableHeader>
@@ -72,7 +72,7 @@ async function TableBedrooms() {
                                     </Badge>
                                 </TableCell>
                                 <TableCell>{bedroom.numberBedroom}</TableCell>
-                                <TableCell className='text-right flex items-center justify-center'>
+                                <TableCell className='text-right flex items-center'>
                                     <div className='flex justify-between gap-3'>
                                         <EditBedrooms bedroomId={bedroom.id} />
                                         <DeleteBedrooms bedroomsId={bedroom.id} />

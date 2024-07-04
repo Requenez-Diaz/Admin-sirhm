@@ -15,7 +15,7 @@ export function AddBedrooms() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant='ghost'>Agregar</Button>
+        <Button variant='success'>Agregar</Button>
       </DialogTrigger>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>

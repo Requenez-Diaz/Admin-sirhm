@@ -22,7 +22,7 @@ export const saveBedrooms = async (formData: FormData) => {
 
     if (existingBedroom) {
       console.log(`El número de habitación ${numberBedroom} ya está registrado.`);
-      return { message: `El número de habitación ${numberBedroom} ya está registrado.` };
+      return { success: false, message: `El número de habitación ${numberBedroom} ya está registrado.` };
     }
 
     const newBedroom = await prisma.bedrooms.create({
@@ -45,10 +45,10 @@ export const saveBedrooms = async (formData: FormData) => {
     revalidatePath('/bedrooms');
 
     console.log("Habitación guardada con éxito", newBedroom);
-    return { message: "Success" };
+    return { success: true, message: "La habitación se registró correctamente." };
   } catch (error) {
     console.error("Error al guardar la habitación", error);
-    return { message: "Error al guardar la habitación" };
+    return { success: false, message: "Error al guardar la habitación" };
   }
 };
 
