@@ -6,45 +6,16 @@ import {
   TableBody,
   TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Delete } from "lucide-react";
+import getUsers from "@/app/actions/users/get-users";
 import React from "react";
 
-export default function Page() {
-  const users = [
-    {
-      id: 1,
-      username: "admin",
-      email: "admin@gmail.com",
-      role: "Admin",
-      status: "Active",
-    },
-    {
-      id: 2,
-      username: "user",
-      email: "admin@gmail.com",
-      role: "User",
-      status: "Active",
-    },
-    {
-      id: 3,
-      username: "guest",
-      email: "admin@gmail.com",
-      role: "Guest",
-      status: "Active",
-    },
-    {
-      id: 4,
-      username: "disabled",
-      email: "admin@gmail.com",
-      role: "User",
-      status: "Disabled",
-    },
-  ];
+export default async function Page() {
+  const users = await getUsers();
+
   return (
     <div>
       <Table>
@@ -63,21 +34,20 @@ export default function Page() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users.map((bedroom) => (
-            <TableRow key={bedroom.id}>
-              <TableCell className='font-medium'>{bedroom.id}</TableCell>
-              <TableCell>{bedroom.username}</TableCell>
-              <TableCell>{bedroom.email}</TableCell>
-              <TableCell>{bedroom.status}</TableCell>
-              <TableCell className='text-right'>{bedroom.role}</TableCell>
-              <TableCell className='text-right flex items-center justify-center'>
-                <div className='flex justify-between gap-3 '>
+          {users &&
+            users.map((user, index) => (
+              <TableRow key={index}>
+                <TableCell>{user.id}</TableCell>
+                <TableCell>{user.username}</TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>{user.password}</TableCell>
+                <TableCell>{user.role}</TableCell>
+                <TableCell>
                   <EditUsers />
                   <DeleteUsers />
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
+                </TableCell>
+              </TableRow>
+            ))}
         </TableBody>
       </Table>
     </div>

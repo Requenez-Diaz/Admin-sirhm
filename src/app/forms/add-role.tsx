@@ -1,35 +1,39 @@
 "use client";
 
-import { bedroomsTypes } from "@/bedroomstype/bedroomsType";
-import { saveBedrooms } from "../actions/reservations";
 import { DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import saveRole from "@/app/actions/role/saveRole";
+import { RoleTypes } from "@/bedroomstype/roleTypes";
 
-export function FormBedrooms() {
+export function FormRole() {
   const { toast } = useToast();
-
+  const [loading, setLoading] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const response = await saveBedrooms(new FormData(event.currentTarget));
+    setLoading(true);
 
-    if (response.success) {
+    try {
+      const formData = new FormData(event.currentTarget);
+      const response = await saveRole(formData);
       toast({
-        title: "Habitación registrada.",
-        description: "La habitación se registró correctamente.",
+        title: "Éxito",
+        description: "El rol se ha guardado correctamente.",
       });
-    } else {
+      formRef.current?.reset();
+      return response;
+    } catch (error) {
+      console.error("Error al guardar el rol:", error);
       toast({
-        title: "Habitación no registrada.",
-        description: "La habitación ya existe.",
+        title: "Error",
+        description:
+          "Ocurrió un error al guardar el rol. Por favor, inténtalo de nuevo.",
       });
-    }
-
-    if (formRef.current) {
-      formRef.current.reset();
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -37,57 +41,23 @@ export function FormBedrooms() {
     <form ref={formRef} onSubmit={handleSubmit}>
       <div className='grid gap-4 py-4'>
         <div className='grid grid-cols-4 items-center gap-4'>
-          <label htmlFor='typeBedroom' className='text-right'></label>
+          <label htmlFor='name' className='text-right'>
+            Rol
+          </label>
           <select
-            id='typeBedroom'
-            name='typeBedroom'
+            id='name'
+            name='name'
             className='col-span-3 border border-gray-300 rounded px-2 py-1'
           >
-            {bedroomsTypes.map((type, index) => (
+            {RoleTypes.map((type, index) => (
               <option key={index} value={type}>
                 {type}
               </option>
             ))}
           </select>
         </div>
-        <div className='grid grid-cols-4 items-center gap-4'>
-          <label htmlFor='description' className='text-right'>
-            Descripción
-          </label>
-          <input
-            type='text'
-            id='description'
-            name='description'
-            className='col-span-3 border border-gray-300 rounded px-2 py-1'
-            required
-          />
-        </div>
 
-        <div className='grid grid-cols-4 items-center gap-4'>
-          <label htmlFor='lowSeasonPrice' className='text-right'>
-            Temporada baja
-          </label>
-          <input
-            id='lowSeasonPrice'
-            name='lowSeasonPrice'
-            type='number'
-            className='col-span-3 border border-gray-300 rounded px-2 py-1'
-            required
-          />
-        </div>
-        <div className='grid grid-cols-4 items-center gap-4'>
-          <label htmlFor='highSeasonPrice' className='text-right'>
-            Temporada alta
-          </label>
-          <input
-            id='highSeasonPrice'
-            name='highSeasonPrice'
-            type='number'
-            className='col-span-3 border border-gray-300 rounded px-2 py-1'
-            required
-          />
-        </div>
-        <div className='grid grid-cols-4 items-center gap-4'>
+        {/* <div className='grid grid-cols-4 items-center gap-4'>
           <label htmlFor='status' className='text-right'>
             Estado
           </label>
@@ -99,22 +69,11 @@ export function FormBedrooms() {
             <option value='0'>Inactivo</option>
             <option value='1'>Activo</option>
           </select>
-        </div>
-        <div className='grid grid-cols-4 items-center gap-4'>
-          <label htmlFor='numberBedroom' className='text-right'>
-            Número de habitación
-          </label>
-          <input
-            id='numberBedroom'
-            name='numberBedroom'
-            type='number'
-            className='col-span-3 border border-gray-300 rounded px-2 py-1'
-            required
-          />
-        </div>
+        </div> */}
+
         <div className='flex justify-end gap-4'>
           <DialogClose asChild>
-            <Button type='button' variant='success'>
+            <Button type='button' variant='success' disabled={loading}>
               <svg
                 xmlns='http://www.w3.org/2000/svg'
                 width='24'
@@ -133,7 +92,7 @@ export function FormBedrooms() {
               Cancelar
             </Button>
           </DialogClose>
-          <Button type='submit' variant='update'>
+          <Button type='submit' variant='update' disabled={loading}>
             <svg
               xmlns='http://www.w3.org/2000/svg'
               width='24'
@@ -159,4 +118,4 @@ export function FormBedrooms() {
   );
 }
 
-export default FormBedrooms;
+export default FormRole;

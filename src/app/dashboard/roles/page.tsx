@@ -1,10 +1,10 @@
+import { AddRoles } from "@/app/cards/roleCards/add-role";
 import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
   TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -55,9 +55,7 @@ export default function Page() {
             <TableHead className='text-right'>Role</TableHead>
             <TableHead className='text-right items-center'>
               Acciones
-              <Button variant={"ghost"} className='mr-4'>
-                Agregar habitación
-              </Button>
+              <AddRoles />
             </TableHead>
           </TableRow>
         </TableHeader>
