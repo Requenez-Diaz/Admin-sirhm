@@ -1,3 +1,4 @@
+import findManyUsers from "@/app/actions/users/get-users";
 import { DeleteUsers } from "@/app/cards/delete-users";
 import { EditUsers } from "@/app/cards/edit-user";
 import { Button } from "@/components/ui/button";
@@ -10,16 +11,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import getUsers from "@/app/actions/users/get-users";
 import React from "react";
 
 export default async function Page() {
-  const users = await getUsers();
+  const users = await findManyUsers();
 
+  const totalUsers = users.length;
   return (
     <div>
       <Table>
-        <TableCaption>Listado de usuarios</TableCaption>
+        <TableCaption>Listado de usuarios: {totalUsers}</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead className='w-[100px]'>ID </TableHead>
@@ -41,7 +42,7 @@ export default async function Page() {
                 <TableCell>{user.username}</TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{user.password}</TableCell>
-                <TableCell>{user.role}</TableCell>
+
                 <TableCell>
                   <EditUsers />
                   <DeleteUsers />
