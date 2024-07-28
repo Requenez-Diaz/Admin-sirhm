@@ -7,6 +7,7 @@ import { useToast } from "@/components/ui/use-toast";
 import saveRole from "@/app/actions/role/saveRole";
 import { RoleTypes } from "@/bedroomstype/roleTypes";
 
+
 export function FormRole() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -18,6 +19,7 @@ export function FormRole() {
 
     try {
       const formData = new FormData(event.currentTarget);
+      console.log("Form data:", formData);
       const response = await saveRole(formData);
       toast({
         title: "Éxito",
@@ -41,12 +43,12 @@ export function FormRole() {
     <form ref={formRef} onSubmit={handleSubmit}>
       <div className='grid gap-4 py-4'>
         <div className='grid grid-cols-4 items-center gap-4'>
-          <label htmlFor='name' className='text-right'>
+          <label htmlFor='roleName' className='text-right'>
             Rol
           </label>
           <select
-            id='name'
-            name='name'
+            id='roleName'
+            name='roleName'
             className='col-span-3 border border-gray-300 rounded px-2 py-1'
           >
             {RoleTypes.map((type, index) => (
@@ -59,17 +61,29 @@ export function FormRole() {
 
         {/* <div className='grid grid-cols-4 items-center gap-4'>
           <label htmlFor='status' className='text-right'>
-            Estado
+            Nombre del rol
           </label>
           <select
-            id='status'
-            name='status'
+            id='roleName'
+            name='roleName'
             className='col-span-3 border border-gray-300 rounded px-2 py-1'
           >
             <option value='0'>Inactivo</option>
-            <option value='1'>Activo</option>
+            <option value='1'>Trabajador</option>
+            <option value='2'>Invitado</option>
           </select>
         </div> */}
+
+        <div className='grid grid-cols-4 items-center gap-4'>
+          <label htmlFor='descript' className='text-right'>
+            Descripción
+          </label>
+          <textarea
+            id='descript'
+            name='descript'
+            className='col-span-3 border border-gray-300 rounded px-2 py-1'
+          />
+        </div>
 
         <div className='flex justify-end gap-4'>
           <DialogClose asChild>

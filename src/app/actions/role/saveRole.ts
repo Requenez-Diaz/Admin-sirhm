@@ -5,6 +5,7 @@ import prisma from "@/lib/db";
 export default async function saveRole(formData: FormData) {
   try {
     const rawFormRole = Object.fromEntries(formData);
+
     console.log("Raw form role:", rawFormRole);
 
     if (!prisma || !prisma.role) {
@@ -13,7 +14,8 @@ export default async function saveRole(formData: FormData) {
 
     const role = await prisma.role.create({
       data: {
-        name: rawFormRole.name as string,
+        roleName: String(rawFormRole.roleName),
+        descript: String(rawFormRole.descript),
       },
     });
 
