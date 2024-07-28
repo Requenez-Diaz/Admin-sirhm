@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from "@/lib/db";
+import { revalidatePath } from "next/cache";
 
 export default async function saveRole(formData: FormData) {
   try {
@@ -20,7 +21,7 @@ export default async function saveRole(formData: FormData) {
     });
 
     console.log("Role saved:", role);
-
+    revalidatePath("/roles");
     return role;
   } catch (error) {
     console.error("Error saving role:", error);

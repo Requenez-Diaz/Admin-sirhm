@@ -7,7 +7,6 @@ import { useToast } from "@/components/ui/use-toast";
 import saveRole from "@/app/actions/role/saveRole";
 import { RoleTypes } from "@/bedroomstype/roleTypes";
 
-
 export function FormRole() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -34,8 +33,10 @@ export function FormRole() {
         description:
           "Ocurrió un error al guardar el rol. Por favor, inténtalo de nuevo.",
       });
-    } finally {
-      setLoading(false);
+    }
+
+    if (formRef.current) {
+      formRef.current.reset();
     }
   };
 
