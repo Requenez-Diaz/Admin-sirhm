@@ -1,5 +1,6 @@
 "use client";
 
+import { saveUsers } from "@/app/actions/users/save-users";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -13,8 +14,11 @@ import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
+import { signIn } from "next-auth/react";
 
 const FormSchema = z
   .object({
@@ -37,6 +41,8 @@ const FormSchema = z
   });
 
 const RegisterPage = () => {
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -47,10 +53,53 @@ const RegisterPage = () => {
     },
   });
 
+  const onSubmit = async (formData: z.infer<typeof FormSchema>) => {
+    console.log("formData", formData);
+    try {
+      const formDataObj = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        formDataObj.append(key, value);
+      });
+      const user = await saveUsers(formDataObj);
+      if (user) {
+        toast.success("Usuario registrado correctamente");
+
+        // Autenticar al usuario
+        const result = await signIn("credentials", {
+          email: formData.email,
+          password: formData.password,
+          redirect: false,
+        });
+
+        if (result?.ok) {
+          toast.success("Inicio de sesión exitoso");
+          router.push("/dashboard/home");
+        } else {
+          toast.error("No se pudo iniciar sesión");
+        }
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+        form.setError("root", {
+          message: "Por favor, completa el formulario correctamente",
+        });
+        form.setError("email", {
+          type: "manual",
+          message: error.message,
+        });
+      } else {
+        toast.error("Error al registrar el usuario");
+      }
+    }
+  };
   return (
     <div className='flex justify-center items-center h-screen'>
       <Form {...form}>
-        <form className=' w-full p-4 border border-gray-300 rounded-md'>
+        <form
+          action={saveUsers}
+          className='max-w-md w-full p-4 border border-gray-300 rounded-md'
+        >
           <div className='flex items-center justify-center content-center top-2 '>
             <Image src={"/next.svg"} height={120} width={120} alt='image' />
           </div>
@@ -217,7 +266,12 @@ const RegisterPage = () => {
           />
 
           <div className='mb-5 mt-4'>
-            <Button type='submit' className='w-full ' variant={"ghost"}>
+            <Button
+              type='submit'
+              className='w-full '
+              variant={"success"}
+              onClick={form.handleSubmit(onSubmit)}
+            >
               Registrarse
             </Button>
           </div>
@@ -268,7 +322,7 @@ const RegisterPage = () => {
           <div className='mt-6 text-center'>
             <p>
               Si tienes una cuenta?{" "}
-              <Link href='/sign-in' className='text-blue-400'>
+              <Link href='/auth/sign-in' className='text-blue-400'>
                 Inicia sesión
               </Link>
             </p>
