@@ -7,9 +7,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import FormBedrooms from "./form-bedrooms";
+import FormrRole from "@/app/forms/add-role";
 
-export function AddBedrooms() {
+export function AddRoles() {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -22,7 +22,7 @@ export function AddBedrooms() {
             ¿Está seguro de que desea agregar esta habitación?
           </DialogDescription>
         </DialogHeader>
-        <FormBedrooms />
+        <FormrRole />
       </DialogContent>
     </Dialog>
   );

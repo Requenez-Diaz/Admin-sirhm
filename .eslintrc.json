@@ -22,6 +22,10 @@
     "react",
     "prettier"
   ],
+  "ignorePatterns": [
+    "prisma/**/*.sql",
+    "prisma/**/*.prisma"
+  ],
   "rules": {
     "dot-notation": "error",
     "no-else-return": "error",
