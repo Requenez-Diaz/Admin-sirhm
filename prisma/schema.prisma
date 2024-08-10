@@ -8,29 +8,23 @@ datasource db {
 }
 
 model User {
-  id        Int        @id @default(autoincrement())
-  email     String     @unique
-  username  String     @unique
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  username  String   @unique
   password  String
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  roleId    Int
-  Bookings  Bookings[] @relation("BookingsToUser")
-}
-
-model Role {
-  id       Int    @id @default(autoincrement())
-  roleName String
-  descript String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  role      String
 }
 
 model Bookings {
   id               Int                @id @default(autoincrement())
   status           BookingsStatus
   created_at       DateTime           @default(now())
+  clientId         Int
+  Client           Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
   bookingsDetails  BookingsDetails[]
   bookingsServices bookingsServices[]
-  User             User[]             @relation("BookingsToUser")
 }
 
 model testimonials {
@@ -70,7 +64,7 @@ model Seasons {
   nameSeason String
   dateStart  DateTime
   dateEnd    DateTime
-  Bedrooms   Bedrooms[]
+  bedrooms   bedrooms[]
 }
 
 model bookingsServices {
@@ -96,7 +90,7 @@ model BookingsDetails {
   bookingsId   Int
   bedroomsId   Int
   promotionsId Int
-  bedrooms     Bedrooms   @relation(fields: [bedroomsId], references: [id])
+  bedrooms     bedrooms   @relation(fields: [bedroomsId], references: [id])
   Bookings     Bookings   @relation(fields: [bookingsId], references: [id])
   promotions   promotions @relation(fields: [promotionsId], references: [id])
 }
@@ -105,6 +99,7 @@ model Invoce {
   id            Int             @id @default(autoincrement())
   clientId      Int
   date          DateTime
+  Client        Client          @relation(fields: [clientId], references: [id])
   invoceDetails invoceDetails[]
 }
 
@@ -117,7 +112,17 @@ model invoceDetails {
   invoce   Invoce @relation(fields: [invoceId], references: [id])
 }
 
-model Bedrooms {
+model Client {
+  id       Int        @id @default(autoincrement())
+  name     String
+  lastname String
+  email    String
+  phone    Int
+  Bookings Bookings[]
+  Invoce   Invoce[]
+}
+
+model bedrooms {
   id              Int               @id @default(autoincrement())
   typeBedroom     String
   description     String
@@ -126,28 +131,31 @@ model Bedrooms {
   status          Boolean
   numberBedroom   Int
   seasonsId       Int
-  Seasons         Seasons           @relation(fields: [seasonsId], references: [id], onDelete: Cascade)
   bookingsDetails BookingsDetails[]
+  Seasons         Seasons           @relation(fields: [seasonsId], references: [id], onDelete: Cascade)
 }
 
-model Comments {
+model client {
+  id       Int    @id @default(autoincrement())
+  name     String
+  lastname String
+  email    String
+  phone    Int
+}
+
+model comments {
   id         Int    @id @default(autoincrement())
   comment    String
   boookingId Int
   comments   String
 }
 
-model Events {
+model events {
   id         Int      @id @default(autoincrement())
   nameEvents String
   date       DateTime
   hours      DateTime
   location   String
-}
-
-model UsersRole {
-  Id_user Int @unique
-  Id_role Int
 }
 
 enum BookingsStatus {

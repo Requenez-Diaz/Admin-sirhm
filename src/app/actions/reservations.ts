@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/db";
-import { bedrooms } from ".prisma/client";
+import { bedrooms } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
 export const saveBedrooms = async (formData: FormData) => {
@@ -38,7 +38,7 @@ export const saveBedrooms = async (formData: FormData) => {
         highSeasonPrice: highSeasonPrice,
         numberBedroom: numberBedroom,
         status: active,
-        seasons: {
+        Seasons: {
           create: {
             nameSeason: seasons ?? "",
             dateStart: new Date(),

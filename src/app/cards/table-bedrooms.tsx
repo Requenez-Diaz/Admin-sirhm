@@ -35,6 +35,9 @@ async function TableBedrooms() {
 
   return (
     <div className='overflow-x-auto'>
+      <div className='flex justify-start mb-4'>
+        <AddBedrooms />
+      </div>
       <form>
         <Table className='min-w-full'>
           <TableCaption className='text-lg font-semibold my-4'>
@@ -50,10 +53,7 @@ async function TableBedrooms() {
               <TableHead className='w-[100px]'>Temp. alta</TableHead>
               <TableHead className='w-[100px]'>Estado</TableHead>
               <TableHead className='w-[50px]'>N°</TableHead>
-              <TableHead className='w-[100px]'>
-                Acciones
-                <AddBedrooms />
-              </TableHead>
+              <TableHead className='w-[100px]'>Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
