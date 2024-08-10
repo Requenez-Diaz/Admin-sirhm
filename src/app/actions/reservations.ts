@@ -38,7 +38,7 @@ export const saveBedrooms = async (formData: FormData) => {
         highSeasonPrice: highSeasonPrice,
         numberBedroom: numberBedroom,
         status: active,
-        seasons: {
+        Seasons: {
           create: {
             nameSeason: seasons ?? "",
             dateStart: new Date(),
