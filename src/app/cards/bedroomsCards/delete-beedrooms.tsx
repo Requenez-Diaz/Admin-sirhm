@@ -1,6 +1,6 @@
 'use client';
 
-import { deleteBedrooms } from "../actions/reservations";
+import { deleteBedrooms } from "@/app/actions/bedrooms/deleteBedrooms";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

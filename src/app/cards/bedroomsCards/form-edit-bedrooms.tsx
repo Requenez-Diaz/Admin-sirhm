@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { bedroomsTypes } from "@/bedroomstype/bedroomsType";
 import { bedrooms } from "@prisma/client";
-import { updateBedroom } from "../actions/reservations";
+import { updateBedroom } from "@/app/actions/bedrooms/updateBedrooms";
 import { useRouter } from "next/navigation";
 import { DialogClose } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";

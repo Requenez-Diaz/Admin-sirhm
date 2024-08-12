@@ -7,8 +7,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { getBedroomsById } from "@/app/actions/bedrooms/getBedroomsById";
 import FormEditBedrooms from "./form-edit-bedrooms";
-import { getBedroomsById } from "../actions/reservations";
 
 
 export async function EditBedrooms({ bedroomId }: { bedroomId: number }) {

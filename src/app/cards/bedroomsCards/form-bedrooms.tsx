@@ -1,7 +1,7 @@
 "use client";
 
 import { bedroomsTypes } from "@/bedroomstype/bedroomsType";
-import { saveBedrooms } from "../actions/reservations";
+import { saveBedrooms } from "@/app/actions/bedrooms/saveBedrooms";
 import { DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
