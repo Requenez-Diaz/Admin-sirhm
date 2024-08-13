@@ -1,16 +1,13 @@
 "use server";
 
 import prisma from "@/lib/db";
-import { bedrooms } from "@prisma/client";
 
-export const getBedroomsById = async (id: number): Promise<bedrooms | null> => {
+export const getBedrooms = async () => {
     try {
-        const bedroom = await prisma.bedrooms.findUnique({
-            where: { id: Number(id) },
-        });
-        return bedroom;
+      const bedrooms = await prisma.bedrooms.findMany();
+      return bedrooms;
     } catch (error) {
-        console.error("Error al obtener la habitación", error);
-        return null;
+      console.error("Error al obtener las habitaciones", error);
+      return [];
     }
-};
+  };
