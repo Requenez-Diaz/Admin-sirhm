@@ -4,13 +4,10 @@ import { bedroomsTypes } from "@/bedroomstype/bedroomsType";
 import { saveBedrooms } from "../actions/reservations";
 import { DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
 
 export function FormBedrooms() {
   const { toast } = useToast();
-
-  const formRef = useRef<HTMLFormElement>(null);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -27,14 +24,10 @@ export function FormBedrooms() {
         description: "La habitación ya existe.",
       });
     }
-
-    if (formRef.current) {
-      formRef.current.reset();
-    }
   };
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit}>
       <div className='grid gap-4 py-4'>
         <div className='grid grid-cols-4 items-center gap-4'>
           <label htmlFor='typeBedroom' className='text-right'></label>
@@ -133,26 +126,28 @@ export function FormBedrooms() {
               Cancelar
             </Button>
           </DialogClose>
-          <Button type='submit' variant='update'>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              width='24'
-              height='24'
-              viewBox='0 0 24 24'
-              fill='none'
-              stroke='currentColor'
-              strokeWidth='2'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              className='lucide lucide-save-all mr-2'
-            >
-              <path d='M10 2v3a1 1 0 0 0 1 1h5' />
-              <path d='M18 18v-6a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6' />
-              <path d='M18 22H4a2 2 0 0 1-2-2V6' />
-              <path d='M8 18a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9.172a2 2 0 0 1 1.414.586l2.828 2.828A2 2 0 0 1 22 6.828V16a2 2 0 0 1-2.01 2z' />
-            </svg>
-            Registrar
-          </Button>
+          <DialogClose asChild>
+            <Button type='submit' variant='update'>
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                width='24'
+                height='24'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                strokeWidth='2'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                className='lucide lucide-save-all mr-2'
+              >
+                <path d='M10 2v3a1 1 0 0 0 1 1h5' />
+                <path d='M18 18v-6a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6' />
+                <path d='M18 22H4a2 2 0 0 1-2-2V6' />
+                <path d='M8 18a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9.172a2 2 0 0 1 1.414.586l2.828 2.828A2 2 0 0 1 22 6.828V16a2 2 0 0 1-2.01 2z' />
+              </svg>
+              Registrar
+            </Button>
+          </DialogClose>
         </div>
       </div>
     </form>
