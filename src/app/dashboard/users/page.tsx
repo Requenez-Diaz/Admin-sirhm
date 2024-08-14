@@ -1,7 +1,6 @@
 import findManyUsers from "@/app/actions/users/get-users";
-import { DeleteUsers } from "@/app/cards/delete-users";
-import { EditUsers } from "@/app/cards/edit-user";
-import { Button } from "@/components/ui/button";
+import { DeleteUsers } from "@/app/cards/usersCards/delete-users";
+import { EditUsers } from "@/app/cards/usersCards/edit_users";
 import {
   Table,
   TableBody,
@@ -26,12 +25,9 @@ export default async function Page() {
             <TableHead className='w-[100px]'>ID </TableHead>
             <TableHead>Usuarios</TableHead>
             <TableHead>Email</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className='text-right'>Role</TableHead>
-            <TableHead className=' text-right items-center '>
-              Acciones
-              <Button variant={"ghost"}>Agregar usuario</Button>
-            </TableHead>
+            <TableHead>Contraseña</TableHead>
+            <TableHead>Role</TableHead>
+            <TableHead>Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -42,10 +38,13 @@ export default async function Page() {
                 <TableCell>{user.username}</TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{user.password}</TableCell>
+                <TableCell>{user.roleId}</TableCell>
 
                 <TableCell>
-                  <EditUsers />
-                  <DeleteUsers />
+                  <div className='flex flex-row items-center'>
+                    <EditUsers userId={user.id} />
+                    <DeleteUsers userId={user.id} />
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

@@ -2,8 +2,9 @@
 
 import prisma from "@/lib/db";
 
-
-export default async function (roleId: number): Promise<typeof role | null> {
+export default async function updateRoleById(
+  roleId: number
+): Promise<typeof role | null> {
   const role = await prisma.role.findUnique({
     where: {
       id: roleId,
