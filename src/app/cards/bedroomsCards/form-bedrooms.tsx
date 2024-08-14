@@ -1,11 +1,11 @@
 "use client";
 
 import { bedroomsTypes } from "@/bedroomstype/bedroomsType";
-import { saveBedrooms } from "@/app/actions/bedrooms/saveBedrooms";
+import { saveBedrooms } from "@/app/actions/bedrooms";
 import { DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { SaveAll, Undo2 } from "lucide-react";
+import Icon from "@/components/ui/icons/icons";
 
 export function FormBedrooms() {
   const { toast } = useToast();
@@ -109,13 +109,13 @@ export function FormBedrooms() {
         <div className='flex justify-end gap-4'>
           <DialogClose asChild>
             <Button type='button' variant='success'>
-              <Undo2 className="mr-2" />
+              <Icon action='undo' className="mr-2" />
               Cancelar
             </Button>
           </DialogClose>
           <DialogClose asChild>
             <Button type='submit' variant='update'>
-              <SaveAll className="mr-2" />
+              <Icon action='save' className="mr-2" />
               Registrar
             </Button>
           </DialogClose>

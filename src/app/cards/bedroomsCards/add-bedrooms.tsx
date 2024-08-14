@@ -8,14 +8,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import FormBedrooms from "./form-bedrooms";
-import { Plus } from "lucide-react";
+import Icon from "@/components/ui/icons/icons";
 
 export function AddBedrooms() {
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant='success'>
-          <Plus className="mr-2" />
+          <Icon action='plus' className="mr-2" />
           Agregar
         </Button>
       </DialogTrigger>

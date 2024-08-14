@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -7,10 +6,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { getBedroomsById } from "@/app/actions/bedrooms/getBedroomsById";
+import { Button } from "@/components/ui/button";
+import { getBedroomsById } from "@/app/actions/bedrooms";
 import FormEditBedrooms from "./form-edit-bedrooms";
-import { Pencil } from "lucide-react";
-
+import Icon from "@/components/ui/icons/icons";
 
 export async function EditBedrooms({ bedroomId }: { bedroomId: number }) {
   const bedroom = await getBedroomsById(bedroomId);
@@ -23,7 +22,7 @@ export async function EditBedrooms({ bedroomId }: { bedroomId: number }) {
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="update">
-          <Pencil size={24} />
+          <Icon action='edit' />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
@@ -33,7 +32,7 @@ export async function EditBedrooms({ bedroomId }: { bedroomId: number }) {
             Esta seguro de actualizar la información del usuario?
           </DialogDescription>
         </DialogHeader>
-        <FormEditBedrooms bedroom={bedroom}/>
+        <FormEditBedrooms bedroom={bedroom} />
       </DialogContent>
     </Dialog>
   );

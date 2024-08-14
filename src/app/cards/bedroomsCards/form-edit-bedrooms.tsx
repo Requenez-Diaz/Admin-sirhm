@@ -3,11 +3,11 @@
 import { Button } from "@/components/ui/button";
 import { bedroomsTypes } from "@/bedroomstype/bedroomsType";
 import { bedrooms } from "@prisma/client";
-import { updateBedroom } from "@/app/actions/bedrooms/updateBedrooms";
+import { updateBedroom } from "@/app/actions/bedrooms";
 import { useRouter } from "next/navigation";
 import { DialogClose } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
-import { Undo2, SaveAll } from 'lucide-react';
+import Icon from "@/components/ui/icons/icons";
 
 export function FormEditBedrooms({ bedroom, }: { bedroom: bedrooms | null }) {
     const { toast } = useToast();
@@ -104,7 +104,7 @@ export function FormEditBedrooms({ bedroom, }: { bedroom: bedrooms | null }) {
                 <div className='flex justify-end gap-4'>
                     <DialogClose asChild>
                         <Button type="button" variant="success">
-                            <Undo2 className="mr-2" />
+                            <Icon action='undo' className="mr-2"/>
                             Cancelar
                         </Button>
                     </DialogClose>
@@ -119,7 +119,7 @@ export function FormEditBedrooms({ bedroom, }: { bedroom: bedrooms | null }) {
                                 });
                             }}
                         >
-                            <SaveAll className="mr-2" />
+                            <Icon action='save' className="mr-2"/>
                             Actualizar
                         </Button>
                     </DialogClose>

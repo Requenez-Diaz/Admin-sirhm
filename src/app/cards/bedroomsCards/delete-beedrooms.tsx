@@ -1,7 +1,5 @@
 'use client';
 
-import { deleteBedrooms } from "@/app/actions/bedrooms/deleteBedrooms";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -12,8 +10,10 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
+import { deleteBedrooms } from "@/app/actions/bedrooms";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { Trash2, Undo2 } from "lucide-react";
+import Icon from "@/components/ui/icons/icons";
 
 export function DeleteBedrooms({ bedroomsId }: { bedroomsId: number }) {
   const { toast } = useToast();
@@ -28,7 +28,7 @@ export function DeleteBedrooms({ bedroomsId }: { bedroomsId: number }) {
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="destructive">
-          <Trash2 size={24} />
+          <Icon action='delete' />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
@@ -43,7 +43,7 @@ export function DeleteBedrooms({ bedroomsId }: { bedroomsId: number }) {
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="success">
-                <Undo2 className="mr-2" />
+                <Icon action='undo' className="mr-2" />
                 Cancelar
               </Button>
             </DialogClose>
@@ -58,7 +58,7 @@ export function DeleteBedrooms({ bedroomsId }: { bedroomsId: number }) {
                   });
                 }}
               >
-                <Trash2 className="mr-2" />
+                <Icon action='delete' className="mr-2" />
                 Eliminar
               </Button>
             </DialogClose>
