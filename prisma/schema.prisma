@@ -20,8 +20,8 @@ model User {
 
 model Role {
   id       Int    @id @default(autoincrement())
-  roleName String
   descript String
+  roleName String
 }
 
 model Bookings {
