@@ -34,8 +34,8 @@ export function FormEditUsers({ user }: { user: User | null }) {
             Role
           </label>
           <select
-            id='roleType'
-            name='roleType'
+            id='roleName'
+            name='roleName'
             className='col-span-3 border border-gray-300 rounded px-2 py-1'
           >
             {RoleTypes.map((type, index) => (
@@ -82,19 +82,6 @@ export function FormEditUsers({ user }: { user: User | null }) {
             className='col-span-3 border border-gray-300 rounded px-2 py-1'
             required
             defaultValue={user.password}
-          />
-        </div>
-        <div className='grid grid-cols-4 items-center gap-4'>
-          <label htmlFor='password' className='text-right'>
-            Editar Role{" "}
-          </label>
-          <input
-            type='roleId'
-            id='roleId'
-            name='roleId'
-            className='col-span-3 border border-gray-300 rounded px-2 py-1'
-            required
-            defaultValue={user.roleId}
           />
         </div>
 

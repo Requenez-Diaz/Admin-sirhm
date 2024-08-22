@@ -30,12 +30,12 @@ export function FormEditRole({ role }: { role: Role | null }) {
       <div className='grid gap-4 py-4'>
         <input type='hidden' name='roleId' value={role.id} />
         <div className='grid grid-cols-4 items-center gap-4'>
-          <label htmlFor='typeRole' className='text-right'>
+          <label htmlFor='roleName' className='text-right'>
             Role
           </label>
           <select
-            id='roleType'
-            name='roleType'
+            id='roleName'
+            name='roleName'
             className='col-span-3 border border-gray-300 rounded px-2 py-1'
           >
             {RoleTypes.map((type, index) => (
@@ -56,19 +56,6 @@ export function FormEditRole({ role }: { role: Role | null }) {
             name='descript'
             required
             defaultValue={role.descript}
-          />
-        </div>
-        <div className='grid grid-cols-4 items-center gap-4'>
-          <label htmlFor='roleName' className='text-right'>
-            Temporada baja
-          </label>
-          <input
-            type='number'
-            id='roleName'
-            name='roleName'
-            className='col-span-3 border border-gray-300 rounded px-2 py-1'
-            required
-            defaultValue={role.roleName}
           />
         </div>
 
