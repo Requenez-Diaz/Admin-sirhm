@@ -12,7 +12,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
-import deleteRole from "@/app/actions/role/delete_role";
+import { deleteRole } from "@/app/actions/role";
 import { useState } from "react";
 export function DeleteRole({ roleId }: { roleId: number }) {
   const { toast } = useToast();

@@ -6,7 +6,7 @@ import { Role } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { DialogClose } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
-import updateRole from "../actions/role/update-role";
+import { updateRole } from "../actions/role";
 import { RoleTypes } from "@/bedroomstype/roleTypes";
 
 export function FormEditRole({ role }: { role: Role | null }) {

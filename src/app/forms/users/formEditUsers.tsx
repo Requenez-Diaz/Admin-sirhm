@@ -7,7 +7,7 @@ import { DialogClose } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { RoleTypes } from "@/bedroomstype/roleTypes";
 import { User } from "@prisma/client";
-import updateUsersById from "@/app/actions/users/update-users";
+import { updateUsersById } from "@/app/actions/users";
 
 export function FormEditUsers({ user }: { user: User | null }) {
   const { toast } = useToast();
