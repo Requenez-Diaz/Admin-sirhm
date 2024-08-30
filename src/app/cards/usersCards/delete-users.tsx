@@ -12,7 +12,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
-import deleteUsers from "@/app/actions/users/delete-users";
+import { deleteUsers } from "@/app/actions/users";
 export function DeleteUsers({ userId }: { userId: number }) {
   const { toast } = useToast();
 

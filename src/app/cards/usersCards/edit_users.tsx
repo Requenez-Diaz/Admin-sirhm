@@ -8,13 +8,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { FormEditUsers } from "@/app/forms/users/formEditUsers";
-import getUserById from "@/app/actions/users/getUserById";
+import { getUserById } from "@/app/actions/users";
 
 export async function EditUsers({ userId }: { userId: number }) {
   const user = await getUserById(userId);
 
   if (!user) {
-    return <p>Error: No se encontró el Rol</p>;
+    return <p>Error: No se encontró el usuario</p>;
   }
 
   return (

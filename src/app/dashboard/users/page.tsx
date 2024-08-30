@@ -14,6 +14,7 @@ import React from "react";
 
 export default async function Page() {
   const users = await findManyUsers();
+  console.log("Users: ", users);
 
   const totalUsers = users.length;
   return (
@@ -38,7 +39,7 @@ export default async function Page() {
                 <TableCell>{user.username}</TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{user.password}</TableCell>
-                <TableCell>{user.roleId}</TableCell>
+                <TableCell>{user.roleName}</TableCell>
 
                 <TableCell>
                   <div className='flex flex-row items-center'>

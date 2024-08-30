@@ -8,9 +8,11 @@ export default async function findManyUsers() {
         id: "asc",
       },
     });
-    return users; // Asegúrate de retornar los usuarios
+    console.log("Users fetched:", users); // Para depuración
+    return users;
   } catch (error) {
     console.error("Error getting users:", error);
-    return []; // Retorna un array vacío en caso de error
+
+    return [];
   }
 }

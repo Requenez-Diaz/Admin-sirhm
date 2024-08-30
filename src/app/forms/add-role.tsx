@@ -4,7 +4,7 @@ import { DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useRef, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import saveRole from "@/app/actions/role/saveRole";
+import { saveRole } from "../actions/role";
 import { RoleTypes } from "@/bedroomstype/roleTypes";
 
 export function FormRole() {

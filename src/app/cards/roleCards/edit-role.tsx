@@ -7,13 +7,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import getRolebyId from "@/app/actions/role/getRolebyId";
+import { getRoleById } from "@/app/actions/role";
 import FormEditRole from "@/app/forms/form-edit-role";
 
-
 export async function EditRole({ roleId }: { roleId: number }) {
- 
-  const role = await getRolebyId(roleId);
+  const role = await getRoleById(roleId);
 
   if (!role) {
     return <p>Error: No se encontró el Rol</p>;
