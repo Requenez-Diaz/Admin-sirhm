@@ -8,12 +8,16 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import FormBedrooms from "./form-bedrooms";
+import Icon from "@/components/ui/icons/icons";
 
 export function AddBedrooms() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant='success'>Agregar</Button>
+        <Button variant='success'>
+          <Icon action='plus' className="mr-2" />
+          Agregar
+        </Button>
       </DialogTrigger>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>

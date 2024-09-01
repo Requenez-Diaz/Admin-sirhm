@@ -10,9 +10,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { EditBedrooms } from "@/app/cards/edit-bedrooms";
-import { AddBedrooms } from "@/app/cards/add-bedrooms";
-import { DeleteBedrooms } from "@/app/cards/delete-beedrooms";
+import { EditBedrooms } from "@/app/cards/bedroomsCards/edit-bedrooms";
+import { AddBedrooms } from "@/app/cards/bedroomsCards/add-bedrooms";
+import { DeleteBedrooms } from "@/app/cards/bedroomsCards/delete-beedrooms";
 import { Badge, BadgeProps } from "@/components/ui/badge";
 
 async function TableBedrooms() {
