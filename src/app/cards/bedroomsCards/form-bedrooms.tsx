@@ -31,7 +31,9 @@ export function FormBedrooms() {
     <form onSubmit={handleSubmit}>
       <div className='grid gap-4 py-4'>
         <div className='grid grid-cols-4 items-center gap-4'>
-          <label htmlFor='typeBedroom' className='text-right'></label>
+          <label htmlFor='typeBedroom' className='text-right'>
+            Tipo de habitación
+          </label>
           <select
             id='typeBedroom'
             name='typeBedroom'
@@ -90,8 +92,8 @@ export function FormBedrooms() {
             name='status'
             className='col-span-3 border border-gray-300 rounded px-2 py-1'
           >
-            <option value='0'>Inactivo</option>
             <option value='1'>Activo</option>
+            <option value='0'>Inactivo</option>
           </select>
         </div>
         <div className='grid grid-cols-4 items-center gap-4'>
@@ -102,6 +104,7 @@ export function FormBedrooms() {
             id='numberBedroom'
             name='numberBedroom'
             type='number'
+            min='1'
             className='col-span-3 border border-gray-300 rounded px-2 py-1'
             required
           />

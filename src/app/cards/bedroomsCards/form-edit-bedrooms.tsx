@@ -2,14 +2,14 @@
 
 import { Button } from "@/components/ui/button";
 import { bedroomsTypes } from "@/bedroomstype/bedroomsType";
-import { bedrooms } from "@prisma/client";
 import { updateBedroom } from "@/app/actions/bedrooms";
 import { useRouter } from "next/navigation";
 import { DialogClose } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import Icon from "@/components/ui/icons/icons";
+import { Bedrooms } from "@prisma/client";
 
-export function FormEditBedrooms({ bedroom, }: { bedroom: bedrooms | null }) {
+export function FormEditBedrooms({ bedroom, }: { bedroom: Bedrooms | null }) {
     const { toast } = useToast();
     const router = useRouter();
 
@@ -86,14 +86,15 @@ export function FormEditBedrooms({ bedroom, }: { bedroom: bedrooms | null }) {
                         name="status"
                         defaultValue={bedroom.status ? '1' : '0'}
                     >
-                        <option value="0">Inactivo</option>
                         <option value="1">Activo</option>
+                        <option value="0">Inactivo</option>
                     </select>
                 </div>
                 <div className='grid grid-cols-4 items-center gap-4'>
                     <label htmlFor='numberBedroom' className='text-right'>Número de habitación</label>
                     <input
                         type='number'
+                        min='1'
                         id='numberBedroom'
                         name='numberBedroom'
                         className='col-span-3 border border-gray-300 rounded px-2 py-1'

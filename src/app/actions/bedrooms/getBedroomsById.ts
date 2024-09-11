@@ -1,9 +1,9 @@
 "use server";
 
 import prisma from "@/lib/db";
-import { bedrooms } from "@prisma/client";
+import { Bedrooms } from "@prisma/client";
 
-export const getBedroomsById = async (id: number): Promise<bedrooms | null> => {
+export const getBedroomsById = async (id: number): Promise<Bedrooms | null> => {
     try {
         const bedroom = await prisma.bedrooms.findUnique({
             where: { id: Number(id) },
