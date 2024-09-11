@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/db";
 import { Status } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 
 export const saveReservation = async (formData: FormData) => {
     const name = formData.get("name") as string;
@@ -31,6 +32,7 @@ export const saveReservation = async (formData: FormData) => {
                 status: Status.PENDING,
             },
         });
+        revalidatePath("/dashboard/bookings");
 
         console.log("Reserva guardada con éxito", newReservation);
         return {

@@ -15,7 +15,7 @@ export function AddReservation() {
         <Dialog>
             <DialogTrigger asChild>
                 <Button variant='success'>
-                <Icon action='plus' className="mr-2" />
+                    <Icon action='plus' className="mr-2" />
                     Agregar
                 </Button>
             </DialogTrigger>

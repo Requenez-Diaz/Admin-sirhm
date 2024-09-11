@@ -91,14 +91,14 @@ export function FormReservation() {
                     </Button>
                 </DialogClose>
 
-                {/* <DialogClose asChild> */}
-                <Button
-                    type="submit"
-                    variant="update">
-                    <Icon action='save' className="mr-2" />
-                    Reservar
-                </Button>
-                {/* </DialogClose> */}
+                <DialogClose asChild>
+                    <Button
+                        type="submit"
+                        variant="update">
+                        <Icon action='save' className="mr-2" />
+                        Reservar
+                    </Button>
+                </DialogClose>
             </DialogFooter>
         </form>
     );

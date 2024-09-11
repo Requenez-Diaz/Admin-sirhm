@@ -17,6 +17,8 @@ import { DeleteReservation } from "../bookings/deleteReservation";
 async function TableReservation() {
   const reservation = await prisma.reservation.findMany({});
 
+  const totalReservation = reservation.length;
+
   const statusVariants: Record<string, BadgeProps["variant"]> = {
     [Status.PENDING]: "info",
     [Status.CONFIRMED]: "success",
@@ -31,9 +33,11 @@ async function TableReservation() {
 
   return (
     <div className="overflow-x-auto">
-      <div className="flex justify-start mb-4">
+      <div className="flex justify-start mb-4 items-center">
         <AddReservation />
+        <h2 className="text-xl font-semibold ml-4">Total Reservaciones: {totalReservation}</h2>
       </div>
+
       <form>
         <Table className="min-w-full">
           <TableHeader>
