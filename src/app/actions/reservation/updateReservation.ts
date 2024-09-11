@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from "@/lib/db";
+import { revalidatePath } from "next/cache";
 
 export async function updateReservation(formData: FormData) {
     const reservationId = formData.get("reservationId")?.toString();
@@ -34,7 +35,7 @@ export async function updateReservation(formData: FormData) {
                 departureDate: new Date(departureDate ?? ""),
             },
         });
-
+        revalidatePath("/dashboard/bookings");
 
     } catch (error) {
         console.error("Error al actualizar la reservación: ", error);

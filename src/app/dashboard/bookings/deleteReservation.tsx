@@ -30,7 +30,7 @@ export function DeleteReservation({ reservationId }: { reservationId: number }) 
         <Dialog>
             <DialogTrigger asChild>
                 <Button variant="destructive">
-                <Icon action='delete' />
+                    <Icon action='delete' />
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
@@ -42,28 +42,29 @@ export function DeleteReservation({ reservationId }: { reservationId: number }) 
                 </DialogHeader>
                 <form onSubmit={handleSubmit}>
                     <input type="hidden" name="reservationId" value={String(reservationId)} />
-                    <DialogFooter>
+
+                    <DialogFooter className="flex flex-wrap justify-between pt-4 gap-4">
                         <DialogClose asChild>
                             <Button type="button" variant="success">
                                 <Icon action='undo' className="mr-2" />
                                 Cancelar
                             </Button>
                         </DialogClose>
-                        {/* <DialogClose asChild> */}
-                        <Button
-                            type="submit"
-                            variant="destructive"
-                            onClick={() => {
-                                toast({
-                                    title: "Reservación eliminada.",
-                                    description: "La reservación se ha eliminado correctamente.",
-                                });
-                            }}
-                        >
-                            <Icon action='delete' className="mr-2" />
-                            Eliminar
-                        </Button>
-                        {/* </DialogClose> */}
+                        <DialogClose asChild>
+                            <Button
+                                type="submit"
+                                variant="destructive"
+                                onClick={() => {
+                                    toast({
+                                        title: "Reservación eliminada.",
+                                        description: "La reservación se ha eliminado correctamente.",
+                                    });
+                                }}
+                            >
+                                <Icon action='delete' className="mr-2" />
+                                Eliminar
+                            </Button>
+                        </DialogClose>
                     </DialogFooter>
                 </form>
             </DialogContent>

@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from "@/lib/db";
+import { revalidatePath } from "next/cache";
 
 export async function deleteReservation(formData: FormData) {
     const reservationId = formData.get("reservationId")?.toString();
@@ -16,6 +17,7 @@ export async function deleteReservation(formData: FormData) {
                 id: parseInt(reservationId),
             },
         });
+        revalidatePath("/dashboard/bookings");
 
         console.log(`Reservación con ID ${reservationId} eliminada exitosamente`);
         return { success: true, message: "Reservación eliminada correctamente" };

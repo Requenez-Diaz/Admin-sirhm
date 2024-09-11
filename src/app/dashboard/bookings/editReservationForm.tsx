@@ -84,21 +84,21 @@ export function FormEditReservation({ reservation, }: { reservation: Reservation
                     </Button>
                 </DialogClose>
 
-                {/* <DialogClose asChild> */}
-                <Button
-                    type="submit"
-                    variant="update"
-                    onClick={() => {
-                        toast({
-                            title: "Reservación actualizada.",
-                            description: "La reservación se actualizo correctamente.",
-                        });
-                    }}
-                >
-                    <Icon action='save' className="mr-2" />
-                    Actualizar
-                </Button>
-                {/* </DialogClose> */}
+                <DialogClose asChild>
+                    <Button
+                        type="submit"
+                        variant="update"
+                        onClick={() => {
+                            toast({
+                                title: "Reservación actualizada.",
+                                description: "La reservación se actualizo correctamente.",
+                            });
+                        }}
+                    >
+                        <Icon action='save' className="mr-2" />
+                        Actualizar
+                    </Button>
+                </DialogClose>
             </DialogFooter>
         </form>
     );
