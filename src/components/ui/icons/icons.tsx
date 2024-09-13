@@ -1,7 +1,7 @@
 
 import React from 'react';
 
-import { SaveAll, Undo2, Plus, Pencil, Trash2 } from 'lucide-react';
+import { SaveAll, Undo2, Plus, Pencil, Trash2, Check, X } from 'lucide-react';
 
 const iconMap = {
     save: SaveAll,
@@ -9,6 +9,8 @@ const iconMap = {
     plus: Plus,
     edit: Pencil,
     delete: Trash2,
+    accept: Check,
+    cancell: X,
 };
 
 interface IconProps {
