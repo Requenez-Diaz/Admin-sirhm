@@ -20,14 +20,12 @@ async function TableReservation() {
 
   const totalReservation = reservation.length;
 
-  // Inicializar contadores de estado
   const contadoresEstado = {
     [Status.PENDING]: 0,
     [Status.CONFIRMED]: 0,
     [Status.CANCELLED]: 0,
   };
 
-  // Contar reservaciones por estado
   reservation.forEach(res => {
     contadoresEstado[res.status]++;
   });

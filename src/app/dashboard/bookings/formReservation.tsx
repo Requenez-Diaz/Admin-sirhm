@@ -14,6 +14,7 @@ export function FormReservation() {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+
         const response = await saveReservation(new FormData(event.currentTarget));
 
         if (response.success) {
@@ -24,7 +25,7 @@ export function FormReservation() {
         } else {
             toast({
                 title: "Reserva no realizada.",
-                description: "Ha ocurrido un error al realizar la reservación.",
+                description: response.message || "Ha ocurrido un error al realizar la reservación.",
             });
         }
     };
@@ -57,7 +58,14 @@ export function FormReservation() {
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <Label className="text-right" htmlFor="rooms">Habitaciones</Label>
-                    <Input id="rooms" name="rooms" type="number" min="1" placeholder="Cantidad de habitaciones" required />
+                    <Input
+                        id="rooms"
+                        name="rooms"
+                        type="number"
+                        min="1"
+                        placeholder="Cantidad de habitaciones"
+                        required
+                    />
                 </div>
                 <div>
                     <Label className="text-right" htmlFor="bedroomsType">Tipo de habitación</Label>
