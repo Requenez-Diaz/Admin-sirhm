@@ -25,8 +25,8 @@ export const saveService = async (formData: FormData) => {
 
         const newService = await prisma.services.create({
             data: {
-                nameService: nameService ?? "",
-                description: description ?? "",
+                nameService: nameService,
+                description: description,
                 price: price,
             },
         });
