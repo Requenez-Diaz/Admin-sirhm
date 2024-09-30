@@ -11,7 +11,28 @@ export async function updateService(formData: FormData) {
 
     if (!servicesId) {
         console.error("No se proporcionó el ID del servicio");
-        return;
+        return {
+            success: false,
+            message: "No se proporcionó el ID del servicio.",
+        };
+    }
+
+    if (!nameService || !description || !price) {
+        console.error("Los campos son obligatorios");
+        return {
+            success: false,
+            message: "Todos los campos son obligatorios.",
+        };
+    }
+
+    const parsedPrice = parseFloat(price);
+    
+    if (isNaN(parsedPrice) || parsedPrice < 0) {
+        console.error("El precio debe ser un número mayor o igual a cero");
+        return {
+            success: false,
+            message: "El precio debe ser un número mayor o igual a cero.",
+        };
     }
 
     try {
@@ -22,11 +43,24 @@ export async function updateService(formData: FormData) {
             data: {
                 nameService,
                 description,
-                price: parseFloat(price || "0"),
+                price: parsedPrice,
             },
         });
+
         revalidatePath("/services");
+
+        console.log("Servicio actualizado con éxito");
+        
+        return {
+            success: true,
+            message: "El servicio se actualizó correctamente.",
+        };
     } catch (error) {
         console.error("Error al actualizar el servicio:", error);
+        
+        return {
+            success: false,
+            message: "Error al actualizar el servicio.",
+        };
     }
 }

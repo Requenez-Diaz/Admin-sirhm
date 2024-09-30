@@ -3,93 +3,138 @@
 import { updateService } from "@/app/actions/services";
 import { DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import Icon from "@/components/ui/icons/icons";
 import { Services } from "@prisma/client";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+
+const FormSchema = z.object({
+    nameService: z.string().min(1, "El nombre del servicio es obligatorio."),
+    description: z.string().min(1, "La descripción es obligatoria."),
+    price: z.coerce.number().min(1, "El precio debe ser mayor a cero."),
+});
 
 export function FormEditServices({ service }: { service: Services | null }) {
     const { toast } = useToast();
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-        formData.append('serviceId', service?.id.toString() || '');
-        await updateService(formData);
+    const form = useForm<z.infer<typeof FormSchema>>({
+        resolver: zodResolver(FormSchema),
+        defaultValues: {
+            nameService: service?.nameService,
+            description: service?.description,
+            price: service?.price,
+        },
+    });
 
-        if (!service) {
-            return <p>Error: No se encontró el servicio.</p>;
+    const onSubmit = async (data: z.infer<typeof FormSchema>) => {
+        const formData = new FormData();
+        formData.append("serviceId", service?.id.toString() || '');
+        formData.append("nameService", data.nameService);
+        formData.append("description", data.description);
+        formData.append("price", data.price.toString());
+
+        const response = await updateService(formData);
+
+        if (response.success) {
+            toast({
+                title: "Servicio actualizado.",
+                description: "El servicio se actualizó correctamente.",
+            });
+        } else {
+            toast({
+                title: "Error",
+                description: response.message || "No se pudo actualizar el servicio.",
+            });
         }
     };
 
+    if (!service) {
+        return <p>Error: No se encontró el servicio.</p>;
+    }
+
     return (
-        <form onSubmit={handleSubmit} className='grid gap-4 py-4'>
-            <div className='grid gap-4 py-4'>
-                <div className='grid grid-cols-4 items-center gap-4'>
-                    <Label htmlFor='description' className='text-right'>
-                        Nombre del Servicio
-                    </Label>
-                    <Input
-                        type='text'
-                        id='nameService'
-                        name='nameService'
-                        className='col-span-3 border border-gray-300 rounded px-2 py-1'
-                        required
-                        defaultValue={service?.nameService}
-                    />
-                </div>
-                <div className='grid grid-cols-4 items-center gap-4'>
-                    <Label htmlFor='description' className='text-right'>
-                        Descripción
-                    </Label>
-                    <Input
-                        type='text'
-                        id='description'
-                        name='description'
-                        className='col-span-3 border border-gray-300 rounded px-2 py-1'
-                        defaultValue={service?.description}
-                    />
-                </div>
-                <div className='grid grid-cols-4 items-center gap-4'>
-                    <Label htmlFor='price' className='text-right'>
-                        Precio
-                    </Label>
-                    <Input
-                        type='number'
-                        id='price'
-                        name='price'
-                        min='0'
-                        className='col-span-3 border border-gray-300 rounded px-2 py-1'
-                        required
-                        defaultValue={service?.price}
-                    />
-                </div>
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className='grid gap-4 py-4'>
+                <FormField
+                    control={form.control}
+                    name='nameService'
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Nombre del Servicio</FormLabel>
+                            <FormControl>
+                                <Input
+                                    type='text'
+                                    placeholder='Nombre del servicio'
+                                    {...field}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name='description'
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Descripción</FormLabel>
+                            <FormControl>
+                                <Input
+                                    type='text'
+                                    placeholder='Descripción del servicio'
+                                    {...field}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name='price'
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Precio</FormLabel>
+                            <FormControl>
+                                <Input
+                                    type='number'
+                                    min='1'
+                                    placeholder='Precio del servicio'
+                                    {...field}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
                 <div className='flex justify-end gap-4'>
                     <DialogClose asChild>
-                        <Button type="button"
-                            variant="success">
+                        <Button type='button' variant='success'>
                             <Icon action='undo' className="mr-2" />
                             Cancelar
                         </Button>
                     </DialogClose>
-                    <DialogClose asChild>
-                        <Button type='submit'
-                            variant='update'
-                            onClick={() => {
-                                toast({
-                                    title: "Servicio actualizada.",
-                                    description: "El Servicio se actualizo correctamente.",
-                                });
-                            }}
-                        >
-                            <Icon action='save' className="mr-2" />
-                            Actualizar
-                        </Button>
-                    </DialogClose>
+                    <Button type='submit' variant='update'>
+                        <Icon action='save' className="mr-2" />
+                        Actualizar
+                    </Button>
                 </div>
-            </div>
-        </form>
+            </form>
+        </Form>
     );
 }
 

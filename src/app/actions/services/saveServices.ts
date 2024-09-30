@@ -8,6 +8,14 @@ export const saveService = async (formData: FormData) => {
     const description = formData.get("description") as string;
     const price = Number(formData.get("price"));
 
+    if (!nameService || !description || !price) {
+        console.error("Todos los campos son obligatorios.");
+        return {
+            success: false,
+            message: "Todos los campos son obligatorios.",
+        };
+    }
+
     try {
         const existingService = await prisma.services.findFirst({
             where: {

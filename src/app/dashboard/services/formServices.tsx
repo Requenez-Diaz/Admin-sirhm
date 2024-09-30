@@ -16,21 +16,23 @@ import { Input } from "@/components/ui/input";
 import { saveService } from "@/app/actions/services";
 import { useToast } from "@/components/ui/use-toast";
 import Icon from "@/components/ui/icons/icons";
+import { DialogClose } from "@/components/ui/dialog";
 
 const FormSchema = z.object({
     nameService: z.string().min(1, "El nombre del servicio es obligatorio."),
     description: z.string().min(1, "La descripción es obligatoria."),
-    price: z.number().min(1, "El precio debe ser mayor que cero."),
+    price: z.coerce.number().min(1, "El precio debe ser mayor que cero."),
 });
 
 const FormServices = () => {
     const { toast } = useToast();
+
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
             nameService: "",
             description: "",
-            price: 1,
+            price: undefined,
         },
     });
 
@@ -41,6 +43,7 @@ const FormServices = () => {
         formData.append("price", data.price.toString());
 
         const response = await saveService(formData);
+
         if (response.success) {
             toast({
                 title: "Servicio registrado.",
@@ -113,10 +116,12 @@ const FormServices = () => {
                 />
 
                 <div className='flex justify-end gap-4'>
-                    <Button type='button' variant='success'>
-                        <Icon action='undo' className="mr-2" />
-                        Cancelar
-                    </Button>
+                    <DialogClose>
+                        <Button type='button' variant='success'>
+                            <Icon action='undo' className="mr-2" />
+                            Cancelar
+                        </Button>
+                    </DialogClose>
                     <Button type='submit' variant='update'>
                         <Icon action='save' className="mr-2" />
                         Registrar
