@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import Icon from "@/components/ui/icons/icons";
-import { confirmReservation } from "@/app/actions/reservation/confirReservation";
+import { confirmReservation } from "@/app/actions/reservation";
 
 export function ConfirmReservation({ reservationId }: { reservationId: number }) {
     const { toast } = useToast();

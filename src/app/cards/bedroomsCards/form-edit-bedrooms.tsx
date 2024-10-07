@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { Button } from "@/components/ui/button";
 import { bedroomsTypes } from "@/bedroomstype/bedroomsType";
@@ -8,17 +8,70 @@ import { DialogClose } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import Icon from "@/components/ui/icons/icons";
 import { Bedrooms } from "@prisma/client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
-export function FormEditBedrooms({ bedroom, }: { bedroom: Bedrooms | null }) {
+const FormSchema = z.object({
+    typeBedroom: z.string().min(1, "El tipo de habitación es obligatorio."),
+    description: z.string().min(1, "La descripción es obligatoria."),
+    lowSeasonPrice: z.coerce.number().min(1, "El precio en temporada baja debe ser mayor que cero."),
+    highSeasonPrice: z.coerce.number().min(1, "El precio en temporada alta debe ser mayor que cero."),
+    numberBedroom: z.coerce.number().min(1, "El número de habitación debe ser mayor que cero."),
+    status: z.enum(["1", "0"]).refine((val) => val !== undefined, {
+        message: "El estado es obligatorio.",
+    }),
+});
+
+export function FormEditBedrooms({ bedroom }: { bedroom: Bedrooms | null }) {
     const { toast } = useToast();
     const router = useRouter();
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-        formData.append('bedroomsId', bedroom?.id.toString() || '');
-        await updateBedroom(formData);
-        router.refresh();
+    const form = useForm<z.infer<typeof FormSchema>>({
+        resolver: zodResolver(FormSchema),
+        defaultValues: bedroom ? {
+            typeBedroom: bedroom.typeBedroom,
+            description: bedroom.description,
+            lowSeasonPrice: bedroom.lowSeasonPrice,
+            highSeasonPrice: bedroom.highSeasonPrice,
+            numberBedroom: bedroom.numberBedroom,
+            status: bedroom.status ? '1' : '0',
+        } : {
+            typeBedroom: "",
+            description: "",
+            lowSeasonPrice: undefined,
+            highSeasonPrice: undefined,
+            numberBedroom: undefined,
+            status: "1",
+        },
+    });
+
+    const handleSubmit = async (data: z.infer<typeof FormSchema>) => {
+        const formData = {
+            bedroomsId: bedroom?.id.toString() || '',
+            typeBedroom: data.typeBedroom,
+            description: data.description,
+            lowSeasonPrice: data.lowSeasonPrice,
+            highSeasonPrice: data.highSeasonPrice,
+            numberBedroom: data.numberBedroom,
+            status: data.status,
+        };
+
+        const response = await updateBedroom(formData);
+
+        if (response.success) {
+            toast({
+                title: "Habitación actualizada.",
+                description: response.message,
+            });
+            router.refresh();
+        } else {
+            toast({
+                title: "Error",
+                description: response.message || "Ha ocurrido un error al actualizar la habitación.",
+            });
+        }
     };
 
     if (!bedroom) {
@@ -26,107 +79,152 @@ export function FormEditBedrooms({ bedroom, }: { bedroom: Bedrooms | null }) {
     }
 
     return (
-        <form onSubmit={handleSubmit} className='grid gap-4 py-4'>
-            <div className='grid gap-4 py-4'>
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className='grid gap-4 py-4'>
                 <input type='hidden' name='bedroomsId' value={bedroom.id} />
-                <div className='grid grid-cols-4 items-center gap-4'>
-                    <label htmlFor='typeBedroom' className='text-right'>
-                        Tipo de habitación
-                    </label>
-                    <select
-                        id='typeBedroom'
+
+                <div className='grid grid-cols-2 gap-4'>
+                    <FormField
+                        control={form.control}
                         name='typeBedroom'
-                        className='col-span-3 border border-gray-300 rounded px-2 py-1'
-                    >
-                        {bedroomsTypes.map((type, index) => (
-                            <option key={index} value={type}>
-                                {type}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div className='grid grid-cols-4 items-center gap-4'>
-                    <label htmlFor='description' className='text-right'>Descripción</label>
-                    <input
-                        className='col-span-3 border border-gray-300 rounded px-2 py-1'
-                        type='text'
-                        id='description'
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Tipo de habitación</FormLabel>
+                                <FormControl>
+                                    <select
+                                        id='typeBedroom'
+                                        {...field}
+                                        className='border border-gray-300 rounded px-2 py-1 w-full'
+                                    >
+                                        <option value="" disabled>Selecciona un tipo</option>
+                                        {bedroomsTypes.map((type, index) => (
+                                            <option key={index} value={type}>{type}</option>
+                                        ))}
+                                    </select>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
                         name='description'
-                        required
-                        defaultValue={bedroom.description}
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Descripción</FormLabel>
+                                <FormControl>
+                                    <input
+                                        id='description'
+                                        type='text'
+                                        placeholder='Descripción de la habitación'
+                                        {...field}
+                                        className='border border-gray-300 rounded px-2 py-1 w-full'
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
                     />
                 </div>
-                <div className='grid grid-cols-4 items-center gap-4'>
-                    <label htmlFor='lowSeasonPrice' className='text-right'>Temporada baja</label>
-                    <input
-                        type='number'
-                        id='lowSeasonPrice'
+
+                <div className='grid grid-cols-2 gap-4'>
+                    <FormField
+                        control={form.control}
                         name='lowSeasonPrice'
-                        className='col-span-3 border border-gray-300 rounded px-2 py-1'
-                        required
-                        defaultValue={bedroom.lowSeasonPrice}
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Temporada baja</FormLabel>
+                                <FormControl>
+                                    <input
+                                        id='lowSeasonPrice'
+                                        type='number'
+                                        min='1'
+                                        placeholder='Precio temporada baja'
+                                        {...field}
+                                        className='border border-gray-300 rounded px-2 py-1 w-full'
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
                     />
-                </div>
-                <div className='grid grid-cols-4 items-center gap-4'>
-                    <label htmlFor='highSeasonPrice' className='text-right'>Temporada alta</label>
-                    <input
-                        type='number'
-                        id='highSeasonPrice'
+
+                    <FormField
+                        control={form.control}
                         name='highSeasonPrice'
-                        className='col-span-3 border border-gray-300 rounded px-2 py-1'
-                        required
-                        defaultValue={bedroom.highSeasonPrice}
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Temporada alta</FormLabel>
+                                <FormControl>
+                                    <input
+                                        id='highSeasonPrice'
+                                        type='number'
+                                        min='1'
+                                        placeholder='Precio temporada alta'
+                                        {...field}
+                                        className='border border-gray-300 rounded px-2 py-1 w-full'
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
                     />
                 </div>
-                <div className='grid grid-cols-4 items-center gap-4'>
-                    <label htmlFor='status' className='text-right'>Estado</label>
-                    <select
-                        className='col-span-3 border border-gray-300 rounded px-2 py-1'
-                        id="status"
-                        name="status"
-                        defaultValue={bedroom.status ? '1' : '0'}
-                    >
-                        <option value="1">Activo</option>
-                        <option value="0">Inactivo</option>
-                    </select>
-                </div>
-                <div className='grid grid-cols-4 items-center gap-4'>
-                    <label htmlFor='numberBedroom' className='text-right'>Número de habitación</label>
-                    <input
-                        type='number'
-                        min='1'
-                        id='numberBedroom'
+
+                <div className='grid grid-cols-2 gap-4'>
+                    <FormField
+                        control={form.control}
                         name='numberBedroom'
-                        className='col-span-3 border border-gray-300 rounded px-2 py-1'
-                        defaultValue={bedroom.numberBedroom}
-                        required
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Número de habitación</FormLabel>
+                                <FormControl>
+                                    <input
+                                        id='numberBedroom'
+                                        type='number'
+                                        min='1'
+                                        placeholder='Número de habitación'
+                                        {...field}
+                                        className='border border-gray-300 rounded px-2 py-1 w-full'
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
                     />
+
+                    <div>
+                        <label htmlFor='status' className='text-right'>Estado</label>
+                        <select
+                            id='status'
+                            {...form.register('status')}
+                            className='border border-gray-300 rounded px-2 py-1 w-full'
+                        >
+                            <option value="1">Activo</option>
+                            <option value="0">Inactivo</option>
+                        </select>
+                    </div>
                 </div>
-                <div className='flex justify-end gap-4'>
+
+                <div className="flex justify-end gap-4">
                     <DialogClose asChild>
                         <Button type="button" variant="success">
-                            <Icon action='undo' className="mr-2"/>
+                            <Icon action="undo" className="mr-2" />
                             Cancelar
                         </Button>
                     </DialogClose>
-                    <DialogClose asChild>
-                        <Button
-                            type='submit'
-                            variant='update'
-                            onClick={() => {
-                                toast({
-                                    title: "Habitación actualizada.",
-                                    description: "La habitación se actualizo correctamente.",
-                                });
-                            }}
-                        >
-                            <Icon action='save' className="mr-2"/>
-                            Actualizar
-                        </Button>
-                    </DialogClose>
+
+                    {/* <DialogClose asChild> */}
+                    <Button type="submit" variant="update">
+                        <Icon action="save" className="mr-2" />
+                        Actualizar
+                    </Button>
+                    {/* </DialogClose> */}
                 </div>
-            </div>
-        </form>
+
+            </form>
+        </Form>
     );
 }
 

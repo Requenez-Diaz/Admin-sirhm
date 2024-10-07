@@ -14,7 +14,6 @@ export const getServiceById = async (id: string) => {
 
         return service;
     } catch (error) {
-        console.error("Error al obtener el servicio:", error);
         throw new Error("No se pudo obtener el servicio.");
     }
 };

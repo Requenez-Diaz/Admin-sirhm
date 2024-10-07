@@ -10,7 +10,6 @@ export async function updateService(formData: FormData) {
     const price = formData.get("price")?.toString();
 
     if (!servicesId) {
-        console.error("No se proporcionó el ID del servicio");
         return {
             success: false,
             message: "No se proporcionó el ID del servicio.",
@@ -18,7 +17,6 @@ export async function updateService(formData: FormData) {
     }
 
     if (!nameService || !description || !price) {
-        console.error("Los campos son obligatorios");
         return {
             success: false,
             message: "Todos los campos son obligatorios.",
@@ -28,7 +26,6 @@ export async function updateService(formData: FormData) {
     const parsedPrice = parseFloat(price);
     
     if (isNaN(parsedPrice) || parsedPrice < 0) {
-        console.error("El precio debe ser un número mayor o igual a cero");
         return {
             success: false,
             message: "El precio debe ser un número mayor o igual a cero.",
@@ -48,15 +45,12 @@ export async function updateService(formData: FormData) {
         });
 
         revalidatePath("/services");
-
-        console.log("Servicio actualizado con éxito");
         
         return {
             success: true,
             message: "El servicio se actualizó correctamente.",
         };
     } catch (error) {
-        console.error("Error al actualizar el servicio:", error);
         
         return {
             success: false,

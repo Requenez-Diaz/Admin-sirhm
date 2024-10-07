@@ -9,7 +9,6 @@ export const saveService = async (formData: FormData) => {
     const price = Number(formData.get("price"));
 
     if (!nameService || !description || !price) {
-        console.error("Todos los campos son obligatorios.");
         return {
             success: false,
             message: "Todos los campos son obligatorios.",
@@ -24,14 +23,13 @@ export const saveService = async (formData: FormData) => {
         });
 
         if (existingService) {
-            console.log(`El servicio "${nameService}" ya está registrado.`);
             return {
                 success: false,
                 message: `El servicio "${nameService}" ya está registrado.`,
             };
         }
 
-        const newService = await prisma.services.create({
+        await prisma.services.create({
             data: {
                 nameService: nameService,
                 description: description,
@@ -41,7 +39,6 @@ export const saveService = async (formData: FormData) => {
 
         revalidatePath("/services");
 
-        console.log("Servicio guardado con éxito", newService);
         return {
             success: true,
             message: "El servicio se registró correctamente.",

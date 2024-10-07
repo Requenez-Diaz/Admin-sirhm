@@ -3,21 +3,32 @@
 import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
-export async function updateBedroom(formData: FormData) {
-    const bedroomsId = formData.get("bedroomsId")?.toString();
-    const typeBedroom = formData.get("typeBedroom")?.toString();
-    const description = formData.get("description")?.toString();
-    const lowSeasonPrice = formData.get("lowSeasonPrice")?.toString();
-    const highSeasonPrice = formData.get("highSeasonPrice")?.toString();
-    const status = formData.get("status")?.toString();
-    const numberBedroom = formData.get("numberBedroom")?.toString();
-
-    if (!bedroomsId) {
-        console.error("No se proporcionó bedroomsId");
-        return;
-    }
+export const updateBedroom = async (data: {
+    bedroomsId: string;
+    typeBedroom: string;
+    description: string;
+    lowSeasonPrice: number;
+    highSeasonPrice: number;
+    numberBedroom: number;
+    status: string;
+}) => {
+    const { bedroomsId, typeBedroom, description, lowSeasonPrice, highSeasonPrice, numberBedroom, status } = data;
+    const active = status === "1";
 
     try {
+        const existingBedroom = await prisma.bedrooms.findUnique({
+            where: {
+                id: parseInt(bedroomsId),
+            },
+        });
+
+        if (!existingBedroom) {
+            return {
+                success: false,
+                message: "La habitación no existe.",
+            };
+        }
+
         await prisma.bedrooms.update({
             where: {
                 id: parseInt(bedroomsId),
@@ -25,14 +36,20 @@ export async function updateBedroom(formData: FormData) {
             data: {
                 typeBedroom,
                 description,
-                lowSeasonPrice: parseFloat(lowSeasonPrice || "0"),
-                highSeasonPrice: parseFloat(highSeasonPrice || "0"),
-                status: status === "1",
-                numberBedroom: parseInt(numberBedroom || "0"),
+                lowSeasonPrice,
+                highSeasonPrice,
+                numberBedroom,
+                status: active,
             },
         });
+
         revalidatePath("/bedrooms");
+
+        return {
+            success: true,
+            message: "La habitación se actualizó correctamente.",
+        };
     } catch (error) {
-        console.error("Error al actualizar la habitación: ", error);
+        return { success: false, message: "Error al actualizar la habitación." };
     }
-}
+};

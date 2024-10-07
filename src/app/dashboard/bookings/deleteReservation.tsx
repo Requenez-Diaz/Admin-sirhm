@@ -13,8 +13,8 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { deleteReservation } from "@/app/actions/reservation/deleteReservation";
 import Icon from "@/components/ui/icons/icons";
+import { deleteReservation } from "@/app/actions/reservation";
 
 
 export function DeleteReservation({ reservationId }: { reservationId: number }) {

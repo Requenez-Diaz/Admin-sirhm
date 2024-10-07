@@ -1,6 +1,6 @@
 'use client';
 
-import { updateReservation } from '@/app/actions/reservation/updateReservation';
+import { updateReservation } from '@/app/actions/reservation';
 import { bedroomsTypes } from '@/bedroomstype/bedroomsType';
 import { Button } from '@/components/ui/button';
 import { DialogClose, DialogFooter } from '@/components/ui/dialog';
