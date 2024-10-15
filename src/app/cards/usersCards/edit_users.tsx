@@ -7,14 +7,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { getRoleById } from "@/app/actions/role";
-import FormEditRole from "@/app/forms/form-edit-role";
+import { FormEditUsers } from "@/app/forms/users/formEditUsers";
+import { getUserById } from "@/app/actions/users";
 
-export async function EditRole({ roleId }: { roleId: number }) {
-  const role = await getRoleById(roleId);
+export async function EditUsers({ userId }: { userId: number }) {
+  const user = await getUserById(userId);
 
-  if (!role) {
-    return <p>Error: No se encontró el Rol</p>;
+  if (!user) {
+    return <p>Error: No se encontró el usuario</p>;
   }
 
   return (
@@ -45,7 +45,7 @@ export async function EditRole({ roleId }: { roleId: number }) {
             Esta seguro de actualizar el nombre del rol?
           </DialogDescription>
         </DialogHeader>
-        <FormEditRole role={role} />
+        <FormEditUsers user={user} />
       </DialogContent>
     </Dialog>
   );

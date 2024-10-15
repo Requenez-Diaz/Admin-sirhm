@@ -12,27 +12,15 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
-import { deleteRole } from "@/app/actions/role";
-import { useState } from "react";
-export function DeleteRole({ roleId }: { roleId: number }) {
+import { deleteUsers } from "@/app/actions/users";
+export function DeleteUsers({ userId }: { userId: number }) {
   const { toast } = useToast();
-
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleOpenModal = () => {
-    setIsOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsOpen(false);
-  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    await deleteRole(formData);
-    handleCloseModal();
-    isOpen;
+    console.log("Form data desde el client: ", formData);
+    await deleteUsers(formData);
   };
 
   return (
@@ -61,13 +49,13 @@ export function DeleteRole({ roleId }: { roleId: number }) {
       </DialogTrigger>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
-          <DialogTitle>Eliminar rol</DialogTitle>
+          <DialogTitle>Eliminar el usuario </DialogTitle>
           <DialogDescription>
-            ¿Está seguro de que desea eliminar el rol?
+            `¿Está seguro de que desea eliminar el rol? {userId}`
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <input type='hidden' name='roleId' value={String(roleId)} />
+          <input type='hidden' name='userId' value={String(userId)} />
           <DialogFooter>
             <DialogClose asChild>
               <Button type='button' variant='success'>
@@ -95,10 +83,9 @@ export function DeleteRole({ roleId }: { roleId: number }) {
                 variant='destructive'
                 onClick={() => {
                   toast({
-                    title: "Role eliminado",
-                    description: "Rol eliminado correctamente.",
+                    title: "Usuario eliminado",
+                    description: "Usuario eliminado correctamente.",
                   });
-                  handleOpenModal();
                 }}
               >
                 <svg

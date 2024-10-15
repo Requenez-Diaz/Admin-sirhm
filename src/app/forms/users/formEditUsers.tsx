@@ -2,35 +2,35 @@
 
 import { Button } from "@/components/ui/button";
 
-import { Role } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { DialogClose } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
-import { updateRole } from "../actions/role";
 import { RoleTypes } from "@/bedroomstype/roleTypes";
+import { User } from "@prisma/client";
+import { updateUsersById } from "@/app/actions/users";
 
-export function FormEditRole({ role }: { role: Role | null }) {
+export function FormEditUsers({ user }: { user: User | null }) {
   const { toast } = useToast();
   const router = useRouter();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    formData.append("roleId", role?.id.toString() || "");
-    await updateRole(formData);
+    formData.append("userId", user?.id.toString() || "");
+    await updateUsersById(formData);
     router.refresh();
   };
 
-  if (!role) {
-    return <p>Error: No se encontró el rol</p>;
+  if (!user) {
+    return <p>Error: No se encontró el usuario</p>;
   }
 
   return (
     <form onSubmit={handleSubmit} className='grid gap-4 py-4'>
       <div className='grid gap-4 py-4'>
-        <input type='hidden' name='roleId' value={role.id} />
+        <input type='hidden' name='userId' value={user.id} />
         <div className='grid grid-cols-4 items-center gap-4'>
-          <label htmlFor='roleName' className='text-right'>
+          <label htmlFor='typeRole' className='text-right'>
             Role
           </label>
           <select
@@ -46,16 +46,42 @@ export function FormEditRole({ role }: { role: Role | null }) {
           </select>
         </div>
         <div className='grid grid-cols-4 items-center gap-4'>
-          <label htmlFor='descript' className='text-right'>
-            Descript
+          <label htmlFor='emil' className='text-right'>
+            Email
           </label>
           <input
             className='col-span-3 border border-gray-300 rounded px-2 py-1'
-            type='text'
-            id='descript'
-            name='descript'
+            type='email'
+            id='email'
+            name='email'
             required
-            defaultValue={role.descript}
+            defaultValue={user.email}
+          />
+        </div>
+        <div className='grid grid-cols-4 items-center gap-4'>
+          <label htmlFor='username' className='text-right'>
+            Editar nombre
+          </label>
+          <input
+            type='text'
+            id='username'
+            name='username'
+            className='col-span-3 border border-gray-300 rounded px-2 py-1'
+            required
+            defaultValue={user.username}
+          />
+        </div>
+        <div className='grid grid-cols-4 items-center gap-4'>
+          <label htmlFor='password' className='text-right'>
+            Editar contraseña
+          </label>
+          <input
+            type='password'
+            id='password'
+            name='password'
+            className='col-span-3 border border-gray-300 rounded px-2 py-1'
+            required
+            defaultValue={user.password}
           />
         </div>
 
@@ -117,4 +143,4 @@ export function FormEditRole({ role }: { role: Role | null }) {
   );
 }
 
-export default FormEditRole;
+export default FormEditUsers;
