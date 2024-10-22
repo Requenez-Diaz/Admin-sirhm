@@ -38,7 +38,6 @@ export default async function Page() {
                 <TableCell>{user.id}</TableCell>
                 <TableCell>{user.username}</TableCell>
                 <TableCell>{user.email}</TableCell>
-                <TableCell>{user.password}</TableCell>
                 <TableCell>{user.roleName}</TableCell>
 
                 <TableCell>
