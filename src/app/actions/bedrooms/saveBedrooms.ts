@@ -9,9 +9,10 @@ export const saveBedrooms = async (data: {
     lowSeasonPrice: number;
     highSeasonPrice: number;
     numberBedroom: number;
+    capacity: number;
     status: string;
 }) => {
-    const { typeBedroom, description, lowSeasonPrice, highSeasonPrice, numberBedroom, status } = data;
+    const { typeBedroom, description, lowSeasonPrice, highSeasonPrice, numberBedroom, capacity, status } = data;
     const active = status === "1";
 
     try {
@@ -36,6 +37,7 @@ export const saveBedrooms = async (data: {
                 lowSeasonPrice: lowSeasonPrice,
                 highSeasonPrice: highSeasonPrice,
                 numberBedroom: numberBedroom,
+                capacity: capacity,
                 status: active,
                 Seasons: {
                     create: {
@@ -43,7 +45,7 @@ export const saveBedrooms = async (data: {
                         dateStart: new Date(),
                         dateEnd: new Date(),
                     },
-                }
+                },
             },
         });
 
@@ -54,6 +56,7 @@ export const saveBedrooms = async (data: {
             message: "La habitación se registró correctamente.",
         };
     } catch (error) {
+        console.error(error);
         return { success: false, message: "Error al guardar la habitación" };
     }
 };

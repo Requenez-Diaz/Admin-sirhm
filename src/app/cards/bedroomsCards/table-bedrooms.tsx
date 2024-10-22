@@ -51,6 +51,7 @@ async function TableBedrooms() {
               <TableHead className='w-[100px]'>Descripcion </TableHead>
               <TableHead className='w-[100px]'>Temp. baja</TableHead>
               <TableHead className='w-[100px]'>Temp. alta</TableHead>
+              <TableHead className='w-[100px]'>Capacidad</TableHead>
               <TableHead className='w-[100px]'>Estado</TableHead>
               <TableHead className='w-[50px]'>N°</TableHead>
               <TableHead className='w-[100px]'>Acciones</TableHead>
@@ -66,6 +67,7 @@ async function TableBedrooms() {
                 <TableCell>{bedroom.description}</TableCell>
                 <TableCell>{bedroom.lowSeasonPrice}</TableCell>
                 <TableCell>{bedroom.highSeasonPrice}</TableCell>
+                <TableCell>{bedroom.capacity}</TableCell>
                 <TableCell>
                   <Badge variant={statusVariants[bedroom.status.toString()]}>
                     {statusLabels[bedroom.status.toString()]}

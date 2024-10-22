@@ -19,6 +19,7 @@ const FormSchema = z.object({
     lowSeasonPrice: z.coerce.number().min(1, "El precio en temporada baja debe ser mayor que cero."),
     highSeasonPrice: z.coerce.number().min(1, "El precio en temporada alta debe ser mayor que cero."),
     numberBedroom: z.coerce.number().min(1, "El número de habitación debe ser mayor que cero."),
+    capacity: z.coerce.number().min(1, "La capacidad debe ser mayor a cero."),
     status: z.enum(["1", "0"]).refine((val) => val !== undefined, {
         message: "El estado es obligatorio.",
     }),
@@ -36,6 +37,7 @@ export function FormEditBedrooms({ bedroom }: { bedroom: Bedrooms | null }) {
             lowSeasonPrice: bedroom.lowSeasonPrice,
             highSeasonPrice: bedroom.highSeasonPrice,
             numberBedroom: bedroom.numberBedroom,
+            capacity: bedroom.capacity,
             status: bedroom.status ? '1' : '0',
         } : {
             typeBedroom: "",
@@ -43,6 +45,7 @@ export function FormEditBedrooms({ bedroom }: { bedroom: Bedrooms | null }) {
             lowSeasonPrice: undefined,
             highSeasonPrice: undefined,
             numberBedroom: undefined,
+            capacity: undefined,
             status: "1",
         },
     });
@@ -55,6 +58,7 @@ export function FormEditBedrooms({ bedroom }: { bedroom: Bedrooms | null }) {
             lowSeasonPrice: data.lowSeasonPrice,
             highSeasonPrice: data.highSeasonPrice,
             numberBedroom: data.numberBedroom,
+            capacity: data.capacity,
             status: data.status,
         };
 
@@ -164,6 +168,28 @@ export function FormEditBedrooms({ bedroom }: { bedroom: Bedrooms | null }) {
                                         placeholder='Precio temporada alta'
                                         {...field}
                                         className='border border-gray-300 rounded px-2 py-1 w-full'
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                        control={form.control}
+                        name="capacity"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Capacidad</FormLabel>
+                                <FormControl>
+                                    <input
+                                        id="capacity"
+                                        type="number"
+                                        min="1"
+                                        placeholder="Capacidad de la habitación"
+                                        {...field}
                                     />
                                 </FormControl>
                                 <FormMessage />

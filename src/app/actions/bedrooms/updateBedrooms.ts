@@ -10,9 +10,10 @@ export const updateBedroom = async (data: {
     lowSeasonPrice: number;
     highSeasonPrice: number;
     numberBedroom: number;
+    capacity: number;
     status: string;
 }) => {
-    const { bedroomsId, typeBedroom, description, lowSeasonPrice, highSeasonPrice, numberBedroom, status } = data;
+    const { bedroomsId, typeBedroom, description, lowSeasonPrice, highSeasonPrice, numberBedroom, capacity, status } = data;
     const active = status === "1";
 
     try {
@@ -39,6 +40,7 @@ export const updateBedroom = async (data: {
                 lowSeasonPrice,
                 highSeasonPrice,
                 numberBedroom,
+                capacity,
                 status: active,
             },
         });

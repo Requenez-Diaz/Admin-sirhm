@@ -141,6 +141,8 @@ model Bedrooms {
   lowSeasonPrice  Int
   highSeasonPrice Int
   status          Boolean
+  capacity        Int
+  amenities       String[]
   numberBedroom   Int
   seasonsId       Int
   Seasons         Seasons           @relation(fields: [seasonsId], references: [id], onDelete: Cascade)
