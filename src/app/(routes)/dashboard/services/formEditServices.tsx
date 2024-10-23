@@ -20,8 +20,8 @@ import Icon from "@/components/ui/icons/icons";
 import { Services } from "@prisma/client";
 
 const FormSchema = z.object({
-    nameService: z.string().min(1, "El nombre del servicio es obligatorio."),
-    description: z.string().min(1, "La descripción es obligatoria."),
+    nameService: z.string().trim().min(1, "El nombre del servicio es obligatorio."),
+    description: z.string().trim().min(1, "La descripción es obligatoria."),
     price: z.coerce.number().min(1, "El precio debe ser mayor a cero."),
 });
 

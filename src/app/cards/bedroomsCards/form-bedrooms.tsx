@@ -14,7 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 
 const FormSchema = z.object({
   typeBedroom: z.string().min(1, "Selecciona un tipo de habitación."),
-  description: z.string().min(1, "La descripción es obligatoria."),
+  description: z.string().trim().min(1, "La descripción es obligatoria."),
   lowSeasonPrice: z.coerce.number().min(1, "El precio debe ser mayor a cero."),
   highSeasonPrice: z.coerce.number().min(1, "El precio debe ser mayor a cero."),
   numberBedroom: z.coerce.number().min(1, "El número de habitación debe ser mayor a cero."),
