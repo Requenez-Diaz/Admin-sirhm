@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { saveService } from "@/app/actions/services";
 import { useToast } from "@/components/ui/use-toast";
 import Icon from "@/components/ui/icons/icons";
-import { DialogClose } from "@/components/ui/dialog";
+import { DialogClose, DialogFooter } from "@/components/ui/dialog";
 
 const FormSchema = z.object({
     nameService: z.string().trim().min(1, "El nombre del servicio es obligatorio."),
@@ -115,18 +115,19 @@ const FormServices = () => {
                     )}
                 />
 
-                <div className='flex justify-end gap-4'>
-                    <DialogClose>
-                        <Button type='button' variant='success'>
+                <DialogFooter className="flex justify-end gap-4">
+                    <DialogClose asChild>
+                        <Button type="button" variant="success">
                             <Icon action='undo' className="mr-2" />
                             Cancelar
                         </Button>
                     </DialogClose>
-                    <Button type='submit' variant='update'>
+
+                    <Button type="submit" variant="update">
                         <Icon action='save' className="mr-2" />
                         Registrar
                     </Button>
-                </div>
+                </DialogFooter>
             </form>
         </Form>
     );

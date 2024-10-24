@@ -40,7 +40,7 @@ export function DeleteBedrooms({ bedroomsId }: { bedroomsId: number }) {
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <input type="hidden" name="bedroomsId" value={String(bedroomsId)} />
-          <DialogFooter>
+          <DialogFooter className="flex justify-end gap-4">
             <DialogClose asChild>
               <Button type="button" variant="success">
                 <Icon action='undo' className="mr-2" />

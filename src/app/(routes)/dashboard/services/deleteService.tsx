@@ -52,7 +52,7 @@ export function DeleteService({ serviceId }: { serviceId: string }) {
                 </DialogHeader>
                 <form onSubmit={handleSubmit}>
                     <input type="hidden" name="serviceId" value={String(serviceId)} />
-                    <DialogFooter>
+                    <DialogFooter className="flex justify-end gap-4">
                         <DialogClose asChild>
                             <Button type="button" variant="success">
                                 <Icon action='undo' className="mr-2" />

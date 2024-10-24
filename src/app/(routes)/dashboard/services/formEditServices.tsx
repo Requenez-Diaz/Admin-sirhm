@@ -1,7 +1,7 @@
 "use client";
 
 import { updateService } from "@/app/actions/services";
-import { DialogClose } from "@/components/ui/dialog";
+import { DialogClose, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
     Form,
@@ -121,18 +121,19 @@ export function FormEditServices({ service }: { service: Services | null }) {
                     )}
                 />
 
-                <div className='flex justify-end gap-4'>
+                <DialogFooter className="flex justify-end gap-4">
                     <DialogClose asChild>
-                        <Button type='button' variant='success'>
+                        <Button type="button" variant="success">
                             <Icon action='undo' className="mr-2" />
                             Cancelar
                         </Button>
                     </DialogClose>
-                    <Button type='submit' variant='update'>
+
+                    <Button type="submit" variant="update">
                         <Icon action='save' className="mr-2" />
                         Actualizar
                     </Button>
-                </div>
+                </DialogFooter>
             </form>
         </Form>
     );

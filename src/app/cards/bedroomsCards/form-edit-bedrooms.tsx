@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { bedroomsTypes } from "@/bedroomstype/bedroomsType";
 import { updateBedroom } from "@/app/actions/bedrooms";
 import { useRouter } from "next/navigation";
-import { DialogClose } from "@/components/ui/dialog";
+import { DialogClose, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import Icon from "@/components/ui/icons/icons";
 import { Bedrooms } from "@prisma/client";
@@ -12,6 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 
 const FormSchema = z.object({
     typeBedroom: z.string().min(1, "El tipo de habitación es obligatorio."),
@@ -118,7 +119,7 @@ export function FormEditBedrooms({ bedroom }: { bedroom: Bedrooms | null }) {
                             <FormItem>
                                 <FormLabel>Descripción</FormLabel>
                                 <FormControl>
-                                    <input
+                                    <Input
                                         id='description'
                                         type='text'
                                         placeholder='Descripción de la habitación'
@@ -140,7 +141,7 @@ export function FormEditBedrooms({ bedroom }: { bedroom: Bedrooms | null }) {
                             <FormItem>
                                 <FormLabel>Temporada baja</FormLabel>
                                 <FormControl>
-                                    <input
+                                    <Input
                                         id='lowSeasonPrice'
                                         type='number'
                                         min='1'
@@ -161,7 +162,7 @@ export function FormEditBedrooms({ bedroom }: { bedroom: Bedrooms | null }) {
                             <FormItem>
                                 <FormLabel>Temporada alta</FormLabel>
                                 <FormControl>
-                                    <input
+                                    <Input
                                         id='highSeasonPrice'
                                         type='number'
                                         min='1'
@@ -184,7 +185,7 @@ export function FormEditBedrooms({ bedroom }: { bedroom: Bedrooms | null }) {
                             <FormItem>
                                 <FormLabel>Capacidad</FormLabel>
                                 <FormControl>
-                                    <input
+                                    <Input
                                         id="capacity"
                                         type="number"
                                         min="1"
@@ -196,9 +197,7 @@ export function FormEditBedrooms({ bedroom }: { bedroom: Bedrooms | null }) {
                             </FormItem>
                         )}
                     />
-                </div>
 
-                <div className='grid grid-cols-2 gap-4'>
                     <FormField
                         control={form.control}
                         name='numberBedroom'
@@ -206,7 +205,7 @@ export function FormEditBedrooms({ bedroom }: { bedroom: Bedrooms | null }) {
                             <FormItem>
                                 <FormLabel>Número de habitación</FormLabel>
                                 <FormControl>
-                                    <input
+                                    <Input
                                         id='numberBedroom'
                                         type='number'
                                         min='1'
@@ -219,7 +218,9 @@ export function FormEditBedrooms({ bedroom }: { bedroom: Bedrooms | null }) {
                             </FormItem>
                         )}
                     />
+                </div>
 
+                <div className='grid grid-cols-2 gap-4'>
                     <div>
                         <label htmlFor='status' className='text-right'>Estado</label>
                         <select
@@ -233,22 +234,19 @@ export function FormEditBedrooms({ bedroom }: { bedroom: Bedrooms | null }) {
                     </div>
                 </div>
 
-                <div className="flex justify-end gap-4">
+                <DialogFooter className="flex justify-end gap-4">
                     <DialogClose asChild>
                         <Button type="button" variant="success">
-                            <Icon action="undo" className="mr-2" />
+                            <Icon action='undo' className="mr-2" />
                             Cancelar
                         </Button>
                     </DialogClose>
 
-                    {/* <DialogClose asChild> */}
                     <Button type="submit" variant="update">
-                        <Icon action="save" className="mr-2" />
+                        <Icon action='save' className="mr-2" />
                         Actualizar
                     </Button>
-                    {/* </DialogClose> */}
-                </div>
-
+                </DialogFooter>
             </form>
         </Form>
     );

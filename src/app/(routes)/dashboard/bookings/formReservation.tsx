@@ -143,7 +143,7 @@ export function FormReservation() {
                                 <FormLabel>Tipo de habitación</FormLabel>
                                 <FormControl>
                                     <select {...field} className="border border-gray-300 rounded-lg p-2">
-                                        <option value="" disabled>Selecciona el tipo de habitación</option>
+                                        <option value="" disabled>Selecciona el tipo</option>
                                         {bedroomsTypes.map((type, index) => (
                                             <option key={index} value={type}>{type}</option>
                                         ))}
@@ -184,7 +184,7 @@ export function FormReservation() {
                     />
                 </div>
 
-                <DialogFooter className="flex flex-wrap justify-between pt-4 gap-4">
+                <DialogFooter className="flex justify-end gap-4">
                     <DialogClose asChild>
                         <Button type="button" variant="success">
                             <Icon action='undo' className="mr-2" />
