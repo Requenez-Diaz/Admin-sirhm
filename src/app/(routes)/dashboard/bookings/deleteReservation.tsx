@@ -13,8 +13,8 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { deleteReservation } from "@/app/actions/reservation/deleteReservation";
 import Icon from "@/components/ui/icons/icons";
+import { deleteReservation } from "@/app/actions/reservation";
 
 
 export function DeleteReservation({ reservationId }: { reservationId: number }) {
@@ -43,7 +43,7 @@ export function DeleteReservation({ reservationId }: { reservationId: number }) 
                 <form onSubmit={handleSubmit}>
                     <input type="hidden" name="reservationId" value={String(reservationId)} />
 
-                    <DialogFooter className="flex flex-wrap justify-between pt-4 gap-4">
+                    <DialogFooter className="flex justify-end gap-4">
                         <DialogClose asChild>
                             <Button type="button" variant="success">
                                 <Icon action='undo' className="mr-2" />

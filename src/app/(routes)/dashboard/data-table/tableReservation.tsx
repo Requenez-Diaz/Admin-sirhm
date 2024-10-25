@@ -20,15 +20,13 @@ async function TableReservation() {
 
   const totalReservation = reservation.length;
 
-  // Inicializar contadores de estado
   const contadoresEstado = {
     [Status.PENDING]: 0,
     [Status.CONFIRMED]: 0,
     [Status.CANCELLED]: 0,
   };
 
-  // Contar reservaciones por estado
-  reservation.forEach((res) => {
+  reservation.forEach(res => {
     contadoresEstado[res.status]++;
   });
 
@@ -90,7 +88,7 @@ async function TableReservation() {
               <TableHead className='w-[50px]'>Habitaciones</TableHead>
               <TableHead className='w-[100px]'>Tipo de habitación</TableHead>
               <TableHead className='w-[100px]'>Estancia</TableHead>
-              <TableHead className='w-[100px]'>Acciones</TableHead>
+              {/* Se eliminó el encabezado "Acciones" */}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -117,7 +115,7 @@ async function TableReservation() {
                   <TableCell className='text-right'>
                     {duration} {durationLabel}
                   </TableCell>
-                  <TableCell className='flex justify-between gap-3'>
+                  <TableCell className='flex gap-3'>
                     <ConfirmReservation reservationId={reservation.id} />
                     <CancellReservation reservationId={reservation.id} />
                   </TableCell>

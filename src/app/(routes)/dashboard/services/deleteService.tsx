@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
     Dialog,
@@ -10,29 +10,28 @@ import {
     DialogTrigger,
     DialogClose,
 } from "@/components/ui/dialog";
-
+import { deleteService } from "@/app/actions/services";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import Icon from "@/components/ui/icons/icons";
-import { confirmReservation } from "@/app/actions/reservation";
 
-export function ConfirmReservation({ reservationId }: { reservationId: number }) {
+export function DeleteService({ serviceId }: { serviceId: string }) {
     const { toast } = useToast();
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const result = await confirmReservation(reservationId);
+        const formData = new FormData(event.currentTarget);
+        const response = await deleteService(formData);
 
-        if (result.success) {
+        if (response.success) {
             toast({
-                title: "Reservación confirmada.",
-                description: result.message,
+                title: "Servicio eliminado.",
+                description: response.message,
             });
         } else {
             toast({
-                title: "Error",
-                description: result.message,
-                variant: "destructive",
+                title: "Error al eliminar el servicio.",
+                description: response.message,
             });
         }
     };
@@ -40,21 +39,20 @@ export function ConfirmReservation({ reservationId }: { reservationId: number })
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="success" >
-                    <Icon action='accept'/>
+                <Button variant="destructive">
+                    <Icon action='delete' />
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Confirmar reservación</DialogTitle>
+                    <DialogTitle>Eliminar Servicio</DialogTitle>
                     <DialogDescription>
-                        ¿Está seguro de que desea acceptar la reservación?
+                        ¿Está seguro de que desea eliminar este servicio?
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit}>
-                    <input type="hidden" name="reservationId" value={String(reservationId)} />
-
-                    <DialogFooter className="flex flex-wrap justify-between pt-4 gap-4">
+                    <input type="hidden" name="serviceId" value={String(serviceId)} />
+                    <DialogFooter className="flex justify-end gap-4">
                         <DialogClose asChild>
                             <Button type="button" variant="success">
                                 <Icon action='undo' className="mr-2" />
@@ -62,12 +60,9 @@ export function ConfirmReservation({ reservationId }: { reservationId: number })
                             </Button>
                         </DialogClose>
                         <DialogClose asChild>
-                            <Button
-                                type="submit"
-                                variant="update"
-                            >
-                                <Icon action='accept' className="mr-2" />
-                                Acceptar
+                            <Button type="submit" variant="destructive">
+                                <Icon action='delete' className="mr-2" />
+                                Eliminar
                             </Button>
                         </DialogClose>
                     </DialogFooter>
@@ -76,3 +71,5 @@ export function ConfirmReservation({ reservationId }: { reservationId: number })
         </Dialog>
     );
 }
+
+export default DeleteService;

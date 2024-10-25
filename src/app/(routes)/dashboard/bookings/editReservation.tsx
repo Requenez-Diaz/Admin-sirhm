@@ -8,8 +8,8 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import FormEditReservation from './editReservationForm';
-import { getReservationById } from '@/app/actions/reservation/getReservationById';
 import Icon from '@/components/ui/icons/icons';
+import { getReservationById } from '@/app/actions/reservation';
 
 
 export async function EditReservation({ reservationId }: { reservationId: number }) {
