@@ -14,9 +14,9 @@ model User {
   password  String
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  Bookings  Bookings[] @relation("BookingsToUser")
   roleName  String
   role      Role       @relation(fields: [roleName], references: [roleName])
+  reservations Reservation[]
 }
 
 model Role {
@@ -24,15 +24,6 @@ model Role {
   descript String
   roleName String @unique
   users    User[] @relation()
-}
-
-model Bookings {
-  id               Int                @id @default(autoincrement())
-  status           BookingsStatus
-  created_at       DateTime           @default(now())
-  bookingsDetails  BookingsDetails[]
-  bookingsServices bookingsServices[]
-  User             User[]             @relation("BookingsToUser")
 }
 
 model Reservation {
@@ -48,6 +39,8 @@ model Reservation {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   status        Status
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id])
 }
 
 model testimonials {
@@ -96,7 +89,6 @@ model bookingsServices {
   serviceId  Int
   price      Int
   servicesId String?
-  booking    Bookings  @relation(fields: [bookingId], references: [id])
   services   Services? @relation(fields: [servicesId], references: [id])
 }
 
@@ -114,7 +106,6 @@ model BookingsDetails {
   bedroomsId   Int
   promotionsId Int
   bedrooms     Bedrooms   @relation(fields: [bedroomsId], references: [id])
-  Bookings     Bookings   @relation(fields: [bookingsId], references: [id])
   promotions   promotions @relation(fields: [promotionsId], references: [id])
 }
 
