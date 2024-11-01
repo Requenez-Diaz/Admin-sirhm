@@ -8,47 +8,30 @@ CREATE TYPE "EventStatus" AS ENUM ('PENDING', 'CONFIRMED', 'CANCELLED');
 CREATE TYPE "Status" AS ENUM ('PENDING', 'CONFIRMED', 'CANCELLED');
 
 -- CreateTable
-CREATE TABLE "Client" (
-    "id" SERIAL NOT NULL,
-    "name" TEXT NOT NULL,
-    "lastname" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "phone" INTEGER NOT NULL,
-
-    CONSTRAINT "Client_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
     "username" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "role" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "roleName" TEXT NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "bedrooms" (
+CREATE TABLE "Role" (
     "id" SERIAL NOT NULL,
-    "typeBedroom" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
-    "lowSeasonPrice" INTEGER NOT NULL,
-    "highSeasonPrice" INTEGER NOT NULL,
-    "status" BOOLEAN NOT NULL,
-    "numberBedroom" INTEGER NOT NULL,
-    "seasonsId" INTEGER NOT NULL,
+    "descript" TEXT NOT NULL,
+    "roleName" TEXT NOT NULL,
 
-    CONSTRAINT "bedrooms_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Role_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Bookings" (
     "id" SERIAL NOT NULL,
-    "clientId" INTEGER NOT NULL,
     "status" "BookingsStatus" NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -56,24 +39,21 @@ CREATE TABLE "Bookings" (
 );
 
 -- CreateTable
-CREATE TABLE "comments" (
+CREATE TABLE "Reservation" (
     "id" SERIAL NOT NULL,
-    "comment" TEXT NOT NULL,
-    "boookingId" INTEGER NOT NULL,
-    "comments" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "lastName" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "bedroomsType" TEXT NOT NULL,
+    "guests" INTEGER NOT NULL,
+    "rooms" INTEGER NOT NULL,
+    "arrivalDate" TIMESTAMP(3) NOT NULL,
+    "departureDate" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "status" "Status" NOT NULL,
 
-    CONSTRAINT "comments_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "events" (
-    "id" SERIAL NOT NULL,
-    "nameEvents" TEXT NOT NULL,
-    "date" TIMESTAMP(3) NOT NULL,
-    "hours" TIMESTAMP(3) NOT NULL,
-    "location" TEXT NOT NULL,
-
-    CONSTRAINT "events_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Reservation_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -177,17 +157,73 @@ CREATE TABLE "invoceDetails" (
     CONSTRAINT "invoceDetails_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "Bedrooms" (
+    "id" SERIAL NOT NULL,
+    "typeBedroom" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "lowSeasonPrice" INTEGER NOT NULL,
+    "highSeasonPrice" INTEGER NOT NULL,
+    "status" BOOLEAN NOT NULL,
+    "numberBedroom" INTEGER NOT NULL,
+    "seasonsId" INTEGER NOT NULL,
+
+    CONSTRAINT "Bedrooms_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Comments" (
+    "id" SERIAL NOT NULL,
+    "comment" TEXT NOT NULL,
+    "boookingId" INTEGER NOT NULL,
+    "comments" TEXT NOT NULL,
+
+    CONSTRAINT "Comments_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Events" (
+    "id" SERIAL NOT NULL,
+    "nameEvents" TEXT NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL,
+    "hours" TIMESTAMP(3) NOT NULL,
+    "location" TEXT NOT NULL,
+
+    CONSTRAINT "Events_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "UsersRole" (
+    "Id_user" INTEGER NOT NULL,
+    "Id_role" INTEGER NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "_BookingsToUser" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 
--- AddForeignKey
-ALTER TABLE "bedrooms" ADD CONSTRAINT "bedrooms_seasonsId_fkey" FOREIGN KEY ("seasonsId") REFERENCES "Seasons"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+-- CreateIndex
+CREATE UNIQUE INDEX "Role_roleName_key" ON "Role"("roleName");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UsersRole_Id_user_key" ON "UsersRole"("Id_user");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_BookingsToUser_AB_unique" ON "_BookingsToUser"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_BookingsToUser_B_index" ON "_BookingsToUser"("B");
 
 -- AddForeignKey
-ALTER TABLE "Bookings" ADD CONSTRAINT "Bookings_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "User" ADD CONSTRAINT "User_roleName_fkey" FOREIGN KEY ("roleName") REFERENCES "Role"("roleName") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "bookingsServices" ADD CONSTRAINT "bookingsServices_bookingId_fkey" FOREIGN KEY ("bookingId") REFERENCES "Bookings"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -196,16 +232,22 @@ ALTER TABLE "bookingsServices" ADD CONSTRAINT "bookingsServices_bookingId_fkey" 
 ALTER TABLE "bookingsServices" ADD CONSTRAINT "bookingsServices_servicesId_fkey" FOREIGN KEY ("servicesId") REFERENCES "Services"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "BookingsDetails" ADD CONSTRAINT "BookingsDetails_bookingsId_fkey" FOREIGN KEY ("bookingsId") REFERENCES "Bookings"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "BookingsDetails" ADD CONSTRAINT "BookingsDetails_bedroomsId_fkey" FOREIGN KEY ("bedroomsId") REFERENCES "Bedrooms"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "BookingsDetails" ADD CONSTRAINT "BookingsDetails_bedroomsId_fkey" FOREIGN KEY ("bedroomsId") REFERENCES "bedrooms"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "BookingsDetails" ADD CONSTRAINT "BookingsDetails_bookingsId_fkey" FOREIGN KEY ("bookingsId") REFERENCES "Bookings"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "BookingsDetails" ADD CONSTRAINT "BookingsDetails_promotionsId_fkey" FOREIGN KEY ("promotionsId") REFERENCES "promotions"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Invoce" ADD CONSTRAINT "Invoce_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "invoceDetails" ADD CONSTRAINT "invoceDetails_invoceId_fkey" FOREIGN KEY ("invoceId") REFERENCES "Invoce"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "invoceDetails" ADD CONSTRAINT "invoceDetails_invoceId_fkey" FOREIGN KEY ("invoceId") REFERENCES "Invoce"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Bedrooms" ADD CONSTRAINT "Bedrooms_seasonsId_fkey" FOREIGN KEY ("seasonsId") REFERENCES "Seasons"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_BookingsToUser" ADD CONSTRAINT "_BookingsToUser_A_fkey" FOREIGN KEY ("A") REFERENCES "Bookings"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_BookingsToUser" ADD CONSTRAINT "_BookingsToUser_B_fkey" FOREIGN KEY ("B") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
