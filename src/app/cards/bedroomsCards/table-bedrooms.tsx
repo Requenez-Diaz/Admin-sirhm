@@ -1,5 +1,4 @@
 import prisma from "@/lib/db";
-
 import React from "react";
 import {
   Table,
@@ -47,13 +46,13 @@ async function TableBedrooms() {
           <TableHeader>
             <TableRow>
               <TableHead className='w-[50px]'>ID</TableHead>
-              <TableHead className='w-[100px]'>Tipo </TableHead>
-              <TableHead className='w-[100px]'>Descripcion </TableHead>
+              <TableHead className='w-[100px]'>Tipo</TableHead>
+              <TableHead className='w-[100px]'>Descripción</TableHead>
               <TableHead className='w-[100px]'>Temp. baja</TableHead>
               <TableHead className='w-[100px]'>Temp. alta</TableHead>
+              <TableHead className='w-[100px]'>Capacidad</TableHead>
               <TableHead className='w-[100px]'>Estado</TableHead>
               <TableHead className='w-[50px]'>N°</TableHead>
-              <TableHead className='w-[100px]'>Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -66,6 +65,7 @@ async function TableBedrooms() {
                 <TableCell>{bedroom.description}</TableCell>
                 <TableCell>{bedroom.lowSeasonPrice}</TableCell>
                 <TableCell>{bedroom.highSeasonPrice}</TableCell>
+                <TableCell>{bedroom.capacity}</TableCell>
                 <TableCell>
                   <Badge variant={statusVariants[bedroom.status.toString()]}>
                     {statusLabels[bedroom.status.toString()]}
@@ -73,7 +73,7 @@ async function TableBedrooms() {
                 </TableCell>
                 <TableCell>{bedroom.numberBedroom}</TableCell>
                 <TableCell className='text-right flex items-center'>
-                  <div className='flex justify-between gap-3'>
+                  <div className='flex justify-between gap-3 mr-2'>
                     <EditBedrooms bedroomId={bedroom.id} />
                     <DeleteBedrooms bedroomsId={bedroom.id} />
                   </div>

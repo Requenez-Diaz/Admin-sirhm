@@ -24,7 +24,8 @@
   ],
   "ignorePatterns": [
     "prisma/**/*.sql",
-    "prisma/**/*.prisma"
+    "prisma/**/*.prisma",
+    "tsconfig.json"
   ],
   "rules": {
     "dot-notation": "error",
