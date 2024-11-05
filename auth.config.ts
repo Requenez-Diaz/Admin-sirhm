@@ -19,6 +19,9 @@ export default {
           where: {
             email: data.email,
           },
+          include: {
+            role: true,
+          },
         });
 
         if (!user || !user.password) {
@@ -31,6 +34,8 @@ export default {
         if (!isValid) {
           throw new Error("Invalid password");
         }
+
+        console.log(user.roleName);
 
         return {
           email: user.email,
