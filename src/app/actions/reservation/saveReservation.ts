@@ -55,6 +55,11 @@ export const saveReservation = async (data: {
                 arrivalDate,
                 departureDate,
                 status: Status.PENDING,
+                user: {
+                    connect: {
+                        email: email,
+                    },
+                },
             },
         });
 
