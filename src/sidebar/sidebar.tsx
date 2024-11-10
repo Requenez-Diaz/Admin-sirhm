@@ -23,7 +23,7 @@ const links = [
   { name: "servicios", href: "services", icon: HandPlatter },
   { name: "reportes", href: "reports", icon: ClipboardMinus },
   { name: "configuración", href: "settings", icon: Settings },
-  { name: "roles", href: "roles" },
+  { name: "roles", href: "roles", icon: UsersRound },
 ];
 
 const Sidebar = () => {
@@ -32,6 +32,8 @@ const Sidebar = () => {
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
+
+  const isMobile = window.innerWidth <= 768;
 
   return (
     <React.Fragment>
@@ -72,7 +74,7 @@ const Sidebar = () => {
           id='sidebar'
           className={`fixed z-20 h-full top-0 left-0 pt-16 lg:flex flex-shrink-0 flex-col w-64 transition-width duration-75 ${
             isMenuOpen ? "block" : "hidden"
-          } lg:block`}
+          } lg:block ${isMobile ? "h-screen" : "h-screen"} ${isMobile ? "bg-gray-800" : "bg-gray-900"} ${isMobile ? "opacity-90" : "opacity-100"}`}
           aria-label='Sidebar'
         >
           <div className='relative flex-1 flex flex-col min-h-0 border-r border-gray-200 bg-white pt-0'>

@@ -1,11 +1,11 @@
 import { object, string } from "zod";
 
 export const loginSchema = object({
-  email: string({ required_error: "Email is required" })
-    .min(1, "Email is required")
-    .email("Invalid email"),
-  password: string({ required_error: "Password is required" })
-    .min(1, "Password is required")
-    .min(8, "Password must be more than 8 characters")
-    .max(32, "Password must be less than 32 characters"),
+  email: string({ required_error: "El email es requerido" })
+    .min(1, "El email es requerido")
+    .email("El email no es válido"),
+  password: string({ required_error: "Contraseña incorrecta" })
+    .min(1, "La contraseña es requerida")
+    .min(8, "La contraseña debe tener al menos 8 caracteres")
+    .max(32, "La contraseña debe tener menos de 32 caracteres"),
 });

@@ -8,6 +8,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { RoleTypes } from "@/bedroomstype/roleTypes";
 import { User } from "@prisma/client";
 import { updateUsersById } from "@/app/actions/users";
+import { Save, Undo2 } from "lucide-react";
 
 export function FormEditUsers({ user }: { user: User | null }) {
   const { toast } = useToast();
@@ -88,21 +89,7 @@ export function FormEditUsers({ user }: { user: User | null }) {
         <div className='flex justify-end gap-4'>
           <DialogClose asChild>
             <Button type='button' variant='success'>
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='24'
-                height='24'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                className='lucide lucide-undo-2 mr-2'
-              >
-                <path d='M9 14L4 9l5-5' />
-                <path d='M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5 5.5 5.5 0 0 1-5.5 5.5H11' />
-              </svg>
+              <Undo2 />
               Cancelar
             </Button>
           </DialogClose>
@@ -112,28 +99,12 @@ export function FormEditUsers({ user }: { user: User | null }) {
               variant='update'
               onClick={() => {
                 toast({
-                  title: "Habitación actualizada.",
-                  description: "La habitación se actualizo correctamente.",
+                  title: "Usuario actualizado",
+                  description: "El usuario ha sido actualizado correctamente",
                 });
               }}
             >
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='24'
-                height='24'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                className='lucide lucide-save-all mr-2'
-              >
-                <path d='M10 2v3a1 1 0 0 0 1 1h5' />
-                <path d='M18 18v-6a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6' />
-                <path d='M18 22H4a2 2 0 0 1-2-2V6' />
-                <path d='M8 18a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9.172a2 2 0 0 1 1.414.586l2.828 2.828A2 2 0 0 1 22 6.828V16a2 2 0 0 1-2.01 2z' />
-              </svg>
+              <Save />
               Actualizar
             </Button>
           </DialogClose>
