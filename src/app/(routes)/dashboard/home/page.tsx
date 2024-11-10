@@ -11,7 +11,7 @@ export default async function Page() {
   //   return <div>Not authenticated</div>;
   // }
 
-  if (session?.user.role !== "admin") {
+  if (session?.user.role !== "Admin") {
     return <div>Yout not admin</div>;
   }
   return (
