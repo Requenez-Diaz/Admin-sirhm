@@ -11,7 +11,7 @@ export default {
         const { data, success } = loginSchema.safeParse(credentials);
 
         if (!success) {
-          throw new Error("Invalid credentials");
+          throw new Error("Credenciales incorrectas");
         }
 
         //TODO: verificar si el usuario existe en la base de datos
@@ -25,14 +25,18 @@ export default {
         });
 
         if (!user || !user.password) {
-          throw new Error("User not found");
+          throw new Error("Usuario no encontrado");
         }
 
         //TODO: verificar si la contraseña es correcta
         const isValid = await bcrypt.compare(data.password, user.password);
 
         if (!isValid) {
-          throw new Error("Invalid password");
+          throw new Error("Contraseña incorrecta");
+        }
+
+        if (user.roleName !== "Admin") {
+          throw new Error("Usuario no autorizado");
         }
 
         console.log(user.roleName);
