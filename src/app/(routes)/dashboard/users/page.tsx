@@ -14,7 +14,6 @@ import React from "react";
 
 export default async function Page() {
   const users = await findManyUsers();
-  console.log("Users: ", users);
 
   const totalUsers = users.length;
   return (
@@ -26,7 +25,6 @@ export default async function Page() {
             <TableHead className='w-[100px]'>ID </TableHead>
             <TableHead>Usuarios</TableHead>
             <TableHead>Email</TableHead>
-            <TableHead>Contraseña</TableHead>
             <TableHead>Role</TableHead>
             <TableHead>Acciones</TableHead>
           </TableRow>

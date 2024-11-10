@@ -17,13 +17,12 @@ model User {
   roleName  String
   role      Role       @relation(fields: [roleName], references: [roleName])
   reservations Reservation[]
-}
 
 model Role {
   id       Int    @id @default(autoincrement())
   descript String
   roleName String @unique
-  users    User[] @relation()
+  users    User[]
 }
 
 model Reservation {

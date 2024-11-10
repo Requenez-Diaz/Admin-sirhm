@@ -1,9 +1,25 @@
 import React from "react";
+import { auth } from "../../../../../auth";
+import LogoutButton from "@/app/(auth)/components/logout-button";
 
-export default function Page() {
+export default async function Page() {
+  const session = await auth();
+
+  console.log(session);
+
+  // if (!session) {
+  //   return <div>Not authenticated</div>;
+  // }
+
+  if (session?.user.role !== "Admin") {
+    return <div>Yout not admin</div>;
+  }
   return (
     <div>
-      <h1>Hello home dashboasr</h1>
+      {/* <pre>{JSON.stringify(session, null, 2)}</pre> */}
+
+      <pre>{JSON.stringify(session, null, 2)}</pre>
+      <LogoutButton />
     </div>
   );
 }
