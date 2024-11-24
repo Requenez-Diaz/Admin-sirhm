@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Sidebar from "@/sidebar/sidebar";
 
 export default function DashboardLayout({
@@ -5,17 +8,24 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
+
+  const handleSidebarStateChange = (isExpanded: boolean) => {
+    setIsSidebarExpanded(isExpanded);
+  };
+
   return (
-    <div>
-      <Sidebar />
+    <div className='flex h-screen overflow-hidden'>
+      <Sidebar onStateChange={handleSidebarStateChange} />
       <div
-        id='main-content'
-        className='h-full w-full bg-gray-50 relative overflow-y-auto lg:ml-64'
+        className={`flex-1 overflow-x-hidden overflow-y-auto transition-all duration-300 ease-in-out ${
+          isSidebarExpanded ? "ml-64" : "ml-20"
+        }`}
       >
         <main>
           <div className='pt-6 px-4'>
             <div className='w-full min-h-[calc(100vh-230px)]'>
-              <div className='bg-white shadow rounded-lg p-4 sm:p-6 xl:p-8'>
+              <div className=' shadow rounded-lg p-4 sm:p-6 xl:p-8'>
                 {children}
               </div>
             </div>
@@ -28,7 +38,7 @@ export default function DashboardLayout({
                 href='#'
                 className='text-sm font-normal text-gray-500 hover:underline mr-4 md:mr-6'
               >
-                Terms and conditions
+                Terminos y Condiciones
               </a>
             </li>
             <li>
@@ -36,7 +46,7 @@ export default function DashboardLayout({
                 href='#'
                 className='text-sm font-normal text-gray-500 hover:underline mr-4 md:mr-6'
               >
-                Privacy Policy
+                Politica de Privacidad
               </a>
             </li>
             <li>
@@ -44,7 +54,7 @@ export default function DashboardLayout({
                 href='#'
                 className='text-sm font-normal text-gray-500 hover:underline mr-4 md:mr-6'
               >
-                Licensing
+                Cookies
               </a>
             </li>
             <li>
@@ -52,16 +62,16 @@ export default function DashboardLayout({
                 href='#'
                 className='text-sm font-normal text-gray-500 hover:underline'
               >
-                Contact
+                Contacto
               </a>
             </li>
           </ul>
           <div className='text-sm font-normal text-gray-500'>
-            © 2023{" "}
+            © 2024{" "}
             <a href='#' className='hover:underline'>
-              Flowbite™
+              Avimilex Requenz by Elliam Sanchez
             </a>
-            . All rights reserved.
+            . Todos los derechos reservados.
           </div>
         </footer>
       </div>

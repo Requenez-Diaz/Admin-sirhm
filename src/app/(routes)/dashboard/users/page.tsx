@@ -17,37 +17,40 @@ export default async function Page() {
 
   const totalUsers = users.length;
   return (
-    <div>
-      <Table>
-        <TableCaption>Listado de usuarios: {totalUsers}</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead className='w-[100px]'>ID </TableHead>
-            <TableHead>Usuarios</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead>Acciones</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {users &&
-            users.map((user, index) => (
-              <TableRow key={index}>
-                <TableCell>{user.id}</TableCell>
-                <TableCell>{user.username}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.roleName}</TableCell>
-
-                <TableCell>
-                  <div className='flex flex-row items-center'>
-                    <EditUsers userId={user.id} />
-                    <DeleteUsers userId={user.id} />
-                  </div>
-                </TableCell>
+    <div className=' shadow-md rounded-lg overflow-hidden'>
+      <div className='py-12 px-4 sm:px-6 lg:px-8'>
+        <div className='overflow-x-auto'>
+          <Table className='min-w-full divide-y divide-gray-200'>
+            <TableCaption>Listado de usuarios: {totalUsers}</TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead className='w-[100px]'>ID</TableHead>
+                <TableHead>Usuarios</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Role</TableHead>
+                <TableHead>Acciones</TableHead>
               </TableRow>
-            ))}
-        </TableBody>
-      </Table>
+            </TableHeader>
+            <TableBody>
+              {users &&
+                users.map((user, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{user.id}</TableCell>
+                    <TableCell>{user.username}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.roleName}</TableCell>
+                    <TableCell>
+                      <div className='flex flex-row items-center'>
+                        <EditUsers userId={user.id} />
+                        <DeleteUsers userId={user.id} />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
     </div>
   );
 }
