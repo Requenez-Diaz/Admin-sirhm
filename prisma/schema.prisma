@@ -138,6 +138,7 @@ model Bedrooms {
   seasonsId       Int
   Seasons         Seasons           @relation(fields: [seasonsId], references: [id], onDelete: Cascade)
   bookingsDetails BookingsDetails[]
+  table           String //this line is must be removed 
 }
 
 model Comments {

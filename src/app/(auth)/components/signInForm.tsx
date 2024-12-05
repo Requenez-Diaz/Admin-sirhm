@@ -17,11 +17,13 @@ import { loginSchema } from "@/lib/zod";
 import { loginAction } from "@/app/actions/auth/login-action";
 import { useRouter } from "next/navigation";
 import { LockKeyhole, Mail } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 const SignInForm = () => {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -34,8 +36,18 @@ const SignInForm = () => {
   async function onSubmit(values: z.infer<typeof loginSchema>) {
     startTransition(async () => {
       const response = await loginAction(values);
+      toast({
+        title: "Inicio de sesión",
+        description: "Inicio de sesión exitoso",
+        variant: "success",
+      });
       console.log(response);
       if (response.error) {
+        toast({
+          title: "Error",
+          description: response.error,
+          variant: "destructive",
+        });
         setError(response.error);
       } else {
         router.push("/dashboard/home");
