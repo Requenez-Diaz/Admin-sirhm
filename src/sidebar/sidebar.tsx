@@ -1,19 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-
+import { useState, useEffect, useRef } from "react";
 import {
-  AlignJustify,
   ClipboardMinus,
   HandPlatter,
   LayoutDashboard,
   Settings,
   ShoppingCart,
   UsersRound,
-  X,
+  Pin,
+  PinOff,
 } from "lucide-react";
-import React from "react";
 import UserProfile from "./components/usersProfile";
 
 const links = [
@@ -26,44 +24,52 @@ const links = [
   { name: "roles", href: "roles", icon: UsersRound },
 ];
 
-const Sidebar = () => {
+interface SidebarProps {
+  onStateChange: (state: boolean) => void;
+}
+
+const Sidebar = ({ onStateChange }: SidebarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isPinned, setIsPinned] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const isMobile = window.innerWidth <= 768;
+  const togglePin = () => {
+    setIsPinned(!isPinned);
+    setIsExpanded(!isPinned);
+  };
+
+  useEffect(() => {
+    const handleMouseEnter = () => !isPinned && setIsExpanded(true);
+    const handleMouseLeave = () => !isPinned && setIsExpanded(false);
+
+    const sidebar = sidebarRef.current;
+    if (sidebar) {
+      sidebar.addEventListener("mouseenter", handleMouseEnter);
+      sidebar.addEventListener("mouseleave", handleMouseLeave);
+    }
+
+    return () => {
+      if (sidebar) {
+        sidebar.removeEventListener("mouseenter", handleMouseEnter);
+        sidebar.removeEventListener("mouseleave", handleMouseLeave);
+      }
+    };
+  }, [isPinned]);
 
   return (
-    <React.Fragment>
+    <>
       <nav className='bg-white border-b border-gray-200 fixed z-30 w-full'>
         <div className='px-3 py-3 lg:px-5 lg:pl-3'>
           <div className='flex items-center justify-between'>
             <div className='flex items-center justify-start'>
-              <button
-                onClick={toggleMenu}
-                aria-expanded={isMenuOpen}
-                aria-controls='sidebar'
-                className='lg:hidden mr-2 text-gray-600 hover:text-gray-900 cursor-pointer p-2 hover:bg-gray-100 focus:bg-gray-100 focus:ring-2 focus:ring-gray-100 rounded'
-              >
-                <AlignJustify
-                  className={`w-6 h-6 ${isMenuOpen ? "hidden" : "block"}`}
-                />
-
-                <X className={`w-6 h-6 ${isMenuOpen ? "block" : "hidden"}`} />
-              </button>
-              <a
-                href='#'
-                className='text-xl font-bold flex items-center lg:ml-2.5'
-              >
-                <p>Logo</p>
-                <span>
-                  <Link href={"/dashboard/home"}>SIRHM</Link>
-                </span>
-              </a>
+              <h1 className='text-lg font-semibold text-gray-900'>Dashboard</h1>
             </div>
-            <div className='flex items-center'>
+            <div className='flex items-center '>
               <UserProfile />
             </div>
           </div>
@@ -71,11 +77,25 @@ const Sidebar = () => {
       </nav>
       <div className='flex overflow-hidden bg-white pt-16'>
         <aside
+          ref={sidebarRef}
           id='sidebar'
-          className={`fixed z-20 h-full top-0 left-0 pt-16 lg:flex flex-shrink-0 flex-col w-64 transition-width duration-75 ${
-            isMenuOpen ? "block" : "hidden"
-          } lg:block ${isMobile ? "h-screen" : "h-screen"} ${isMobile ? "bg-gray-800" : "bg-gray-900"} ${isMobile ? "opacity-90" : "opacity-100"}`}
+          className={`fixed z-20 h-full top-0 left-0 pt-16 flex flex-shrink-0 flex-col transition-all duration-300 ease-in-out
+            ${isMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+            ${isExpanded || isPinned ? "w-64" : "w-20"}
+            bg-gray-900`}
           aria-label='Sidebar'
+          onMouseEnter={() => {
+            if (!isPinned) {
+              setIsExpanded(true);
+              onStateChange(true);
+            }
+          }}
+          onMouseLeave={() => {
+            if (!isPinned) {
+              setIsExpanded(false);
+              onStateChange(false);
+            }
+          }}
         >
           <div className='relative flex-1 flex flex-col min-h-0 border-r border-gray-200 bg-white pt-0'>
             <div className='flex-1 flex flex-col pt-5 pb-4 overflow-y-auto'>
@@ -85,25 +105,47 @@ const Sidebar = () => {
                     <li key={link.href}>
                       <Link
                         href={link.href}
-                        className='text-base capitalize text-gray-900 font-normal rounded-lg flex items-center p-2 hover:bg-gray-100 group'
+                        className={`text-base capitalize text-gray-900 font-normal rounded-lg flex items-center p-2 hover:bg-gray-100 group
+                          ${isExpanded || isPinned ? "" : "justify-center"}`}
                       >
                         {link.icon && <link.icon className='w-6 h-6' />}
-                        <span className='ml-3'>{link.name}</span>
+                        {(isExpanded || isPinned) && (
+                          <span className='ml-3'>{link.name}</span>
+                        )}
                       </Link>
                     </li>
                   ))}
                 </ul>
               </div>
             </div>
+            <div className='p-2'>
+              <button
+                onClick={togglePin}
+                className={`w-full flex items-center justify-center p-2 text-gray-900 rounded-lg hover:bg-gray-100
+                  ${isExpanded || isPinned ? "justify-start" : "justify-center"}`}
+                aria-label={isPinned ? "Unpin sidebar" : "Pin sidebar"}
+              >
+                {isPinned ? (
+                  <PinOff className='w-6 h-6' />
+                ) : (
+                  <Pin className='w-6 h-6' />
+                )}
+                {(isExpanded || isPinned) && (
+                  <span className='ml-3'>{isPinned ? "" : ""} Anclar</span>
+                )}
+              </button>
+            </div>
           </div>
         </aside>
-        <div
-          className={`bg-gray-900 opacity-50 ${isMenuOpen ? "block" : "hidden"} fixed inset-0 z-10`}
-          id='sidebarBackdrop'
-          onClick={toggleMenu}
-        ></div>
+        {isMenuOpen && (
+          <div
+            className='bg-gray-900 opacity-50 fixed inset-0 z-10 lg:hidden'
+            onClick={toggleMenu}
+          ></div>
+        )}
       </div>
-    </React.Fragment>
+    </>
   );
 };
+
 export default Sidebar;

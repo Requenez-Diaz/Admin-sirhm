@@ -20,7 +20,6 @@ import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { LogOutIcon } from "lucide-react";
 import AvatarIconUsers from "./avatarNav";
-
 export function MenuDrop() {
   return (
     <>
@@ -35,7 +34,7 @@ export function MenuDrop() {
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem>
-              <Link href={"/profile"}>Configuraciones</Link>
+              <Link href={"profile"}>Configuraciones</Link>
               <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
             </DropdownMenuItem>
           </DropdownMenuGroup>
