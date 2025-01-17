@@ -15,8 +15,8 @@ model User {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   roleName     String
-  role         Role          @relation(fields: [roleName], references: [roleName])
   reservations Reservation[]
+  role         Role          @relation(fields: [roleName], references: [roleName])
 }
 
 model Role {
@@ -132,13 +132,12 @@ model Bedrooms {
   lowSeasonPrice  Int
   highSeasonPrice Int
   status          Boolean
-  capacity        Int
-  amenities       String[]
   numberBedroom   Int
   seasonsId       Int
+  amenities       String[]
+  capacity        Int
   Seasons         Seasons           @relation(fields: [seasonsId], references: [id], onDelete: Cascade)
   bookingsDetails BookingsDetails[]
-  table           String //this line is must be removed 
 }
 
 model Comments {
