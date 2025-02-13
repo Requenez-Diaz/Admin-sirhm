@@ -1,4 +1,3 @@
-import prisma from "@/lib/db";
 import React from "react";
 import {
   Table,
@@ -14,12 +13,24 @@ import { AddBedrooms } from "@/app/cards/bedroomsCards/add-bedrooms";
 import { DeleteBedrooms } from "@/app/cards/bedroomsCards/delete-beedrooms";
 import { Badge, BadgeProps } from "@/components/ui/badge";
 
-async function TableBedrooms() {
-  const bedrooms = await prisma.bedrooms.findMany({
-    orderBy: {
-      numberBedroom: "asc",
-    },
-  });
+interface Bedroom {
+  id: number;
+  typeBedroom: string;
+  description: string;
+  lowSeasonPrice: number;
+  highSeasonPrice: number;
+  status: boolean;
+  capacity: number;
+  amenities: string[];
+  numberBedroom: number;
+  seasonsId: number;
+}
+
+interface TableBedroomsProps {
+  bedrooms: Bedroom[];
+}
+
+const TableBedrooms: React.FC<TableBedroomsProps> = ({ bedrooms }) => {
   const totalBedrooms = bedrooms.length;
 
   const statusVariants: Record<string, BadgeProps["variant"]> = {
@@ -85,6 +96,6 @@ async function TableBedrooms() {
       </form>
     </div>
   );
-}
+};
 
 export default TableBedrooms;
