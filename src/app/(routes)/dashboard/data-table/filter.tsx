@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
-import { Search, ChevronDown, Check } from "lucide-react";
+import { Search, ChevronDown, Check, X } from "lucide-react";
 
 interface FilterProps {
     searchTerm: string;
@@ -13,7 +13,7 @@ export function Filter({ searchTerm, setSearchTerm, selectedFilter, setSelectedF
     const [showDropdown, setShowDropdown] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    const options = ["Name", "Status", "Email"];
+    const options = ["Name", "LastName", "Status", "Email"];
 
     const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
@@ -30,6 +30,11 @@ export function Filter({ searchTerm, setSearchTerm, selectedFilter, setSelectedF
             setSelectedFilter(filter);
         }
         setShowDropdown(false);
+    };
+
+    const handleClear = () => {
+        setSearchTerm("");
+        setSelectedFilter("Columns");
     };
 
     useEffect(() => {
@@ -82,6 +87,16 @@ export function Filter({ searchTerm, setSearchTerm, selectedFilter, setSelectedF
                     </div>
                 )}
             </div>
+
+            {searchTerm && (
+                <button
+                    onClick={handleClear}
+                    className="flex items-center gap-2 bg-gray-700 hover:bg-gray-800 text-white font-medium px-4 py-2 rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 active:scale-95"
+                >
+                    <X size={18} className="text-white" />
+                    <span>Limpiar</span>
+                </button>
+            )}
         </div>
     );
 }

@@ -13,8 +13,21 @@ import { AddReservation } from "../bookings/addReservation";
 import { Badge, BadgeProps } from "@/components/ui/badge";
 import { ConfirmReservation } from "../bookings/confirmReservation";
 import { CancellReservation } from "../bookings/cancelReservation";
+import { EditReservation } from "../bookings/editReservation";
 import { calculateDuration } from "@/app/actions/reservation/calculateDuration";
 import Filter from "./filter";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { DeleteReservation } from "../bookings/deleteReservation";
+import Pagination from "./pagination";
 
 interface TableReservationProps {
   reservations: Array<{
@@ -36,6 +49,8 @@ const TableReservation: React.FC<TableReservationProps> = ({ reservations = [] }
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("Columns");
+  const [currentPage, setCurrentPage] = useState(1);
+  const reservationsPerPage = 10;
 
   const contadoresEstado = {
     [Status.PENDING]: 0,
@@ -66,6 +81,9 @@ const TableReservation: React.FC<TableReservationProps> = ({ reservations = [] }
     if (selectedFilter === "Name") {
       return res.name.toLowerCase().includes(searchTerm.toLowerCase());
     }
+    if (selectedFilter === "LastName") {
+      return res.lastName.toLowerCase().includes(searchTerm.toLowerCase());
+    }
     if (selectedFilter === "Status") {
       return statusLabels[res.status].toLowerCase().includes(searchTerm.toLowerCase());
     }
@@ -74,6 +92,14 @@ const TableReservation: React.FC<TableReservationProps> = ({ reservations = [] }
     }
     return true;
   });
+
+  const indexOfLastReservation = currentPage * reservationsPerPage;
+  const indexOfFirstReservation = indexOfLastReservation - reservationsPerPage;
+  const currentReservations = filteredReservations.slice(indexOfFirstReservation, indexOfLastReservation);
+
+  const totalPages = Math.ceil(filteredReservations.length / reservationsPerPage);
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
     <div className="overflow-x-auto p-4">
@@ -125,7 +151,7 @@ const TableReservation: React.FC<TableReservationProps> = ({ reservations = [] }
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredReservations.map((reservation, index) => {
+            {currentReservations.map((reservation, index) => {
               const duration = calculateDuration(
                 reservation.arrivalDate.toString(),
                 reservation.departureDate.toString()
@@ -150,8 +176,30 @@ const TableReservation: React.FC<TableReservationProps> = ({ reservations = [] }
                     {duration} {durationLabel}
                   </TableCell>
                   <TableCell className="flex flex-wrap gap-2 text-xs sm:text-sm">
-                    <ConfirmReservation reservationId={reservation.id} />
-                    <CancellReservation reservationId={reservation.id} />
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <span className="sr-only">Open menu</span>
+                          <MoreHorizontal />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="flex flex-col">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem asChild>
+                          <ConfirmReservation reservationId={reservation.id} />
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <CancellReservation reservationId={reservation.id} />
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                          <EditReservation reservationId={reservation.id} />
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <DeleteReservation reservationId={reservation.id} />
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               );
@@ -159,6 +207,12 @@ const TableReservation: React.FC<TableReservationProps> = ({ reservations = [] }
           </TableBody>
         </Table>
       </div>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={paginate}
+      />
     </div>
   );
 }
