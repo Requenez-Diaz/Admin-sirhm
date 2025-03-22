@@ -15,8 +15,11 @@ model User {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   roleName     String
+  image        String?
+  Comments     Comments[]
   reservations Reservation[]
   role         Role          @relation(fields: [roleName], references: [roleName])
+  UserImage    UserImage?
 }
 
 model Role {
@@ -138,13 +141,20 @@ model Bedrooms {
   capacity        Int
   Seasons         Seasons           @relation(fields: [seasonsId], references: [id], onDelete: Cascade)
   bookingsDetails BookingsDetails[]
+  Comments        Comments[]
 }
 
 model Comments {
-  id         Int    @id @default(autoincrement())
-  comment    String
-  boookingId Int
+  id         Int       @id @default(autoincrement())
   comments   String
+  bedroomsId Int?
+  content    String
+  createdAt  DateTime  @default(now())
+  rating     Int       @default(0)
+  updatedAt  DateTime
+  userId     Int
+  Bedrooms   Bedrooms? @relation(fields: [bedroomsId], references: [id])
+  User       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Events {
@@ -158,6 +168,13 @@ model Events {
 model UsersRole {
   Id_user Int @unique
   Id_role Int
+}
+
+model UserImage {
+  id     Int    @id @default(autoincrement())
+  userId Int    @unique
+  image  String
+  User   User   @relation(fields: [userId], references: [id])
 }
 
 enum BookingsStatus {
