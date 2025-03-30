@@ -15,7 +15,7 @@ export type Season = {
 
 export type OfferFormProps = {
   onSuccess?: () => void;
-  editingOffer?: Promotion; // Replace 'any' with the Promotion type
+  editingOffer?: Promotion;
 };
 
 export type PromotionData = {
@@ -28,6 +28,14 @@ export type PromotionData = {
   bedroomIds: number[];
 };
 
+export interface BedroomPromotion {
+  id?: number;
+  promotionId?: number;
+  bedroomId?: number;
+  bedroom: Bedroom;
+  // Make all fields optional except bedroom to handle both structures
+}
+
 export interface Promotion {
   id: number;
   codePromotions: string;
@@ -35,14 +43,38 @@ export interface Promotion {
   dateStart: string | Date;
   dateEnd: string | Date;
   description?: string;
+  seasonId?: number;
   createdAt: string | Date;
+
+  // Support both naming conventions
   season?: Season;
+  seasons?: Season;
+
+  // Support both naming conventions
   bedroomPromotions?: BedroomPromotion[];
-  // Add other promotion properties as needed
+  BedroomsPromotions?: BedroomPromotion[];
 }
 
-export interface BedroomPromotion {
-  id: number;
-  bedroom: Bedroom;
-  // Add other properties as needed
+export interface FormValues {
+  codePromotions: string;
+  porcentageDescuent: number;
+  dateRange: {
+    from: Date;
+    to: Date;
+  };
+  seasonId: string;
+  bedroomIds: string[];
+  description: string;
+}
+
+export interface PromotionResponse {
+  success: boolean;
+  data?: Promotion[];
+  error?: string;
+}
+
+export interface DeletePromotionResponse {
+  success: boolean;
+  error?: string;
+  message?: string;
 }

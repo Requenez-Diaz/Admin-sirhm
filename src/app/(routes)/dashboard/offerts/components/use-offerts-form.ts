@@ -22,6 +22,7 @@ export function useOfferFormData() {
             // Usamos Promise.all para hacer ambas peticiones en paralelo
             const [bedroomsResult, seasonsResult] = await Promise.all([
               getAllBedrooomToPromotions(),
+
               getAllSeasons(),
             ]);
 
