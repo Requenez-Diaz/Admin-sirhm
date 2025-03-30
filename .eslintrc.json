@@ -29,7 +29,7 @@
   ],
   "rules": {
     "dot-notation": "error",
-    "no-else-return": "error",
+    // "no-else-return": "error",
     "no-floating-decimal": "error",
     "no-sequences": "error",
     "array-bracket-spacing": "error",
@@ -72,6 +72,7 @@
         "varsIgnorePattern": "^_",
         "argsIgnorePattern": "^_"
       }
-    ]
+    ],
+    "@typescript-eslint/no-explicit-any": "error"
   }
 }
