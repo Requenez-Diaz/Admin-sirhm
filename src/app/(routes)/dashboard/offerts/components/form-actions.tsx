@@ -15,10 +15,10 @@ export function FormActions({
 }: FormActionsProps) {
   return (
     <div className='flex justify-end gap-3'>
-      <Button type='button' variant='outline' onClick={onCancel}>
+      <Button type='button' variant='danger' onClick={onCancel}>
         Cancelar
       </Button>
-      <Button type='submit' disabled={isSubmitting}>
+      <Button variant={"success"} type='submit' disabled={isSubmitting}>
         {isSubmitting
           ? "Guardando..."
           : isEditing
