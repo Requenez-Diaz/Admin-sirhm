@@ -152,7 +152,7 @@ model Comments {
 }
 
 model Events {
-  id         Int      @id @default(autoincrement())
+  id         Int      @id @default(autoincrement()) 
   nameEvents String
   date       DateTime
   hours      DateTime

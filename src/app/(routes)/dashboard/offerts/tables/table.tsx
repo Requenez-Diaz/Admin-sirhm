@@ -45,6 +45,30 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/use-toast";
 import type { Promotion } from "../type";
 
+// Add this debugging function
+// const debugData = (data: any) => {
+//   console.log("DEBUG DATA STRUCTURE:");
+//   console.log(JSON.stringify(data, null, 2));
+
+//   // Check for BedroomsPromotions
+//   if (data && data.BedroomsPromotions) {
+//     console.log("BedroomsPromotions exists:", data.BedroomsPromotions);
+//   } else if (data && data.bedroomPromotions) {
+//     console.log("bedroomPromotions exists:", data.bedroomPromotions);
+//   } else {
+//     console.log("Neither BedroomsPromotions nor bedroomPromotions exists");
+//   }
+
+//   // Check for seasons
+//   if (data && data.seasons) {
+//     console.log("seasons exists:", data.seasons);
+//   } else if (data && data.season) {
+//     console.log("season exists:", data.season);
+//   } else {
+//     console.log("Neither seasons nor season exists");
+//   }
+// };
+
 interface OffersTableProps {
   onEdit?: (offer: Promotion) => void;
 }
@@ -64,7 +88,9 @@ export function OffersTable({ onEdit }: OffersTableProps) {
         // Llamar directamente al server action
         const result = await getPromotions();
         console.log("Ofertas obtenidas:", result);
-        if (result.success) {
+        if (result.success && result.data && result.data.length > 0) {
+          // Debug the first promotion to see its structure
+
           setOffers(result.data || []);
         } else {
           toast({
@@ -148,26 +174,38 @@ export function OffersTable({ onEdit }: OffersTableProps) {
     }
   };
 
-  // Modificar la función getBedroomTypes para manejar mejor los datos
+  // Modify the getBedroomTypes function to handle both naming conventions
   const getBedroomTypes = (offer: Promotion): string[] => {
     console.log(
       "Datos de habitaciones para oferta:",
       offer.id,
-      offer.bedroomPromotions
+      offer.BedroomsPromotions || offer.bedroomPromotions
     );
 
+    // Try BedroomsPromotions first (from Prisma)
     if (
-      !offer.bedroomPromotions ||
-      !Array.isArray(offer.bedroomPromotions) ||
-      offer.bedroomPromotions.length === 0
+      offer.BedroomsPromotions &&
+      Array.isArray(offer.BedroomsPromotions) &&
+      offer.BedroomsPromotions.length > 0
     ) {
-      return [];
+      return offer.BedroomsPromotions.filter(
+        (bp) => bp && bp.bedroom && bp.bedroom.typeBedroom
+      ).map((bp) => bp.bedroom.typeBedroom);
     }
 
-    // Mapear y filtrar para asegurar que solo se incluyan habitaciones válidas
-    return offer.bedroomPromotions
-      .filter((bp) => bp && bp.bedroom && bp.bedroom.typeBedroom)
-      .map((bp) => bp.bedroom.typeBedroom);
+    // Try bedroomPromotions as fallback (from your type)
+    if (
+      offer.bedroomPromotions &&
+      Array.isArray(offer.bedroomPromotions) &&
+      offer.bedroomPromotions.length > 0
+    ) {
+      return offer.bedroomPromotions
+        .filter((bp) => bp && bp.bedroom && bp.bedroom.typeBedroom)
+        .map((bp) => bp.bedroom.typeBedroom);
+    }
+
+    // If neither exists or they're empty, return an empty array
+    return [];
   };
 
   // Modificar la función renderBedroomTypes para mostrar mejor la información
@@ -232,7 +270,11 @@ export function OffersTable({ onEdit }: OffersTableProps) {
                       </TableCell>
                       <TableCell>{offer.porcentageDescuent}%</TableCell>
                       <TableCell>
-                        {offer.season ? offer.season.nameSeason : "Desconocida"}
+                        {offer.seasons
+                          ? offer.seasons.nameSeason
+                          : offer.season
+                            ? offer.season.nameSeason
+                            : "Desconocida"}
                       </TableCell>
                       <TableCell>
                         <div className='flex flex-col'>
@@ -371,7 +413,9 @@ export function OffersTable({ onEdit }: OffersTableProps) {
                     Temporada
                   </h4>
                   <p className='text-base'>
-                    {selectedOffer.season?.nameSeason || "Desconocida"}
+                    {selectedOffer.seasons?.nameSeason ||
+                      selectedOffer.season?.nameSeason ||
+                      "Desconocida"}
                   </p>
                 </div>
                 <div>
