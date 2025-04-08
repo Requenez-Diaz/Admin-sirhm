@@ -29,7 +29,7 @@
   ],
   "rules": {
     "dot-notation": "error",
-    // "no-else-return": "error",
+    "no-else-return": "off",
     "no-floating-decimal": "error",
     "no-sequences": "error",
     "array-bracket-spacing": "error",
@@ -37,7 +37,7 @@
       "error",
       "never"
     ],
-    "curly": "error",
+    "curly": "off",
     "no-lonely-if": "error",
     "no-unneeded-ternary": "error",
     "one-var-declaration-per-line": "error",
@@ -73,6 +73,6 @@
         "argsIgnorePattern": "^_"
       }
     ],
-    "@typescript-eslint/no-explicit-any": "error"
+    "@typescript-eslint/no-explicit-any": "off"
   }
 }
