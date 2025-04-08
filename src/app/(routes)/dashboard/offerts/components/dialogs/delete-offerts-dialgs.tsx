@@ -35,7 +35,7 @@ export function DeleteOfferDialog({
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant='outline' onClick={() => onOpenChange(false)}>
+          <Button variant='warning' onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
           <Button variant='destructive' onClick={() => onConfirm(offer.id)}>

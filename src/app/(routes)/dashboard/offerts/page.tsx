@@ -17,6 +17,7 @@ export default function OffertsPage() {
         <Button
           onClick={() => setShowForm(!showForm)}
           className='flex items-center gap-2'
+          variant='outline'
         >
           <PlusCircle className='h-4 w-4' />
           {showForm ? "Ver Listado" : "Crear Oferta"}
