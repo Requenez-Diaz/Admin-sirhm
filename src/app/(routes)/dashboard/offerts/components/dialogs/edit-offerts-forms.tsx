@@ -326,7 +326,9 @@ export function EditOfferForm({
           <Button variant='outline' type='button' onClick={onCancel}>
             Cancelar
           </Button>
-          <Button type='submit'>Guardar Cambios</Button>
+          <Button variant={"success"} type='submit'>
+            Guardar Cambios
+          </Button>
         </div>
       </form>
     </Form>

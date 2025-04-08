@@ -250,7 +250,7 @@ export function EditOfferModal({
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
-                          variant='outline'
+                          variant='info'
                           className={cn(
                             "pl-3 text-left font-normal",
                             !field.value && "text-muted-foreground"
