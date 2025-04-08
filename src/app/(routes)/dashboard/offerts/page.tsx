@@ -4,8 +4,8 @@ import { useState } from "react";
 import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-import { OffersTable } from "./tables/table";
 import { OfferForm } from "./components";
+import { OffersTable } from "./tables/offert-table";
 
 export default function OffertsPage() {
   const [showForm, setShowForm] = useState(false);
