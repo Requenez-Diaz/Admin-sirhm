@@ -1,4 +1,6 @@
-import { Button } from '@/components/ui/button';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import {
     Dialog,
     DialogContent,
@@ -7,23 +9,53 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import FormEditReservation from './editReservationForm';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icons/icons';
+import FormEditReservation from './editReservationForm';
 import { getReservationById } from '@/app/actions/reservation';
+import { Status } from "@prisma/client";
 
+interface Reservation {
+    id: number;
+    name: string;
+    lastName: string;
+    email: string;
+    bedroomsType: string;
+    guests: number;
+    rooms: number;
+    arrivalDate: Date;
+    departureDate: Date;
+    createdAt: Date;
+    updatedAt: Date;
+    status: Status;
+    userId: number;
+}
 
-export async function EditReservation({ reservationId }: { reservationId: number }) {
-    const reservation = await getReservationById(reservationId);
+interface EditReservationProps {
+    reservationId: number;
+}
+
+export function EditReservation({ reservationId }: EditReservationProps) {
+    const [reservation, setReservation] = useState<Reservation | null>(null);
+
+    useEffect(() => {
+        async function fetchReservation() {
+            const res = await getReservationById(reservationId);
+            setReservation(res);
+        }
+        fetchReservation();
+    }, [reservationId]);
 
     if (!reservation) {
-        return <p>Error: No se encontró la reservación</p>
+        return <p>Cargando...</p>;
     }
 
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="update">
-                    <Icon action='edit' />
+            <Button variant="outline">
+                    <Icon action='edit' className="mr-2" />
+                    Editar Reservación
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[600px] p-6">

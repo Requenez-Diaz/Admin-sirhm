@@ -29,8 +29,9 @@ export function DeleteReservation({ reservationId }: { reservationId: number }) 
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="destructive">
-                    <Icon action='delete' />
+                <Button variant="outline">
+                    <Icon action='delete' className="mr-2" />
+                    Eliminar Reservación
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">

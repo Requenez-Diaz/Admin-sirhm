@@ -40,8 +40,9 @@ export function ConfirmReservation({ reservationId }: { reservationId: number })
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="success" >
-                    <Icon action='accept'/>
+                <Button variant="outline">
+                    <Icon action='accept' className="mr-2" />
+                    Confirmar Reservación
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">

@@ -40,8 +40,9 @@ export function CancellReservation({ reservationId }: { reservationId: number })
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="destructive">
-                    <Icon action='cancell'/>
+                <Button variant="outline">
+                    <Icon action='cancell' className="mr-2" />
+                    Cancelar Reservación
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">

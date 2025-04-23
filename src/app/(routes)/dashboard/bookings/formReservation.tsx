@@ -23,7 +23,11 @@ const FormSchema = z.object({
     departureDate: z.string().min(1, "La fecha de salida es obligatoria."),
 });
 
-export function FormReservation() {
+interface FormReservationProps {
+    onSubmitSuccess?: () => void;
+}
+
+export function FormReservation({ onSubmitSuccess }: FormReservationProps) {
     const { toast } = useToast();
 
     const form = useForm<z.infer<typeof FormSchema>>({
@@ -52,6 +56,9 @@ export function FormReservation() {
                 title: "Reserva realizada.",
                 description: "La reservación se registró correctamente.",
             });
+            if (onSubmitSuccess) {
+                onSubmitSuccess();
+            }
         } else {
             toast({
                 title: "Reserva no realizada.",
