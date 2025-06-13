@@ -1,6 +1,7 @@
 'use client';
 import { getReservations } from '@/app/actions/reservation';
 import { OccupancyChart } from './OccupancyChart';
+import { RoomTypeDistribution } from './RoomTypeDistribution';
 import { useState, useEffect } from 'react';
 
 interface Reservation {
@@ -77,12 +78,18 @@ export default function DashboardPage() {
     if (reservations.length === 0) return <div>No hay datos disponibles</div>;
 
     const stats = calculateStats(reservations);
+    const roomTypesData = Object.entries(stats.roomTypes).map(([name, value]) => ({
+        name,
+        value
+    }));
 
 
     return (
         <div className="p-8 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <OccupancyChart occupancyRate={stats.occupancyRate} />
+                <RoomTypeDistribution roomTypesData={roomTypesData} />
+
             </div>
         </div>
     );
