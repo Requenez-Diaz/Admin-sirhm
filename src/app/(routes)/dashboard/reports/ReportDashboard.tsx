@@ -1,9 +1,10 @@
 'use client';
 import { getReservations } from '@/app/actions/reservation';
 import { OccupancyChart } from './OccupancyChart';
-import { RoomTypeDistribution } from './RoomTypeDistribution';
 import { useState, useEffect } from 'react';
+import { RoomTypeDistribution } from './RoomTypeDistribution';
 import { ReservationStatusChart } from './ReservationStatusChart';
+import { QuickStats } from './QuickStats';
 
 interface Reservation {
     id: number;
@@ -96,6 +97,14 @@ export default function DashboardPage() {
                 <OccupancyChart occupancyRate={stats.occupancyRate} />
                 <RoomTypeDistribution roomTypesData={roomTypesData} />
                 <ReservationStatusChart reservationStatusData={reservationStatusData} />
+                <QuickStats
+                    mostRequestedType={stats.mostRequestedType}
+                    mostRequestedRate={stats.mostRequestedRate}
+                    totalReservations={stats.totalReservations}
+                    confirmedReservations={stats.confirmedReservations}
+                    pendingReservations={stats.pendingReservations}
+                    cancelledReservations={stats.cancelledReservations}
+                />
             </div>
         </div>
     );
