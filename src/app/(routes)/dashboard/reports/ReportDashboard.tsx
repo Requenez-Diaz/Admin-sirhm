@@ -3,6 +3,7 @@ import { getReservations } from '@/app/actions/reservation';
 import { OccupancyChart } from './OccupancyChart';
 import { RoomTypeDistribution } from './RoomTypeDistribution';
 import { useState, useEffect } from 'react';
+import { ReservationStatusChart } from './ReservationStatusChart';
 
 interface Reservation {
     id: number;
@@ -83,13 +84,18 @@ export default function DashboardPage() {
         value
     }));
 
+    const reservationStatusData = [
+        { name: 'Confirmadas', value: stats.confirmedReservations },
+        { name: 'Pendientes', value: stats.pendingReservations },
+        { name: 'Canceladas', value: stats.cancelledReservations }
+    ];
 
     return (
         <div className="p-8 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <OccupancyChart occupancyRate={stats.occupancyRate} />
                 <RoomTypeDistribution roomTypesData={roomTypesData} />
-
+                <ReservationStatusChart reservationStatusData={reservationStatusData} />
             </div>
         </div>
     );
