@@ -1,8 +1,7 @@
 "use client";
 
 import type React from "react";
-
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -11,20 +10,27 @@ import { X, Upload, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 interface ImageUploadProps {
-  onImageUpload: (imagePath: string) => void;
+  onImageUpload: (imageBase64: string, fileName?: string) => void;
   currentImage?: string;
   onImageRemove: () => void;
+  disabled?: boolean;
 }
 
 export default function ImageUpload({
   onImageUpload,
   currentImage,
   onImageRemove,
+  disabled = false,
 }: ImageUploadProps) {
   const [imagePreview, setImagePreview] = useState<string>(currentImage || "");
-  const [isUploading, setIsUploading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [currentFileName, setCurrentFileName] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    setImagePreview(currentImage || "");
+  }, [currentImage]);
 
   const handleImageChange = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -32,7 +38,6 @@ export default function ImageUpload({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validaciones del lado del cliente
     const allowedTypes = [
       "image/jpeg",
       "image/jpg",
@@ -40,6 +45,7 @@ export default function ImageUpload({
       "image/gif",
       "image/webp",
     ];
+
     if (!allowedTypes.includes(file.type)) {
       toast({
         title: "Error",
@@ -59,48 +65,52 @@ export default function ImageUpload({
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setImagePreview(e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
-    setIsUploading(true);
+    setIsProcessing(true);
+
     try {
-      const formData = new FormData();
-      formData.append("file", file);
+      const base64 = await convertFileToBase64(file);
 
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
+      setImagePreview(base64);
+      setCurrentFileName(file.name);
+      onImageUpload(base64, file.name);
+
+      toast({
+        title: "Éxito",
+        description: `Imagen "${file.name}" cargada correctamente.`,
       });
-
-      const result = await response.json();
-
-      if (result.success) {
-        onImageUpload(result.filePath);
-        toast({
-          title: "Éxito",
-          description: "Imagen subida correctamente.",
-        });
-      } else {
-        throw new Error(result.message);
-      }
     } catch (error) {
-      console.error("Error al subir imagen:", error);
+      console.error("Error al procesar imagen:", error);
       toast({
         title: "Error",
-        description: "Error al subir la imagen. Intenta nuevamente.",
+        description: "Error al procesar la imagen. Intenta nuevamente.",
         variant: "destructive",
       });
       setImagePreview("");
+      setCurrentFileName("");
       onImageRemove();
     } finally {
-      setIsUploading(false);
+      setIsProcessing(false);
     }
+  };
+
+  const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (reader.result) {
+          resolve(reader.result as string);
+        } else {
+          reject(new Error("Error al leer el archivo"));
+        }
+      };
+      reader.onerror = () => reject(new Error("Error al leer el archivo"));
+      reader.readAsDataURL(file);
+    });
   };
 
   const removeImage = () => {
     setImagePreview("");
+    setCurrentFileName("");
     onImageRemove();
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -108,7 +118,9 @@ export default function ImageUpload({
   };
 
   const triggerFileInput = () => {
-    fileInputRef.current?.click();
+    if (!disabled && !isProcessing) {
+      fileInputRef.current?.click();
+    }
   };
 
   return (
@@ -117,20 +129,22 @@ export default function ImageUpload({
         {!imagePreview ? (
           <Label
             htmlFor='uploadImage'
-            className='flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors'
+            className={`flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors ${
+              disabled || isProcessing ? "opacity-50 cursor-not-allowed" : ""
+            }`}
             onClick={triggerFileInput}
           >
             <div className='flex flex-col items-center justify-center pt-5 pb-6'>
-              {isUploading ? (
+              {isProcessing ? (
                 <Loader2 className='w-8 h-8 mb-2 text-gray-500 animate-spin' />
               ) : (
                 <Upload className='w-8 h-8 mb-2 text-gray-500' />
               )}
               <p className='mb-2 text-sm text-gray-500'>
                 <span className='font-semibold'>
-                  {isUploading ? "Subiendo..." : "Click para subir"}
+                  {isProcessing ? "Procesando..." : "Click para subir"}
                 </span>
-                {!isUploading && " o arrastra y suelta"}
+                {!isProcessing && !disabled && " o arrastra y suelta"}
               </p>
               <p className='text-xs text-gray-500'>PNG, JPG, GIF hasta 5MB</p>
             </div>
@@ -145,13 +159,18 @@ export default function ImageUpload({
                 className='object-cover'
               />
             </div>
+            {currentFileName && (
+              <p className='text-xs text-gray-500 mt-2 truncate'>
+                Archivo: {currentFileName}
+              </p>
+            )}
             <Button
               type='button'
               variant='destructive'
               size='sm'
               className='absolute top-2 right-2'
               onClick={removeImage}
-              disabled={isUploading}
+              disabled={disabled || isProcessing}
             >
               <X className='w-4 h-4' />
             </Button>
@@ -166,7 +185,7 @@ export default function ImageUpload({
         accept='image/*'
         className='hidden'
         onChange={handleImageChange}
-        disabled={isUploading}
+        disabled={disabled || isProcessing}
       />
     </div>
   );
