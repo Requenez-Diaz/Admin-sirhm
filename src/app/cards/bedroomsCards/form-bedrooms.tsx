@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import Icon from "@/components/ui/icons/icons";
 import { Input } from "@/components/ui/input";
-import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import {
   Form,
   FormControl,
@@ -18,21 +18,15 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
-const FormSchema = z.object({
-  typeBedroom: z.string().min(1, "Selecciona un tipo de habitación."),
-  description: z.string().trim().min(1, "La descripción es obligatoria."),
-  lowSeasonPrice: z.coerce.number().min(1, "El precio debe ser mayor a cero."),
-  highSeasonPrice: z.coerce.number().min(1, "El precio debe ser mayor a cero."),
-  numberBedroom: z.coerce.number().min(1, "El número de habitación debe ser mayor a cero."),
-  capacity: z.coerce.number().min(1, "La capacidad debe ser mayor a cero."),
-  status: z.enum(["1", "0"]).refine((val) => val !== undefined, {
-    message: "El estado es obligatorio.",
-  }),
-});
+import ImageUpload from "./upload-file";
+import { uploadImageBedrooms } from "@/app/actions/uploadsImage/uploadImageBedrooms";
+import { FormSchema } from "./types/schema-validations";
+import { z } from "zod";
 
 const FormBedrooms = () => {
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imageFileName, setImageFileName] = useState<string>("");
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -44,43 +38,104 @@ const FormBedrooms = () => {
       numberBedroom: undefined,
       capacity: undefined,
       status: "1",
+      image: "",
+      createdAt: new Date(),
+      updatedAt: new Date(),
     },
   });
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
-    const response = await saveBedrooms(data);
+    setIsSubmitting(true);
 
-    if (response.success) {
-      toast({
-        title: "Habitación registrada.",
-        description: "La habitación se registró correctamente.",
-      });
-    } else {
+    try {
+      const bedroomData = {
+        ...data,
+        image: "",
+      };
+
+      const response = await saveBedrooms(bedroomData);
+
+      if (response.success && response.data?.id) {
+        if (data.image) {
+          const imageResponse = await uploadImageBedrooms(
+            response.data.id,
+            data.image,
+            imageFileName
+          );
+
+          if (imageResponse.success) {
+            toast({
+              title: "Habitación registrada.",
+              description: `La habitación y la imagen (${imageResponse.data?.imageName}) se registraron correctamente.`,
+            });
+          } else {
+            toast({
+              title: "Habitación registrada con advertencia.",
+              description: `La habitación se registró pero hubo un error con la imagen: ${imageResponse.error}`,
+              variant: "destructive",
+            });
+          }
+        } else {
+          toast({
+            title: "Habitación registrada.",
+            description: "La habitación se registró correctamente.",
+          });
+        }
+        form.reset();
+        setImageFileName("");
+      } else {
+        toast({
+          title: "Error",
+          description:
+            response.message ||
+            "Ha ocurrido un error al registrar la habitación.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error al enviar formulario:", error);
       toast({
         title: "Error",
-        description: response.message || "Ha ocurrido un error al registrar la habitación.",
+        description: "Error inesperado al registrar la habitación.",
+        variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
+  };
+  const handleImageUpload = (imageBase64: string, fileName?: string) => {
+    form.setValue("image", imageBase64);
+    form.clearErrors("image");
+    setImageFileName(fileName || "");
+  };
+
+  const handleImageRemove = () => {
+    form.setValue("image", "");
+    setImageFileName("");
   };
 
   return (
-    <div className="max-h-screen overflow-y-auto">
+    <div className='max-h-screen  overflow-y-auto'>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 py-4">
-          <div className="grid grid-cols-2 gap-4">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className='grid m-6 gap-4 py-4'
+        >
+          <div className='grid grid-cols-2 gap-4'>
             <FormField
               control={form.control}
-              name="typeBedroom"
+              name='typeBedroom'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Tipo de habitación</FormLabel>
                   <FormControl>
                     <select
-                      id="typeBedroom"
+                      id='typeBedroom'
                       {...field}
-                      className="border border-gray-300 rounded px-2 py-1 w-full"
+                      className='border border-gray-300 rounded px-2 py-1 w-full'
+                      disabled={isSubmitting}
                     >
-                      <option value="" disabled>
+                      <option value='' disabled>
                         Selecciona un tipo
                       </option>
                       {bedroomsTypes.map((type, index) => (
@@ -97,15 +152,16 @@ const FormBedrooms = () => {
 
             <FormField
               control={form.control}
-              name="description"
+              name='description'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Descripción</FormLabel>
                   <FormControl>
                     <Input
-                      id="description"
-                      type="text"
-                      placeholder="Descripción de la habitación"
+                      id='description'
+                      type='text'
+                      placeholder='Descripción de la habitación'
+                      disabled={isSubmitting}
                       {...field}
                     />
                   </FormControl>
@@ -115,19 +171,20 @@ const FormBedrooms = () => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className='grid grid-cols-2 gap-4'>
             <FormField
               control={form.control}
-              name="lowSeasonPrice"
+              name='lowSeasonPrice'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Precio Temporada Baja</FormLabel>
                   <FormControl>
                     <Input
-                      id="lowSeasonPrice"
-                      type="number"
-                      min="1"
-                      placeholder="Precio temporada baja"
+                      id='lowSeasonPrice'
+                      type='number'
+                      min='1'
+                      placeholder='Precio temporada baja'
+                      disabled={isSubmitting}
                       {...field}
                     />
                   </FormControl>
@@ -138,16 +195,17 @@ const FormBedrooms = () => {
 
             <FormField
               control={form.control}
-              name="highSeasonPrice"
+              name='highSeasonPrice'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Precio Temporada Alta</FormLabel>
                   <FormControl>
                     <Input
-                      id="highSeasonPrice"
-                      type="number"
-                      min="1"
-                      placeholder="Precio temporada alta"
+                      id='highSeasonPrice'
+                      type='number'
+                      min='1'
+                      placeholder='Precio temporada alta'
+                      disabled={isSubmitting}
                       {...field}
                     />
                   </FormControl>
@@ -157,19 +215,20 @@ const FormBedrooms = () => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className='grid grid-cols-2 gap-4'>
             <FormField
               control={form.control}
-              name="capacity"
+              name='capacity'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Capacidad</FormLabel>
                   <FormControl>
                     <Input
-                      id="capacity"
-                      type="number"
-                      min="1"
-                      placeholder="Capacidad de la habitación"
+                      id='capacity'
+                      type='number'
+                      min='1'
+                      placeholder='Capacidad de la habitación'
+                      disabled={isSubmitting}
                       {...field}
                     />
                   </FormControl>
@@ -180,16 +239,17 @@ const FormBedrooms = () => {
 
             <FormField
               control={form.control}
-              name="numberBedroom"
+              name='numberBedroom'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Número de habitación</FormLabel>
                   <FormControl>
                     <Input
-                      id="numberBedroom"
-                      type="number"
-                      min="1"
-                      placeholder="Número de habitación"
+                      id='numberBedroom'
+                      type='number'
+                      min='1'
+                      placeholder='Número de habitación'
+                      disabled={isSubmitting}
                       {...field}
                     />
                   </FormControl>
@@ -199,40 +259,68 @@ const FormBedrooms = () => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className='grid grid-cols-2 gap-4'>
             <FormField
               control={form.control}
-              name="status"
+              name='status'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Estado</FormLabel>
                   <FormControl>
                     <select
-                      id="status"
+                      id='status'
                       {...field}
-                      className="border border-gray-300 rounded px-2 py-1 w-full"
+                      className='border border-gray-300 rounded px-2 py-1 w-full'
+                      disabled={isSubmitting}
                     >
-                      <option value="1">Activo</option>
-                      <option value="0">Inactivo</option>
+                      <option value='1'>Activo</option>
+                      <option value='0'>Inactivo</option>
                     </select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name='image'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Imagen de la habitación</FormLabel>
+                  <FormControl>
+                    <ImageUpload
+                      onImageUpload={handleImageUpload}
+                      currentImage={field.value}
+                      onImageRemove={handleImageRemove}
+                      disabled={isSubmitting}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
 
-          <DialogFooter className="flex justify-end gap-4">
+          <DialogFooter className='flex justify-end gap-4'>
             <DialogClose asChild>
-              <Button type="button" variant="success">
-                <Icon action="undo" className="mr-2" />
+              <Button type='button' variant='outline' disabled={isSubmitting}>
+                <Icon action='undo' className='mr-2' />
                 Cancelar
               </Button>
             </DialogClose>
-
-            <Button type="submit" variant="update">
-              <Icon action="save" className="mr-2" />
-              Registrar
+            <Button type='submit' disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Icon action='loading' className='mr-2 animate-spin' />
+                  Guardando...
+                </>
+              ) : (
+                <>
+                  <Icon action='save' className='mr-2' />
+                  Registrar
+                </>
+              )}
             </Button>
           </DialogFooter>
         </form>
