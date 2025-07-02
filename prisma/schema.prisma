@@ -132,20 +132,21 @@ model invoceDetails {
 }
 
 model Bedrooms {
-  id                 Int                  @id @default(autoincrement())
-  typeBedroom        String
-  description        String
-  lowSeasonPrice     Int
-  highSeasonPrice    Int
-  status             Boolean
-  numberBedroom      Int
-  seasonsId          Int
-  amenities          String[]
-  capacity           Int
-  createdAt          DateTime             @default(now())
-  image              String
-  updatedAt          DateTime
-  Seasons            Seasons              @relation(fields: [seasonsId], references: [id], onDelete: Cascade)
+  id              Int      @id @default(autoincrement())
+  typeBedroom     String
+  description     String
+  lowSeasonPrice  Int
+  highSeasonPrice Int
+  status          Boolean
+  numberBedroom   Int
+  seasonsId       Int
+  amenities       String[]
+  capacity        Int
+  image           String
+  Seasons         Seasons  @relation(fields: [seasonsId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
   BedroomsPromotions BedroomsPromotions[]
   bookingsDetails    BookingsDetails[]
   Comments           Comments[]
