@@ -1,105 +1,200 @@
 'use client'
 
-import React from 'react'
+import React, { useMemo, useState } from 'react'
+import { parseISO, isSameMonth } from 'date-fns'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 type Reservation = {
     bedroomsType: string
     status: string
     rooms: number
+    arrivalDate: Date | string
 }
 
 type Props = {
     reservations: Reservation[]
 }
 
+const ROOM_TYPE_ALIASES: Record<string, { name: string; color: string }> = {
+    'habitacion con abanico': {
+        name: 'Habitación con abanico',
+        color: '#FF8042'
+    },
+    'habitacion doble con abanico': {
+        name: 'Habitación Doble con abanico',
+        color: '#FFBB28'
+    },
+    'con aire acondicionado': {
+        name: 'Con aire acondicionado',
+        color: '#0088FE'
+    },
+    'doble con aire acondicionado': {
+        name: 'Doble con aire acondicionado',
+        color: '#00C49F'
+    }
+};
+
+const normalizeString = (str: string) =>
+    str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+
 const RoomTypeTable: React.FC<Props> = ({ reservations }) => {
-    const formatCurrency = (value: number) =>
-        new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value)
+    const currentDate = new Date()
+    const currentYear = currentDate.getFullYear()
+    const currentMonth = currentDate.getMonth()
+
+    const monthOptions = Array.from({ length: currentMonth + 1 }, (_, i) => {
+        const date = new Date(currentYear, i, 1)
+        return {
+            value: i,
+            label: date.toLocaleString('es-ES', { month: 'long' }),
+            shortName: date.toLocaleString('es-ES', { month: 'short' })
+        }
+    }).reverse()
+
+    const [selectedMonthIndex, setSelectedMonthIndex] = useState(currentMonth)
+
+    const filteredReservations = useMemo(() => {
+        return reservations.filter(res => {
+            if (res.status !== 'CONFIRMED' || !res.arrivalDate) return false
+
+            const arrivalDate =
+                typeof res.arrivalDate === 'string' ? parseISO(res.arrivalDate) : new Date(res.arrivalDate)
+
+            return isSameMonth(arrivalDate, new Date(currentYear, selectedMonthIndex, 1))
+        })
+    }, [reservations, selectedMonthIndex])
 
     const calculateRoomDetails = () => {
-        const roomTypes: Record<string, { total: number; occupied: number; revenue: number }> = {}
+        const roomTypes: Record<string, { total: number, color: string }> = {}
 
-        reservations.forEach(res => {
-            const type = res.bedroomsType
-            if (!roomTypes[type]) {
-                roomTypes[type] = { total: 0, occupied: 0, revenue: 0 }
+        filteredReservations.forEach(res => {
+            const normalizedType = normalizeString(res.bedroomsType)
+            const roomTypeInfo = Object.entries(ROOM_TYPE_ALIASES).find(
+                ([alias]) => normalizeString(alias) === normalizedType
+            )?.[1] || { name: res.bedroomsType, color: '#888' }
+
+            if (!roomTypes[roomTypeInfo.name]) {
+                roomTypes[roomTypeInfo.name] = { total: 0, color: roomTypeInfo.color }
             }
 
-            roomTypes[type].total += 1
-            if (res.status === 'CONFIRMED') {
-                roomTypes[type].occupied += 1
-                roomTypes[type].revenue += res.rooms * 50
-            }
+            roomTypes[roomTypeInfo.name].total += 1
         })
 
-        return Object.entries(roomTypes).map(([type, data]) => ({
-            type,
-            total: data.total,
-            occupied: data.occupied,
-            occupancyRate: Math.round((data.occupied / data.total) * 100),
-            revenue: data.revenue
-        }))
+        return Object.entries(roomTypes)
+            .map(([type, data]) => ({
+                type,
+                total: data.total,
+                color: data.color
+            }))
+            .sort((a, b) => b.total - a.total)
     }
 
     const roomDetails = calculateRoomDetails()
+    const totalReservations = roomDetails.reduce((sum, room) => sum + room.total, 0)
+
+    // Obtener el nombre del mes actual
+    const currentMonthName = new Date(currentYear, selectedMonthIndex, 1)
+        .toLocaleString('es-ES', { month: 'long' })
 
     return (
         <Card className="border-0 shadow-sm">
             <CardHeader className="px-6 py-4">
-                <CardTitle className="text-lg font-semibold text-foreground">
-                    Resumen por Tipo de Habitación
-                </CardTitle>
+                <div className="flex justify-between items-center">
+                    <CardTitle className="text-lg font-semibold text-foreground">
+                        Reservaciones por Tipo de Habitación
+                    </CardTitle>
+                    <Select
+                        value={String(selectedMonthIndex)}
+                        onValueChange={(value) => setSelectedMonthIndex(Number(value))}
+                    >
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Seleccionar mes" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {monthOptions.map((month) => (
+                                <SelectItem key={month.value} value={String(month.value)}>
+                                    {month.label} {currentYear}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
             </CardHeader>
             <CardContent className="p-0">
                 <div className="rounded-md border">
                     <Table>
                         <TableHeader className="bg-muted/50">
                             <TableRow>
-                                <TableHead className="w-[200px]">Tipo</TableHead>
-                                <TableHead className="text-center">Total</TableHead>
-                                <TableHead className="text-center">Ocupadas</TableHead>
-                                <TableHead className="text-center">% Ocupación</TableHead>
-                                <TableHead className="text-right">Ingresos</TableHead>
+                                <TableHead className="w-[200px]">Tipo de Habitación</TableHead>
+                                <TableHead className="text-center">Reservaciones</TableHead>
+                                <TableHead className="text-center">Porcentaje</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {roomDetails.map((room, index) => (
-                                <TableRow key={index} className="hover:bg-muted/50">
-                                    <TableCell className="font-medium">{room.type}</TableCell>
-                                    <TableCell className="text-center">
-                                        <Badge variant="outline" className="px-3 py-1">
-                                            {room.total}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell className="text-center">{room.occupied}</TableCell>
-                                    <TableCell className="text-center">
-                                        <div className="flex items-center justify-center gap-2">
-                                            <span>{room.occupancyRate}%</span>
-                                            <div className="relative w-16 h-2 bg-secondary rounded-full overflow-hidden">
-                                                <div
-                                                    className="absolute h-full bg-primary"
-                                                    style={{ width: `${room.occupancyRate}%` }}
+                            {roomDetails.map((room, index) => {
+                                const percentage = totalReservations > 0
+                                    ? Math.round((room.total / totalReservations) * 100)
+                                    : 0
+
+                                return (
+                                    <TableRow key={index} className="hover:bg-muted/50">
+                                        <TableCell className="font-medium">
+                                            <div className="flex items-center">
+                                                <span
+                                                    className="inline-block w-3 h-3 mr-2 rounded-full"
+                                                    style={{ backgroundColor: room.color }}
                                                 />
+                                                {room.type}
                                             </div>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="text-right font-semibold text-green-600 dark:text-green-400">
-                                        {formatCurrency(room.revenue)}
-                                    </TableCell>
-                                </TableRow>
-                            ))}
+                                        </TableCell>
+                                        <TableCell className="text-center">
+                                            <Badge variant="outline" className="px-3 py-1">
+                                                {room.total}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell className="text-center">
+                                            <div className="flex items-center justify-center gap-2">
+                                                <span>{percentage}%</span>
+                                                <div className="relative w-16 h-2 bg-secondary rounded-full overflow-hidden">
+                                                    <div
+                                                        className="absolute h-full"
+                                                        style={{
+                                                            width: `${percentage}%`,
+                                                            backgroundColor: room.color
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                )
+                            })}
                             {roomDetails.length === 0 && (
                                 <TableRow>
-                                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-                                        No data available
+                                    <TableCell colSpan={3} className="h-24 text-center text-muted-foreground">
+                                        No hay datos disponibles
                                     </TableCell>
+                                </TableRow>
+                            )}
+                            {roomDetails.length > 0 && (
+                                <TableRow className="bg-muted/50 font-medium">
+                                    <TableCell>Total</TableCell>
+                                    <TableCell className="text-center">
+                                        <Badge variant="default" className="px-3 py-1">
+                                            {totalReservations}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell className="text-center">100%</TableCell>
                                 </TableRow>
                             )}
                         </TableBody>
                     </Table>
+                    <div className="p-4 text-center text-sm text-muted-foreground border-t">
+                        {currentMonthName} {currentYear}
+                    </div>
                 </div>
             </CardContent>
         </Card>
