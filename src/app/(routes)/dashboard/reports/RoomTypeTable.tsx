@@ -35,15 +35,18 @@ const ROOM_TYPE_ALIASES: Record<string, { name: string; color: string }> = {
         name: 'Doble con aire acondicionado',
         color: '#00C49F'
     }
-};
+}
 
 const normalizeString = (str: string) =>
-    str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+    str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim()
 
 const RoomTypeTable: React.FC<Props> = ({ reservations }) => {
     const currentDate = new Date()
     const currentYear = currentDate.getFullYear()
     const currentMonth = currentDate.getMonth()
+
+    const [selectedMonthIndex, setSelectedMonthIndex] = useState(currentMonth)
+    const [filterType, setFilterType] = useState<'month' | 'today'>('month')
 
     const monthOptions = Array.from({ length: currentMonth + 1 }, (_, i) => {
         const date = new Date(currentYear, i, 1)
@@ -54,8 +57,6 @@ const RoomTypeTable: React.FC<Props> = ({ reservations }) => {
         }
     }).reverse()
 
-    const [selectedMonthIndex, setSelectedMonthIndex] = useState(currentMonth)
-
     const filteredReservations = useMemo(() => {
         return reservations.filter(res => {
             if (res.status !== 'CONFIRMED' || !res.arrivalDate) return false
@@ -63,18 +64,26 @@ const RoomTypeTable: React.FC<Props> = ({ reservations }) => {
             const arrivalDate =
                 typeof res.arrivalDate === 'string' ? parseISO(res.arrivalDate) : new Date(res.arrivalDate)
 
+            if (filterType === 'today') {
+                return (
+                    arrivalDate.getDate() === currentDate.getDate() &&
+                    arrivalDate.getMonth() === currentDate.getMonth() &&
+                    arrivalDate.getFullYear() === currentDate.getFullYear()
+                )
+            }
+
             return isSameMonth(arrivalDate, new Date(currentYear, selectedMonthIndex, 1))
         })
-    }, [reservations, selectedMonthIndex])
+    }, [reservations, selectedMonthIndex, filterType])
 
     const calculateRoomDetails = () => {
-        const roomTypes: Record<string, { total: number, color: string }> = {}
+        const roomTypes: Record<string, { total: number; color: string }> = {}
 
         filteredReservations.forEach(res => {
             const normalizedType = normalizeString(res.bedroomsType)
-            const roomTypeInfo = Object.entries(ROOM_TYPE_ALIASES).find(
-                ([alias]) => normalizeString(alias) === normalizedType
-            )?.[1] || { name: res.bedroomsType, color: '#888' }
+            const roomTypeInfo =
+                Object.entries(ROOM_TYPE_ALIASES).find(([alias]) => normalizeString(alias) === normalizedType)?.[1] ||
+                { name: res.bedroomsType, color: '#888' }
 
             if (!roomTypes[roomTypeInfo.name]) {
                 roomTypes[roomTypeInfo.name] = { total: 0, color: roomTypeInfo.color }
@@ -95,32 +104,42 @@ const RoomTypeTable: React.FC<Props> = ({ reservations }) => {
     const roomDetails = calculateRoomDetails()
     const totalReservations = roomDetails.reduce((sum, room) => sum + room.total, 0)
 
-    // Obtener el nombre del mes actual
-    const currentMonthName = new Date(currentYear, selectedMonthIndex, 1)
-        .toLocaleString('es-ES', { month: 'long' })
+    const currentMonthName = new Date(currentYear, selectedMonthIndex, 1).toLocaleString('es-ES', {
+        month: 'long'
+    })
 
     return (
         <Card className="border-0 shadow-sm">
             <CardHeader className="px-6 py-4">
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col sm:flex-row justify-between gap-4 sm:items-center">
                     <CardTitle className="text-lg font-semibold text-foreground">
                         Reservaciones por Tipo de Habitación
                     </CardTitle>
-                    <Select
-                        value={String(selectedMonthIndex)}
-                        onValueChange={(value) => setSelectedMonthIndex(Number(value))}
-                    >
-                        <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Seleccionar mes" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {monthOptions.map((month) => (
-                                <SelectItem key={month.value} value={String(month.value)}>
-                                    {month.label} {currentYear}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <div className="flex gap-2">
+                        <Select value={filterType} onValueChange={(value) => setFilterType(value as 'month' | 'today')}>
+                            <SelectTrigger className="w-[140px]">
+                                <SelectValue placeholder="Filtro" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="month">Ver por mes</SelectItem>
+                                <SelectItem value="today">Solo hoy</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        {filterType === 'month' && (
+                            <Select value={String(selectedMonthIndex)} onValueChange={(value) => setSelectedMonthIndex(Number(value))}>
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue placeholder="Seleccionar mes" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {monthOptions.map((month) => (
+                                        <SelectItem key={month.value} value={String(month.value)}>
+                                            {month.label} {currentYear}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
+                    </div>
                 </div>
             </CardHeader>
             <CardContent className="p-0">
@@ -143,10 +162,7 @@ const RoomTypeTable: React.FC<Props> = ({ reservations }) => {
                                     <TableRow key={index} className="hover:bg-muted/50">
                                         <TableCell className="font-medium">
                                             <div className="flex items-center">
-                                                <span
-                                                    className="inline-block w-3 h-3 mr-2 rounded-full"
-                                                    style={{ backgroundColor: room.color }}
-                                                />
+                                                <span className="inline-block w-3 h-3 mr-2 rounded-full" style={{ backgroundColor: room.color }} />
                                                 {room.type}
                                             </div>
                                         </TableCell>
@@ -159,13 +175,7 @@ const RoomTypeTable: React.FC<Props> = ({ reservations }) => {
                                             <div className="flex items-center justify-center gap-2">
                                                 <span>{percentage}%</span>
                                                 <div className="relative w-16 h-2 bg-secondary rounded-full overflow-hidden">
-                                                    <div
-                                                        className="absolute h-full"
-                                                        style={{
-                                                            width: `${percentage}%`,
-                                                            backgroundColor: room.color
-                                                        }}
-                                                    />
+                                                    <div className="absolute h-full" style={{ width: `${percentage}%`, backgroundColor: room.color }} />
                                                 </div>
                                             </div>
                                         </TableCell>
@@ -193,7 +203,9 @@ const RoomTypeTable: React.FC<Props> = ({ reservations }) => {
                         </TableBody>
                     </Table>
                     <div className="p-4 text-center text-sm text-muted-foreground border-t">
-                        {currentMonthName} {currentYear}
+                        {filterType === 'today'
+                            ? currentDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+                            : `${currentMonthName} ${currentYear}`}
                     </div>
                 </div>
             </CardContent>
