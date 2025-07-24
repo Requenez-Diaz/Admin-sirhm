@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { FileText } from 'lucide-react';
 import { getReservations } from '@/app/actions/reservation';
 import PDFReportHeader from './PdfReportHeader';
+import PDFReservationSummary from './PDFReservationSummary';
 
 interface Reservation {
     arrivalDate: string | Date;
@@ -58,6 +59,10 @@ const PDFReportGenerate: React.FC = () => {
             generatedAt,
             reportPeriod
         });
+        PDFReservationSummary({
+            doc,
+            total: reservations.length
+        })
 
         doc.save(`Reporte_Hotel_Madroño_${now.toISOString().split('T')[0]}.pdf`);
     };
