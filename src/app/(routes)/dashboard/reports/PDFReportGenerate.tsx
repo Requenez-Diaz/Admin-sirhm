@@ -5,10 +5,15 @@ import { Button } from '@/components/ui/button';
 import { FileText } from 'lucide-react';
 import { getReservations } from '@/app/actions/reservation';
 import PDFReportHeader from './PdfReportHeader';
+import PDFReservationSummary from './PDFReservationSummary';
+import PDFTopRoomTypes from './PDFTopRoomTypes';
+
 
 interface Reservation {
     arrivalDate: string | Date;
+    roomType: string;
 }
+
 
 const PDFReportGenerate: React.FC = () => {
     const [reservations, setReservations] = useState<Reservation[]>([]);
@@ -18,12 +23,17 @@ const PDFReportGenerate: React.FC = () => {
         (async () => {
             try {
                 const data = await getReservations();
-                setReservations(data);
+                const mapped = data.map(res => ({
+                    arrivalDate: res.arrivalDate,
+                    roomType: res.bedroomsType, // alias interno
+                }));
+                setReservations(mapped);
             } catch (error) {
                 console.error('Error cargando reservas:', error);
             }
         })();
     }, []);
+
 
     const generatePDF = () => {
         if (reservations.length === 0) {
@@ -58,6 +68,16 @@ const PDFReportGenerate: React.FC = () => {
             generatedAt,
             reportPeriod
         });
+        PDFReservationSummary({
+            doc,
+            total: reservations.length
+        })
+
+        PDFTopRoomTypes({
+            doc,
+            roomTypes: reservations.map(r => r.roomType),
+        });
+
 
         doc.save(`Reporte_Hotel_Madroño_${now.toISOString().split('T')[0]}.pdf`);
     };
