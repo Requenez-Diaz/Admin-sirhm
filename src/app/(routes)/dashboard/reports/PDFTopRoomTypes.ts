@@ -24,7 +24,7 @@ export default function PDFTopRoomTypes({ doc, roomTypes }: PDFTopRoomTypesProps
     const topRooms = sorted.slice(0, 5);
 
     doc.setFontSize(13);
-    doc.text('Top habitaciones más reservadas:', 14, 74);
+    doc.text('Ocupación por Tipo de Habitación:', 14, 74);
 
     doc.setFontSize(11);
     let y = 82;

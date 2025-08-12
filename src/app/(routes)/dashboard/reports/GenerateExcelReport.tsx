@@ -229,9 +229,8 @@ export default function ExcelReportGenerator() {
 
     return (
         <div className="p-8">
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="">
                 <div className="flex flex-col items-center justify-center py-12">
-
                     <Button
                         onClick={generateExcelReport}
                         disabled={loading}
