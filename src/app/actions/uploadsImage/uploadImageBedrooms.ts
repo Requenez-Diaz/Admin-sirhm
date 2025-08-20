@@ -5,8 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 
 export const uploadImageBedrooms = async (
   bedroomsId: number,
-  imageBase64: string,
-  originalFileName?: string
+  imageBase64: string
 ) => {
   try {
     if (!bedroomsId || !imageBase64) {
@@ -28,12 +27,12 @@ export const uploadImageBedrooms = async (
     }
 
     const approximateSizeInBytes = (imageBase64.length * 3) / 4;
-    const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
+    const maxSizeInBytes = 10 * 1024 * 1024;
 
     if (approximateSizeInBytes > maxSizeInBytes) {
       return {
         success: false,
-        error: "Image is too large (max 5MB)",
+        error: "Image is too large (max 10MB)",
       };
     }
 
@@ -44,30 +43,40 @@ export const uploadImageBedrooms = async (
       };
     }
 
-    // Generar nombre de imagen
-    const imageName = generateImageName(
-      bedroomsId,
-      imageBase64,
-      originalFileName
-    );
+    if (!existingBedroom.image) {
+      const updatedBedroom = await prisma.bedrooms.update({
+        where: { id: bedroomsId },
+        data: {
+          image: imageBase64,
+          updatedAt: new Date(),
+        },
+      });
 
-    const updatedBedroom = await prisma.bedrooms.update({
-      where: { id: bedroomsId },
-      data: {
-        image: imageBase64,
-        updatedAt: new Date(),
-      },
-    });
+      return {
+        success: true,
+        message: "Image uploaded successfully as the primary image.",
+        data: {
+          id: updatedBedroom.id,
+          image: updatedBedroom.image,
+        },
+      };
+    } else {
+      const newGalleryImage = await prisma.bedroomImages.create({
+        data: {
+          bedroomId: bedroomsId,
+          imageContent: imageBase64,
+        },
+      });
 
-    return {
-      success: true,
-      message: `Image uploaded successfully as ${imageName}`,
-      data: {
-        id: updatedBedroom.id,
-        image: updatedBedroom.image,
-        imageName: imageName,
-      },
-    };
+      return {
+        success: true,
+        message: "Image uploaded successfully as a gallery image.",
+        data: {
+          id: newGalleryImage.id,
+          imageContent: newGalleryImage.imageContent,
+        },
+      };
+    }
   } catch (error) {
     console.error("Error uploading image:", error);
 
@@ -78,13 +87,13 @@ export const uploadImageBedrooms = async (
   }
 };
 
-function generateImageName(
+function _generateImageName(
   bedroomsId: number,
   imageBase64: string,
-  originalFileName?: string
+  _originalFileName?: string
 ): string {
-  if (originalFileName) {
-    const cleanName = sanitizeFileName(originalFileName);
+  if (_originalFileName) {
+    const cleanName = sanitizeFileName(_originalFileName);
     const nameWithoutExt = cleanName.replace(/\.[^/.]+$/, "");
     const extension = getImageExtensionFromBase64(imageBase64);
 
