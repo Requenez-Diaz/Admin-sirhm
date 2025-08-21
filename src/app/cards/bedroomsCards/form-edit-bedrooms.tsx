@@ -1,13 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { bedroomsTypes } from "@/bedroomstype/bedroomsType";
 import { updateBedroom } from "@/app/actions/bedrooms";
 import { useRouter } from "next/navigation";
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import Icon from "@/components/ui/icons/icons";
-import { Bedrooms, BedroomImages } from "@prisma/client"; // Importa BedroomImages
+import { Bedrooms, BedroomImages } from "@prisma/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -40,7 +39,6 @@ const FormSchema = z.object({
   }),
 });
 
-// Extiende el tipo Bedrooms para incluir las imágenes de galería
 type BedroomsWithImages = Bedrooms & {
   galleryImages: BedroomImages[];
 };
@@ -77,8 +75,18 @@ export function FormEditBedrooms({
   });
 
   const handleSubmit = async (data: z.infer<typeof FormSchema>) => {
+    if (!bedroom) {
+      toast({
+        title: "Error",
+        description:
+          "No se pudo actualizar la habitación: no se encontró la información.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const formData = {
-      bedroomsId: bedroom?.id.toString() || "",
+      bedroomsId: bedroom.id.toString(),
       typeBedroom: data.typeBedroom,
       description: data.description,
       lowSeasonPrice: data.lowSeasonPrice,
@@ -119,8 +127,6 @@ export function FormEditBedrooms({
       >
         <input type='hidden' name='bedroomsId' value={bedroom.id} />
 
-        {/* ... (el resto de tus campos de formulario, que no se modifican) ... */}
-
         <div className='grid grid-cols-2 gap-4'>
           <FormField
             control={form.control}
@@ -129,20 +135,14 @@ export function FormEditBedrooms({
               <FormItem>
                 <FormLabel>Tipo de habitación</FormLabel>
                 <FormControl>
-                  <select
+                  <Input
                     id='typeBedroom'
+                    type='text'
+                    placeholder='Escribe el tipo de habitación'
                     {...field}
                     className='border border-gray-300 rounded px-2 py-1 w-full'
-                  >
-                    <option value='' disabled>
-                      Selecciona un tipo
-                    </option>
-                    {bedroomsTypes.map((type, index) => (
-                      <option key={index} value={type}>
-                        {type}
-                      </option>
-                    ))}
-                  </select>
+                    disabled={true} // <-- El campo ya no es editable
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
