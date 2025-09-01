@@ -24,7 +24,6 @@ export default function ImageUpload({
 }: ImageUploadProps) {
   const [imagePreview, setImagePreview] = useState<string>(currentImage || "");
   const [isProcessing, setIsProcessing] = useState(false);
-  const [currentFileName, setCurrentFileName] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -36,7 +35,12 @@ export default function ImageUpload({
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      return;
+    }
 
     const allowedTypes = [
       "image/jpeg",
@@ -45,21 +49,22 @@ export default function ImageUpload({
       "image/gif",
       "image/webp",
     ];
+    const maxSize = 5 * 1024 * 1024; // 5MB
 
     if (!allowedTypes.includes(file.type)) {
       toast({
-        title: "Error",
-        description: "Tipo de archivo no permitido. Solo se permiten imágenes.",
+        title: "Error de archivo",
+        description:
+          "Tipo de archivo no permitido. Sube un JPG, PNG, GIF o WEBP.",
         variant: "destructive",
       });
       return;
     }
 
-    const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
       toast({
-        title: "Error",
-        description: "El archivo es demasiado grande. Máximo 5MB.",
+        title: "Error de tamaño",
+        description: "El archivo es demasiado grande. El tamaño máximo es 5MB.",
         variant: "destructive",
       });
       return;
@@ -69,24 +74,21 @@ export default function ImageUpload({
 
     try {
       const base64 = await convertFileToBase64(file);
-
-      setImagePreview(base64);
-      setCurrentFileName(file.name);
       onImageUpload(base64, file.name);
-
+      setImagePreview(base64); // Actualiza la vista previa solo después de una carga exitosa
       toast({
-        title: "Éxito",
-        description: `Imagen "${file.name}" cargada correctamente.`,
+        title: "Imagen cargada",
+        description: `"${file.name}" subida con éxito.`,
       });
     } catch (error) {
-      console.error("Error al procesar imagen:", error);
+      console.error("Error al procesar la imagen:", error);
       toast({
-        title: "Error",
-        description: "Error al procesar la imagen. Intenta nuevamente.",
+        title: "Error de carga",
+        description:
+          "Hubo un problema al procesar la imagen. Intenta de nuevo.",
         variant: "destructive",
       });
       setImagePreview("");
-      setCurrentFileName("");
       onImageRemove();
     } finally {
       setIsProcessing(false);
@@ -100,89 +102,76 @@ export default function ImageUpload({
         if (reader.result) {
           resolve(reader.result as string);
         } else {
-          reject(new Error("Error al leer el archivo"));
+          reject(new Error("Error al leer el archivo."));
         }
       };
-      reader.onerror = () => reject(new Error("Error al leer el archivo"));
+      reader.onerror = () => reject(new Error("Error al leer el archivo."));
       reader.readAsDataURL(file);
     });
   };
 
   const removeImage = () => {
     setImagePreview("");
-    setCurrentFileName("");
     onImageRemove();
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
-  const triggerFileInput = () => {
-    if (!disabled && !isProcessing) {
-      fileInputRef.current?.click();
-    }
-  };
-
   return (
     <div className='space-y-4'>
-      <div className='flex items-center justify-center w-full'>
-        {!imagePreview ? (
-          <Label
-            htmlFor='uploadImage'
-            className={`flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors ${
-              disabled || isProcessing ? "opacity-50 cursor-not-allowed" : ""
+      {!imagePreview ? (
+        <Label
+          htmlFor='uploadImage'
+          className={`
+            flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg
+            transition-colors
+            ${
+              disabled || isProcessing
+                ? "bg-gray-100 border-gray-200 cursor-not-allowed text-gray-400"
+                : "bg-gray-50 border-gray-300 hover:bg-gray-100 cursor-pointer text-gray-500"
             }`}
-            onClick={triggerFileInput}
-          >
-            <div className='flex flex-col items-center justify-center pt-5 pb-6'>
-              {isProcessing ? (
-                <Loader2 className='w-8 h-8 mb-2 text-gray-500 animate-spin' />
-              ) : (
-                <Upload className='w-8 h-8 mb-2 text-gray-500' />
-              )}
-              <p className='mb-2 text-sm text-gray-500'>
-                <span className='font-semibold'>
-                  {isProcessing ? "Procesando..." : "Click para subir"}
-                </span>
-                {!isProcessing && !disabled && " o arrastra y suelta"}
-              </p>
-              <p className='text-xs text-gray-500'>PNG, JPG, GIF hasta 5MB</p>
-            </div>
-          </Label>
-        ) : (
-          <div className='relative w-full'>
-            <div className='relative w-full h-48 border rounded-lg overflow-hidden'>
-              <Image
-                src={imagePreview || "/placeholder.svg"}
-                alt='Vista previa'
-                fill
-                className='object-cover'
-              />
-            </div>
-            {currentFileName && (
-              <p className='text-xs text-gray-500 mt-2 truncate'>
-                Archivo: {currentFileName}
-              </p>
+        >
+          <div className='flex flex-col items-center justify-center pt-5 pb-6 text-center'>
+            {isProcessing ? (
+              <Loader2 className='w-8 h-8 mb-2 animate-spin' />
+            ) : (
+              <Upload className='w-8 h-8 mb-2' />
             )}
-            <Button
-              type='button'
-              variant='destructive'
-              size='sm'
-              className='absolute top-2 right-2'
-              onClick={removeImage}
-              disabled={disabled || isProcessing}
-            >
-              <X className='w-4 h-4' />
-            </Button>
+            <p className='mb-2 text-sm font-semibold'>
+              {isProcessing ? "Procesando..." : "Click para subir"}
+            </p>
+            <p className='text-xs'>PNG, JPG, GIF, WEBP hasta 5MB</p>
           </div>
-        )}
-      </div>
+        </Label>
+      ) : (
+        <div className='relative w-full'>
+          <div className='relative w-full h-48 border rounded-lg overflow-hidden'>
+            <Image
+              src={imagePreview || "/placeholder.svg"}
+              alt='Vista previa de la imagen'
+              fill
+              className='object-cover'
+            />
+          </div>
+          <Button
+            type='button'
+            variant='destructive'
+            size='sm'
+            className='absolute top-2 right-2'
+            onClick={removeImage}
+            disabled={disabled || isProcessing}
+          >
+            <X className='w-4 h-4' />
+          </Button>
+        </div>
+      )}
 
       <Input
         ref={fileInputRef}
         id='uploadImage'
         type='file'
-        accept='image/*'
+        accept='image/jpeg,image/jpg,image/png,image/gif,image/webp'
         className='hidden'
         onChange={handleImageChange}
         disabled={disabled || isProcessing}

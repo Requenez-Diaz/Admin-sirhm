@@ -31,7 +31,7 @@ model Role {
 }
 
 model Reservation {
-  id            Int      @id @default(autoincrement())
+  id            Int         @id @default(autoincrement())
   name          String
   lastName      String
   email         String
@@ -40,11 +40,13 @@ model Reservation {
   rooms         Int
   arrivalDate   DateTime
   departureDate DateTime
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
   status        Status
   userId        Int
-  user          User     @relation(fields: [userId], references: [id])
+  promotionId   Int?
+  Promotions    Promotions? @relation(fields: [promotionId], references: [id])
+  user          User        @relation(fields: [userId], references: [id])
 }
 
 model testimonials {
@@ -132,25 +134,35 @@ model invoceDetails {
 }
 
 model Bedrooms {
-  id              Int      @id @default(autoincrement())
-  typeBedroom     String
-  description     String
-  lowSeasonPrice  Int
-  highSeasonPrice Int
-  status          Boolean
-  numberBedroom   Int
-  seasonsId       Int
-  amenities       String[]
-  capacity        Int
-  image           String
-  Seasons         Seasons  @relation(fields: [seasonsId], references: [id], onDelete: Cascade)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
+  id                 Int                  @id @default(autoincrement())
+  typeBedroom        String
+  description        String
+  lowSeasonPrice     Int
+  highSeasonPrice    Int
+  status             Boolean
+  numberBedroom      Int
+  seasonsId          Int
+  amenities          String[]
+  capacity           Int
+  createdAt          DateTime             @default(now())
+  image              String
+  updatedAt          DateTime             @updatedAt
+  slug               String               @unique
+  galleryImages      BedroomImages[]
+  Seasons            Seasons              @relation(fields: [seasonsId], references: [id], onDelete: Cascade)
   BedroomsPromotions BedroomsPromotions[]
   bookingsDetails    BookingsDetails[]
   Comments           Comments[]
   testimonials       testimonials[]
+}
+
+model BedroomImages {
+  id           Int      @id @default(autoincrement())
+  bedroomId    Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  imageContent String
+  bedroom      Bedrooms @relation(fields: [bedroomId], references: [id])
 }
 
 model Comments {
@@ -199,6 +211,7 @@ model Promotions {
   BedroomsPromotions BedroomsPromotions[]
   bookingsDetails    BookingsDetails[]
   seasons            Seasons              @relation(fields: [seasonId], references: [id])
+  Reservation        Reservation[]
 }
 
 model BedroomsPromotions {

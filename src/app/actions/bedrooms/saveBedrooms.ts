@@ -5,6 +5,16 @@ import { revalidatePath } from "next/cache";
 import { promises as fs } from "fs";
 import path from "path";
 
+function generateSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "_")
+    .replace(/[^\w-]+/g, "")
+    .replace(/--+/g, "_")
+    .replace(/^-+|-+$/g, "");
+}
+
 export const saveBedrooms = async (data: {
   typeBedroom: string;
   description: string;
@@ -30,8 +40,9 @@ export const saveBedrooms = async (data: {
 
   const active = status === "1";
 
+  const slug = generateSlug(typeBedroom);
+
   try {
-    // Verificar si ya existe una habitación con ese número
     const existingBedroom = await prisma.bedrooms.findFirst({
       where: {
         numberBedroom: numberBedroom,
@@ -48,7 +59,6 @@ export const saveBedrooms = async (data: {
       };
     }
 
-    // Crear la habitación con la imagen
     const newBedroom = await prisma.bedrooms.create({
       data: {
         typeBedroom,
@@ -58,7 +68,8 @@ export const saveBedrooms = async (data: {
         numberBedroom,
         capacity,
         status: active,
-        image, // Ruta de la imagen: "/uploads/filename.jpg"
+        image,
+        slug,
         Seasons: {
           create: {
             nameSeason: "defaultSeason",
@@ -88,7 +99,6 @@ export const saveBedrooms = async (data: {
   }
 };
 
-// Función para obtener todas las habitaciones
 export const getBedrooms = async () => {
   try {
     const bedrooms = await prisma.bedrooms.findMany({
@@ -114,17 +124,15 @@ export const getBedrooms = async () => {
   }
 };
 
-// Función para eliminar una habitación (y su imagen)
 export const deleteBedroom = async (id: string) => {
   try {
-    // Obtener la habitación para conseguir la ruta de la imagen
     const bedroom = await prisma.bedrooms.findUnique({
       where: { id: Number(id) },
       select: {
         image: true,
       },
     });
- 
+
     if (!bedroom) {
       return {
         success: false,
@@ -132,7 +140,6 @@ export const deleteBedroom = async (id: string) => {
       };
     }
 
-    // Eliminar la habitación (las seasons se eliminan automáticamente por CASCADE)
     await prisma.bedrooms.delete({
       where: { id: Number(id) },
     });

@@ -1,6 +1,5 @@
 "use client";
 
-import { bedroomsTypes } from "@/bedroomstype/bedroomsType";
 import { saveBedrooms } from "@/app/actions/bedrooms";
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -26,7 +25,7 @@ import { z } from "zod";
 const FormBedrooms = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [imageFileName, setImageFileName] = useState<string>("");
+  const [_imageFileName, setImageFileName] = useState<string>("");
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -55,35 +54,7 @@ const FormBedrooms = () => {
 
       const response = await saveBedrooms(bedroomData);
 
-      if (response.success && response.data?.id) {
-        if (data.image) {
-          const imageResponse = await uploadImageBedrooms(
-            response.data.id,
-            data.image,
-            imageFileName
-          );
-
-          if (imageResponse.success) {
-            toast({
-              title: "Habitación registrada.",
-              description: `La habitación y la imagen (${imageResponse.data?.imageName}) se registraron correctamente.`,
-            });
-          } else {
-            toast({
-              title: "Habitación registrada con advertencia.",
-              description: `La habitación se registró pero hubo un error con la imagen: ${imageResponse.error}`,
-              variant: "destructive",
-            });
-          }
-        } else {
-          toast({
-            title: "Habitación registrada.",
-            description: "La habitación se registró correctamente.",
-          });
-        }
-        form.reset();
-        setImageFileName("");
-      } else {
+      if (!response.success || !response.data?.id) {
         toast({
           title: "Error",
           description:
@@ -91,7 +62,34 @@ const FormBedrooms = () => {
             "Ha ocurrido un error al registrar la habitación.",
           variant: "destructive",
         });
+        return;
       }
+
+      const bedroomId = response.data.id;
+      let bedroomRegisteredMessage = "La habitación se registró correctamente.";
+
+      if (data.image) {
+        const imageResponse = await uploadImageBedrooms(bedroomId, data.image);
+
+        if (imageResponse.success) {
+          bedroomRegisteredMessage =
+            "La habitación y la imagen se registraron correctamente.";
+        } else {
+          toast({
+            title: "Habitación registrada con advertencia.",
+            description: `La habitación se registró pero hubo un error con la imagen: ${imageResponse.error}`,
+            variant: "destructive",
+          });
+        }
+      }
+
+      toast({
+        title: "Registro exitoso.",
+        description: bedroomRegisteredMessage,
+      });
+
+      form.reset();
+      setImageFileName("");
     } catch (error) {
       console.error("Error al enviar formulario:", error);
       toast({
@@ -103,6 +101,7 @@ const FormBedrooms = () => {
       setIsSubmitting(false);
     }
   };
+
   const handleImageUpload = (imageBase64: string, fileName?: string) => {
     form.setValue("image", imageBase64);
     form.clearErrors("image");
@@ -115,37 +114,29 @@ const FormBedrooms = () => {
   };
 
   return (
-    <div className='max-h-screen  overflow-y-auto'>
+    <div className='max-h-screen overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900 rounded-lg shadow-lg'>
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className='grid m-6 gap-4 py-4'
-        >
-          <div className='grid grid-cols-2 gap-4'>
+        <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
             <FormField
               control={form.control}
               name='typeBedroom'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tipo de habitación</FormLabel>
+                  <FormLabel className='text-gray-700 dark:text-gray-300'>
+                    Tipo de habitación
+                  </FormLabel>
                   <FormControl>
-                    <select
+                    <Input
                       id='typeBedroom'
-                      {...field}
-                      className='border border-gray-300 rounded px-2 py-1 w-full'
+                      type='text'
+                      placeholder='Escribe el tipo de habitación'
                       disabled={isSubmitting}
-                    >
-                      <option value='' disabled>
-                        Selecciona un tipo
-                      </option>
-                      {bedroomsTypes.map((type, index) => (
-                        <option key={index} value={type}>
-                          {type}
-                        </option>
-                      ))}
-                    </select>
+                      {...field}
+                      className='bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-50 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-primary-500 focus:border-primary-500'
+                    />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className='text-sm font-medium text-red-500' />
                 </FormItem>
               )}
             />
@@ -155,7 +146,9 @@ const FormBedrooms = () => {
               name='description'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Descripción</FormLabel>
+                  <FormLabel className='text-gray-700 dark:text-gray-300'>
+                    Descripción
+                  </FormLabel>
                   <FormControl>
                     <Input
                       id='description'
@@ -163,21 +156,24 @@ const FormBedrooms = () => {
                       placeholder='Descripción de la habitación'
                       disabled={isSubmitting}
                       {...field}
+                      className='bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-50 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-primary-500 focus:border-primary-500'
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className='text-sm font-medium text-red-500' />
                 </FormItem>
               )}
             />
           </div>
 
-          <div className='grid grid-cols-2 gap-4'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
             <FormField
               control={form.control}
               name='lowSeasonPrice'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Precio Temporada Baja</FormLabel>
+                  <FormLabel className='text-gray-700 dark:text-gray-300'>
+                    Precio Temporada Baja
+                  </FormLabel>
                   <FormControl>
                     <Input
                       id='lowSeasonPrice'
@@ -186,9 +182,10 @@ const FormBedrooms = () => {
                       placeholder='Precio temporada baja'
                       disabled={isSubmitting}
                       {...field}
+                      className='bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-50 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-primary-500 focus:border-primary-500'
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className='text-sm font-medium text-red-500' />
                 </FormItem>
               )}
             />
@@ -198,7 +195,9 @@ const FormBedrooms = () => {
               name='highSeasonPrice'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Precio Temporada Alta</FormLabel>
+                  <FormLabel className='text-gray-700 dark:text-gray-300'>
+                    Precio Temporada Alta
+                  </FormLabel>
                   <FormControl>
                     <Input
                       id='highSeasonPrice'
@@ -207,21 +206,24 @@ const FormBedrooms = () => {
                       placeholder='Precio temporada alta'
                       disabled={isSubmitting}
                       {...field}
+                      className='bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-50 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-primary-500 focus:border-primary-500'
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className='text-sm font-medium text-red-500' />
                 </FormItem>
               )}
             />
           </div>
 
-          <div className='grid grid-cols-2 gap-4'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
             <FormField
               control={form.control}
               name='capacity'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Capacidad</FormLabel>
+                  <FormLabel className='text-gray-700 dark:text-gray-300'>
+                    Capacidad
+                  </FormLabel>
                   <FormControl>
                     <Input
                       id='capacity'
@@ -230,9 +232,10 @@ const FormBedrooms = () => {
                       placeholder='Capacidad de la habitación'
                       disabled={isSubmitting}
                       {...field}
+                      className='bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-50 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-primary-500 focus:border-primary-500'
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className='text-sm font-medium text-red-500' />
                 </FormItem>
               )}
             />
@@ -242,7 +245,9 @@ const FormBedrooms = () => {
               name='numberBedroom'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Número de habitación</FormLabel>
+                  <FormLabel className='text-gray-700 dark:text-gray-300'>
+                    Número de habitación
+                  </FormLabel>
                   <FormControl>
                     <Input
                       id='numberBedroom'
@@ -251,33 +256,36 @@ const FormBedrooms = () => {
                       placeholder='Número de habitación'
                       disabled={isSubmitting}
                       {...field}
+                      className='bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-50 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-primary-500 focus:border-primary-500'
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className='text-sm font-medium text-red-500' />
                 </FormItem>
               )}
             />
           </div>
 
-          <div className='grid grid-cols-2 gap-4'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
             <FormField
               control={form.control}
               name='status'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Estado</FormLabel>
+                  <FormLabel className='text-gray-700 dark:text-gray-300'>
+                    Estado
+                  </FormLabel>
                   <FormControl>
                     <select
                       id='status'
                       {...field}
-                      className='border border-gray-300 rounded px-2 py-1 w-full'
+                      className='bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md px-4 py-2 w-full text-gray-900 dark:text-gray-50 focus:ring-primary-500 focus:border-primary-500'
                       disabled={isSubmitting}
                     >
                       <option value='1'>Activo</option>
                       <option value='0'>Inactivo</option>
                     </select>
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className='text-sm font-medium text-red-500' />
                 </FormItem>
               )}
             />
@@ -287,7 +295,9 @@ const FormBedrooms = () => {
               name='image'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Imagen de la habitación</FormLabel>
+                  <FormLabel className='text-gray-700 dark:text-gray-300'>
+                    Imagen de la habitación
+                  </FormLabel>
                   <FormControl>
                     <ImageUpload
                       onImageUpload={handleImageUpload}
@@ -296,20 +306,24 @@ const FormBedrooms = () => {
                       disabled={isSubmitting}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className='text-sm font-medium text-red-500' />
                 </FormItem>
               )}
             />
           </div>
 
-          <DialogFooter className='flex justify-end gap-4'>
+          <DialogFooter className='flex flex-col sm:flex-row justify-end gap-4 mt-6'>
             <DialogClose asChild>
-              <Button type='button' variant='outline' disabled={isSubmitting}>
+              <Button
+                type='button'
+                variant='destructive'
+                disabled={isSubmitting}
+              >
                 <Icon action='undo' className='mr-2' />
                 Cancelar
               </Button>
             </DialogClose>
-            <Button type='submit' disabled={isSubmitting}>
+            <Button type='submit' variant='success' disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Icon action='loading' className='mr-2 animate-spin' />
