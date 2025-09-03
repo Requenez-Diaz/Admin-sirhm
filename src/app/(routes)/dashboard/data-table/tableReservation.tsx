@@ -31,7 +31,7 @@ import Pagination from "./pagination";
 interface TableReservationProps {
   reservations: Array<{
     id: number;
-    username: string;
+    name: string;
     lastName: string;
     email: string;
     status: Status;
@@ -80,7 +80,7 @@ const TableReservation: React.FC<TableReservationProps> = ({
       return true;
     }
     if (selectedFilter === "Name") {
-      return res.username.toLowerCase().includes(searchTerm.toLowerCase());
+      return res.name.toLowerCase().includes(searchTerm.toLowerCase());
     }
     if (selectedFilter === "LastName") {
       return res.lastName.toLowerCase().includes(searchTerm.toLowerCase());
@@ -184,7 +184,7 @@ const TableReservation: React.FC<TableReservationProps> = ({
                     {index + 1}
                   </TableCell>
                   <TableCell className='text-xs sm:text-sm'>
-                    {reservation.username}
+                    {reservation.name}
                   </TableCell>
                   <TableCell className='hidden sm:table-cell text-xs sm:text-sm'>
                     {reservation.lastName}
