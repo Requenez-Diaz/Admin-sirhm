@@ -12,10 +12,8 @@ export const formSchema = z.object({
     from: z.date(),
     to: z.date(),
   }),
-  seasonId: z.string(),
-  bedroomIds: z.array(z.string()).nonempty({
-    message: "Debes seleccionar al menos un tipo de habitación.",
-  }),
+  seasonId: z.string().min(1, "Debe seleccionar una temporada"),
+  bedroomId: z.string().min(1, "Debe seleccionar una habitación"), // Cambio: de bedroomIds a bedroomId
   description: z.string().optional(),
 });
 

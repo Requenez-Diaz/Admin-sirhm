@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import React, { useState } from "react";
 import { Status } from "@prisma/client";
 import {
@@ -26,13 +26,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DeleteReservation } from "../bookings/deleteReservation";
 import Pagination from "./pagination";
 
 interface TableReservationProps {
   reservations: Array<{
     id: number;
-    name: string;
+    username: string;
     lastName: string;
     email: string;
     status: Status;
@@ -44,7 +43,9 @@ interface TableReservationProps {
   }>;
 }
 
-const TableReservation: React.FC<TableReservationProps> = ({ reservations = [] }) => {
+const TableReservation: React.FC<TableReservationProps> = ({
+  reservations = [],
+}) => {
   const totalReservation = reservations.length;
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -58,7 +59,7 @@ const TableReservation: React.FC<TableReservationProps> = ({ reservations = [] }
     [Status.CANCELLED]: 0,
   };
 
-  reservations.forEach(res => {
+  reservations.forEach((res) => {
     contadoresEstado[res.status]++;
   });
 
@@ -74,18 +75,20 @@ const TableReservation: React.FC<TableReservationProps> = ({ reservations = [] }
     [Status.CANCELLED]: "Cancelado",
   };
 
-  const filteredReservations = reservations.filter(res => {
+  const filteredReservations = reservations.filter((res) => {
     if (selectedFilter === "Columns") {
       return true;
     }
     if (selectedFilter === "Name") {
-      return res.name.toLowerCase().includes(searchTerm.toLowerCase());
+      return res.username.toLowerCase().includes(searchTerm.toLowerCase());
     }
     if (selectedFilter === "LastName") {
       return res.lastName.toLowerCase().includes(searchTerm.toLowerCase());
     }
     if (selectedFilter === "Status") {
-      return statusLabels[res.status].toLowerCase().includes(searchTerm.toLowerCase());
+      return statusLabels[res.status]
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
     }
     if (selectedFilter === "Email") {
       return res.email.toLowerCase().includes(searchTerm.toLowerCase());
@@ -95,37 +98,44 @@ const TableReservation: React.FC<TableReservationProps> = ({ reservations = [] }
 
   const indexOfLastReservation = currentPage * reservationsPerPage;
   const indexOfFirstReservation = indexOfLastReservation - reservationsPerPage;
-  const currentReservations = filteredReservations.slice(indexOfFirstReservation, indexOfLastReservation);
+  const currentReservations = filteredReservations.slice(
+    indexOfFirstReservation,
+    indexOfLastReservation
+  );
 
-  const totalPages = Math.ceil(filteredReservations.length / reservationsPerPage);
+  const totalPages = Math.ceil(
+    filteredReservations.length / reservationsPerPage
+  );
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
-    <div className="overflow-x-auto p-4">
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
+    <div className='overflow-x-auto p-4'>
+      <div className='flex flex-col sm:flex-row sm:items-center gap-4 mb-4'>
         <AddReservation />
 
-        <div className="bg-gray-200 rounded-lg px-4 py-2">
-          <h2 className="text-base sm:text-lg font-semibold text-gray-800">
+        <div className='bg-gray-200 rounded-lg px-4 py-2'>
+          <h2 className='text-base sm:text-lg font-semibold text-gray-800'>
             Total Reservaciones: {totalReservation}
           </h2>
         </div>
 
-        <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
+        <div className='grid grid-cols-2 sm:flex sm:items-center gap-2'>
           <Badge variant={statusVariants[Status.PENDING]}>
             {statusLabels[Status.PENDING]}: {contadoresEstado[Status.PENDING]}
           </Badge>
           <Badge variant={statusVariants[Status.CONFIRMED]}>
-            {statusLabels[Status.CONFIRMED]}: {contadoresEstado[Status.CONFIRMED]}
+            {statusLabels[Status.CONFIRMED]}:{" "}
+            {contadoresEstado[Status.CONFIRMED]}
           </Badge>
           <Badge variant={statusVariants[Status.CANCELLED]}>
-            {statusLabels[Status.CANCELLED]}: {contadoresEstado[Status.CANCELLED]}
+            {statusLabels[Status.CANCELLED]}:{" "}
+            {contadoresEstado[Status.CANCELLED]}
           </Badge>
         </div>
       </div>
 
-      <div className="mb-4">
+      <div className='mb-4'>
         <Filter
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
@@ -134,20 +144,30 @@ const TableReservation: React.FC<TableReservationProps> = ({ reservations = [] }
         />
       </div>
 
-      <div className="overflow-x-auto">
-        <Table className="min-w-full border border-gray-200">
+      <div className='overflow-x-auto'>
+        <Table className='min-w-full border border-gray-200'>
           <TableHeader>
-            <TableRow className="bg-gray-100">
-              <TableHead className="w-12 text-xs sm:text-sm">ID</TableHead>
-              <TableHead className="text-xs sm:text-sm">Nombre</TableHead>
-              <TableHead className="hidden sm:table-cell text-xs sm:text-sm">Apellido</TableHead>
-              <TableHead className="hidden md:table-cell text-xs sm:text-sm">Email</TableHead>
-              <TableHead className="text-xs sm:text-sm">Estado</TableHead>
-              <TableHead className="hidden sm:table-cell text-xs sm:text-sm">Huéspedes</TableHead>
-              <TableHead className="hidden sm:table-cell text-xs sm:text-sm">Habitaciones</TableHead>
-              <TableHead className="text-xs sm:text-sm">Tipo de Habitación</TableHead>
-              <TableHead className="text-xs sm:text-sm">Estancia</TableHead>
-              <TableHead className="text-xs sm:text-sm">Acciones</TableHead>
+            <TableRow className='bg-gray-100'>
+              <TableHead className='w-12 text-xs sm:text-sm'>ID</TableHead>
+              <TableHead className='text-xs sm:text-sm'>Nombre</TableHead>
+              <TableHead className='hidden sm:table-cell text-xs sm:text-sm'>
+                Apellido
+              </TableHead>
+              <TableHead className='hidden md:table-cell text-xs sm:text-sm'>
+                Email
+              </TableHead>
+              <TableHead className='text-xs sm:text-sm'>Estado</TableHead>
+              <TableHead className='hidden sm:table-cell text-xs sm:text-sm'>
+                Huéspedes
+              </TableHead>
+              <TableHead className='hidden sm:table-cell text-xs sm:text-sm'>
+                Habitaciones
+              </TableHead>
+              <TableHead className='text-xs sm:text-sm'>
+                Tipo de Habitación
+              </TableHead>
+              <TableHead className='text-xs sm:text-sm'>Estancia</TableHead>
+              <TableHead className='text-xs sm:text-sm'>Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -159,31 +179,48 @@ const TableReservation: React.FC<TableReservationProps> = ({ reservations = [] }
               const durationLabel = duration === 1 ? "noche" : "noches";
 
               return (
-                <TableRow key={index} className="border-b">
-                  <TableCell className="text-xs sm:text-sm">{index + 1}</TableCell>
-                  <TableCell className="text-xs sm:text-sm">{reservation.name}</TableCell>
-                  <TableCell className="hidden sm:table-cell text-xs sm:text-sm">{reservation.lastName}</TableCell>
-                  <TableCell className="hidden md:table-cell text-xs sm:text-sm">{reservation.email}</TableCell>
-                  <TableCell className="text-xs sm:text-sm">
+                <TableRow key={index} className='border-b'>
+                  <TableCell className='text-xs sm:text-sm'>
+                    {index + 1}
+                  </TableCell>
+                  <TableCell className='text-xs sm:text-sm'>
+                    {reservation.username}
+                  </TableCell>
+                  <TableCell className='hidden sm:table-cell text-xs sm:text-sm'>
+                    {reservation.lastName}
+                  </TableCell>
+                  <TableCell className='hidden md:table-cell text-xs sm:text-sm'>
+                    {reservation.email}
+                  </TableCell>
+                  <TableCell className='text-xs sm:text-sm'>
                     <Badge variant={statusVariants[reservation.status]}>
                       {statusLabels[reservation.status]}
                     </Badge>
                   </TableCell>
-                  <TableCell className="hidden sm:table-cell text-xs sm:text-sm">{reservation.guests}</TableCell>
-                  <TableCell className="hidden sm:table-cell text-xs sm:text-sm">{reservation.rooms}</TableCell>
-                  <TableCell className="text-xs sm:text-sm">{reservation.bedroomsType}</TableCell>
-                  <TableCell className="text-xs sm:text-sm text-right">
+                  <TableCell className='hidden sm:table-cell text-xs sm:text-sm'>
+                    {reservation.guests}
+                  </TableCell>
+                  <TableCell className='hidden sm:table-cell text-xs sm:text-sm'>
+                    {reservation.rooms}
+                  </TableCell>
+                  <TableCell className='text-xs sm:text-sm'>
+                    {reservation.bedroomsType}
+                  </TableCell>
+                  <TableCell className='text-xs sm:text-sm text-right'>
                     {duration} {durationLabel}
                   </TableCell>
-                  <TableCell className="flex flex-wrap gap-2 text-xs sm:text-sm">
+                  <TableCell className='flex flex-wrap gap-2 text-xs sm:text-sm'>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
+                        <Button variant='ghost' className='h-8 w-8 p-0'>
+                          <span className='sr-only'>Open menu</span>
                           <MoreHorizontal />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="flex flex-col">
+                      <DropdownMenuContent
+                        align='end'
+                        className='flex flex-col'
+                      >
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem asChild>
                           <ConfirmReservation reservationId={reservation.id} />
@@ -194,9 +231,6 @@ const TableReservation: React.FC<TableReservationProps> = ({ reservations = [] }
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
                           <EditReservation reservationId={reservation.id} />
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <DeleteReservation reservationId={reservation.id} />
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -215,6 +249,6 @@ const TableReservation: React.FC<TableReservationProps> = ({ reservations = [] }
       />
     </div>
   );
-}
+};
 
 export default TableReservation;

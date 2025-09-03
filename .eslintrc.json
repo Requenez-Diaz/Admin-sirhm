@@ -25,8 +25,21 @@
   "ignorePatterns": [
     "prisma/**/*.sql",
     "prisma/**/*.prisma",
-    "tsconfig.json"
+    "tsconfig.json",
+    "public/uploads/**/*",
+    "**/*.png",
+    "**/*.jpg",
+    "**/*.jpeg",
+    "**/*.gif",
+    "**/*.svg",
+    "**/*.ico",
+    "**/*.webp"
   ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
   "rules": {
     "dot-notation": "error",
     "no-else-return": "off",

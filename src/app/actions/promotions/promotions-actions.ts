@@ -3,7 +3,6 @@
 import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
-// Tipo para los datos de la promoción
 type PromotionData = {
   codePromotions: string;
   porcentageDescuent: number;
@@ -11,7 +10,7 @@ type PromotionData = {
   dateEnd: Date;
   description?: string;
   seasonId: number;
-  bedroomIds: number[];
+  bedroomId: number; // Cambiado de bedroomIds: number[] a bedroomId: number
 };
 
 // Crear una nueva promoción
@@ -31,6 +30,39 @@ export async function createPromotion(data: PromotionData) {
       };
     }
 
+    // Verificar que la habitación existe
+    const bedroom = await prisma.bedrooms.findUnique({
+      where: { id: data.bedroomId },
+    });
+
+    if (!bedroom) {
+      return {
+        success: false,
+        error: "La habitación seleccionada no existe",
+      };
+    }
+
+    // Verificar si ya existe una promoción activa para esta habitación específica
+    const existingBedroomPromotion = await prisma.bedroomsPromotions.findFirst({
+      where: {
+        bedroomId: data.bedroomId,
+        promotion: {
+          dateStart: { lte: data.dateEnd },
+          dateEnd: { gte: data.dateStart },
+        },
+      },
+      include: {
+        promotion: true,
+      },
+    });
+
+    if (existingBedroomPromotion) {
+      return {
+        success: false,
+        error: `Ya existe una promoción activa para esta habitación específica (${existingBedroomPromotion.promotion.codePromotions})`,
+      };
+    }
+
     // Crear la promoción
     const promotion = await prisma.promotions.create({
       data: {
@@ -43,17 +75,13 @@ export async function createPromotion(data: PromotionData) {
       },
     });
 
-    // Crear las relaciones con las habitaciones
-    if (data.bedroomIds && data.bedroomIds.length > 0) {
-      const BedroomsPromotions = data.bedroomIds.map((bedroomId) => ({
+    // Crear la relación con la habitación específica
+    await prisma.bedroomsPromotions.create({
+      data: {
         promotionId: promotion.id,
-        bedroomId,
-      }));
-
-      await prisma.bedroomsPromotions.createMany({
-        data: BedroomsPromotions,
-      });
-    }
+        bedroomId: data.bedroomId,
+      },
+    });
 
     // Revalidar la ruta para actualizar los datos
     revalidatePath("/dashboard/offerts");
@@ -142,6 +170,40 @@ export async function updatePromotion(id: number, data: PromotionData) {
       };
     }
 
+    // Verificar que la habitación existe
+    const bedroom = await prisma.bedrooms.findUnique({
+      where: { id: data.bedroomId },
+    });
+
+    if (!bedroom) {
+      return {
+        success: false,
+        error: "La habitación seleccionada no existe",
+      };
+    }
+
+    // Verificar si ya existe una promoción activa para esta habitación específica (excepto la actual)
+    const existingBedroomPromotion = await prisma.bedroomsPromotions.findFirst({
+      where: {
+        bedroomId: data.bedroomId,
+        promotionId: { not: id },
+        promotion: {
+          dateStart: { lte: data.dateEnd },
+          dateEnd: { gte: data.dateStart },
+        },
+      },
+      include: {
+        promotion: true,
+      },
+    });
+
+    if (existingBedroomPromotion) {
+      return {
+        success: false,
+        error: `Ya existe una promoción activa para esta habitación específica (${existingBedroomPromotion.promotion.codePromotions})`,
+      };
+    }
+
     // Actualizar la promoción
     const updatedPromotion = await prisma.promotions.update({
       where: { id },
@@ -155,22 +217,18 @@ export async function updatePromotion(id: number, data: PromotionData) {
       },
     });
 
-    // Eliminar relaciones existentes
+    // Eliminar relación existente
     await prisma.bedroomsPromotions.deleteMany({
       where: { promotionId: id },
     });
 
-    // Crear nuevas relaciones con las habitaciones
-    if (data.bedroomIds && data.bedroomIds.length > 0) {
-      const BedroomsPromotions = data.bedroomIds.map((bedroomId) => ({
+    // Crear nueva relación con la habitación específica
+    await prisma.bedroomsPromotions.create({
+      data: {
         promotionId: id,
-        bedroomId,
-      }));
-
-      await prisma.bedroomsPromotions.createMany({
-        data: BedroomsPromotions,
-      });
-    }
+        bedroomId: data.bedroomId,
+      },
+    });
 
     // Revalidar la ruta para actualizar los datos
     revalidatePath("/dashboard/offerts");
@@ -194,7 +252,7 @@ export async function deletePromotion(id: number) {
       return { success: false, error: "Promoción no encontrada" };
     }
 
-    // Eliminar relaciones con habitaciones
+    // Eliminar relación con habitación
     await prisma.bedroomsPromotions.deleteMany({
       where: { promotionId: id },
     });
@@ -211,5 +269,53 @@ export async function deletePromotion(id: number) {
   } catch (error) {
     console.error("Error al eliminar promoción:", error);
     return { success: false, error: "Error al eliminar promoción" };
+  }
+}
+
+// Obtener habitaciones disponibles para promociones
+export async function getAvailableBedrooms() {
+  try {
+    const bedrooms = await prisma.bedrooms.findMany({
+      select: {
+        id: true,
+        typeBedroom: true,
+        numberBedroom: true,
+      },
+      orderBy: {
+        numberBedroom: "asc",
+      },
+    });
+
+    return { success: true, data: bedrooms };
+  } catch (error) {
+    console.error("Error al obtener habitaciones:", error);
+    return { success: false, error: "Error al obtener habitaciones" };
+  }
+}
+
+// Verificar si una habitación específica tiene promociones activas
+export async function checkBedroomPromotions(bedroomId: number) {
+  try {
+    const activePromotions = await prisma.bedroomsPromotions.findMany({
+      where: {
+        bedroomId: bedroomId,
+        promotion: {
+          dateStart: { lte: new Date() },
+          dateEnd: { gte: new Date() },
+        },
+      },
+      include: {
+        promotion: {
+          include: {
+            seasons: true,
+          },
+        },
+      },
+    });
+
+    return { success: true, data: activePromotions };
+  } catch (error) {
+    console.error("Error al verificar promociones de habitación:", error);
+    return { success: false, error: "Error al verificar promociones" };
   }
 }

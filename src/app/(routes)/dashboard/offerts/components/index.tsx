@@ -16,25 +16,25 @@ import {
   createPromotion,
   updatePromotion,
 } from "@/app/actions/promotions/promotions-actions";
-
 import { FormActions } from "./form-actions";
 import { PromotionCodeField } from "./promotionsFields";
 import { formSchema, type FormValues } from "../form-schema";
 import { LoadingState } from "./loading-state";
 import { DescriptionField } from "./descriptionsFields";
-import { BedroomSelectionField } from "./bedroomsSelectionsField";
+
 import { DateRangeField } from "./dateRangeFields";
 import { DiscountPercentageField } from "./discountPorcentage";
 import { OfferPreview } from "./offerPreview";
 import { SeasonSelectionField } from "./seasonSelectionsFields";
 import { useOfferFormData } from "./use-offerts-form";
-import type { OfferFormProps, BedroomPromotion } from "../type"; // Import BedroomPromotion
+import type { OfferFormProps } from "../type";
+import { BedroomSelectionField } from "./bedroomsSelectionsField";
 
 export function OfferForm({ onSuccess, editingOffer }: OfferFormProps) {
   const { selectedSeason, setSelectedSeason, bedrooms, seasons, isLoading } =
     useOfferFormData();
-  const [openBedroomSelector, setOpenBedroomSelector] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [openBedroomSelector, setOpenBedroomSelector] = useState(false);
 
   // Determinar si estamos editando o creando
   const isEditing = !!editingOffer;
@@ -55,10 +55,8 @@ export function OfferForm({ onSuccess, editingOffer }: OfferFormProps) {
             to: new Date(new Date().setMonth(new Date().getMonth() + 1)),
           },
       seasonId: editingOffer?.season?.id?.toString() || "",
-      bedroomIds:
-        editingOffer?.bedroomPromotions?.map((bp: BedroomPromotion) =>
-          bp.bedroom.id.toString()
-        ) || [],
+      bedroomId:
+        editingOffer?.bedroomPromotions?.[0]?.bedroom?.id?.toString() || "", // Cambio: tomar solo la primera habitación
       description: editingOffer?.description || "",
     },
   });
@@ -87,7 +85,6 @@ export function OfferForm({ onSuccess, editingOffer }: OfferFormProps) {
   // Form submission handler
   async function onSubmit(values: FormValues) {
     setIsSubmitting(true);
-
     try {
       // Preparar los datos para enviar
       const dateStart = values.dateRange.from;
@@ -104,7 +101,7 @@ export function OfferForm({ onSuccess, editingOffer }: OfferFormProps) {
         dateEnd: dateEnd,
         description: values.description,
         seasonId: Number.parseInt(values.seasonId),
-        bedroomIds: values.bedroomIds.map((id) => Number.parseInt(id)),
+        bedroomId: Number.parseInt(values.bedroomId), // Cambio: solo un ID de habitación en lugar de array
       };
 
       let result;
@@ -166,7 +163,7 @@ export function OfferForm({ onSuccess, editingOffer }: OfferFormProps) {
         <CardDescription>
           {isEditing
             ? "Actualiza los detalles de la oferta existente."
-            : "Crea una nueva oferta para habitaciones según la temporada."}
+            : "Crea una nueva oferta para una habitación específica según la temporada."}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -182,7 +179,6 @@ export function OfferForm({ onSuccess, editingOffer }: OfferFormProps) {
               />
               <DateRangeField form={form} />
             </div>
-
             <BedroomSelectionField
               form={form}
               bedrooms={bedrooms}

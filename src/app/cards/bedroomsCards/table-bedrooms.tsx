@@ -24,6 +24,8 @@ interface Bedroom {
   amenities: string[];
   numberBedroom: number;
   seasonsId: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 interface TableBedroomsProps {
@@ -63,7 +65,14 @@ const TableBedrooms: React.FC<TableBedroomsProps> = ({ bedrooms }) => {
               <TableHead className='w-[100px]'>Temp. alta</TableHead>
               <TableHead className='w-[100px]'>Capacidad</TableHead>
               <TableHead className='w-[100px]'>Estado</TableHead>
-              <TableHead className='w-[50px]'>N°</TableHead>
+              <TableHead className='w-[100px]'>N° Habitación</TableHead>
+              <TableHead className='w-[150px] text-right'>
+                Fecha de creación
+              </TableHead>
+              <TableHead className='w-[150px] text-right'>
+                Fecha de actualización
+              </TableHead>
+              <TableHead className='w-[100px] text-right'>Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -83,6 +92,20 @@ const TableBedrooms: React.FC<TableBedroomsProps> = ({ bedrooms }) => {
                   </Badge>
                 </TableCell>
                 <TableCell>{bedroom.numberBedroom}</TableCell>
+                <TableCell className='text-right'>
+                  {new Date(bedroom.createdAt).toLocaleDateString("es-ES", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                  })}
+                </TableCell>
+                <TableCell className='text-right'>
+                  {new Date(bedroom.updatedAt).toLocaleDateString("es-ES", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                  })}
+                </TableCell>
                 <TableCell className='text-right flex items-center'>
                   <div className='flex justify-between gap-3 mr-2'>
                     <EditBedrooms bedroomId={bedroom.id} />

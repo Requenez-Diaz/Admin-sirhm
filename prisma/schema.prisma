@@ -8,18 +8,19 @@ datasource db {
 }
 
 model User {
-  id           Int           @id @default(autoincrement())
-  email        String        @unique
-  username     String        @unique
+  id           Int            @id @default(autoincrement())
+  email        String         @unique
+  username     String         @unique
   password     String
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
   roleName     String
   image        String?
   Comments     Comments[]
   reservations Reservation[]
-  role         Role          @relation(fields: [roleName], references: [roleName])
+  role         Role           @relation(fields: [roleName], references: [roleName])
   UserImage    UserImage?
+  testimonials testimonials[]
 }
 
 model Role {
@@ -30,7 +31,7 @@ model Role {
 }
 
 model Reservation {
-  id            Int      @id @default(autoincrement())
+  id            Int         @id @default(autoincrement())
   name          String
   lastName      String
   email         String
@@ -39,18 +40,30 @@ model Reservation {
   rooms         Int
   arrivalDate   DateTime
   departureDate DateTime
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
   status        Status
   userId        Int
-  user          User     @relation(fields: [userId], references: [id])
+  promotionId   Int?
+  Promotions    Promotions? @relation(fields: [promotionId], references: [id])
+  user          User        @relation(fields: [userId], references: [id])
 }
 
 model testimonials {
-  id           Int      @id @default(autoincrement())
-  name         String
-  date         DateTime
-  testimonials String
+  id        Int       @id @default(autoincrement())
+  name      String
+  avatar    String
+  comment   String
+  location  String
+  rating    Int
+  roomType  String
+  stayDate  DateTime
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+  bedroomId Int?
+  userId    Int?
+  Bedrooms  Bedrooms? @relation(fields: [bedroomId], references: [id])
+  User      User?     @relation(fields: [userId], references: [id])
 }
 
 model historicReservations {
@@ -131,10 +144,25 @@ model Bedrooms {
   seasonsId          Int
   amenities          String[]
   capacity           Int
+  createdAt          DateTime             @default(now())
+  image              String
+  updatedAt          DateTime             @updatedAt
+  slug               String               @unique
+  galleryImages      BedroomImages[]
   Seasons            Seasons              @relation(fields: [seasonsId], references: [id], onDelete: Cascade)
   BedroomsPromotions BedroomsPromotions[]
   bookingsDetails    BookingsDetails[]
   Comments           Comments[]
+  testimonials       testimonials[]
+}
+
+model BedroomImages {
+  id           Int      @id @default(autoincrement())
+  bedroomId    Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  imageContent String
+  bedroom      Bedrooms @relation(fields: [bedroomId], references: [id])
 }
 
 model Comments {
@@ -183,6 +211,7 @@ model Promotions {
   BedroomsPromotions BedroomsPromotions[]
   bookingsDetails    BookingsDetails[]
   seasons            Seasons              @relation(fields: [seasonId], references: [id])
+  Reservation        Reservation[]
 }
 
 model BedroomsPromotions {
