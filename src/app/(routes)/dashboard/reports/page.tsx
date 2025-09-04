@@ -2,7 +2,7 @@ import { getReservations } from '@/app/actions/reservation'
 import RoomTypeTable from './RoomTypeTable'
 import ExcelReportGenerator from './GenerateExcelReport'
 import ReportsPage from './ReportDashboard'
-import PDFReportGenerate from './PDFReportGenerate'
+import PDFReportGenerate from './pdf/PDFReportGenerate'
 
 export default async function DashboardPage() {
   const reservations = await getReservations()
