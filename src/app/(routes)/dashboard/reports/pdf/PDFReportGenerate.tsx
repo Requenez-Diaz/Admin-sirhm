@@ -9,6 +9,7 @@ import PDFReservationSummary from './PDFReservationSummary';
 import PDFTopRoomTypes from './PDFTopRoomTypes';
 import PDFTotalGuests from './PDFTotalGuests';
 import PDFHighDemandDays from './PDFHighDemandDays';
+import { getBedrooms } from '@/app/actions/bedrooms';
 
 interface Reservation {
     arrivalDate: string | Date;
@@ -36,7 +37,7 @@ const PDFReportGenerate: React.FC = () => {
         })();
     }, []);
 
-    const generatePDF = () => {
+    const generatePDF = async () => {
         if (reservations.length === 0) {
             alert('No hay datos de reservas disponibles para generar el reporte.');
             return;
@@ -54,44 +55,33 @@ const PDFReportGenerate: React.FC = () => {
             minute: '2-digit',
         });
 
-        // Calcular el periodo del mes actual
+        // Calcular periodo del mes actual
         const dates = reservations.map(r => new Date(r.arrivalDate));
         const validDates = dates.filter(date => !isNaN(date.getTime()));
-
         const minDate = new Date(Math.min(...validDates.map(d => d.getTime())));
         const maxDate = new Date(Math.max(...validDates.map(d => d.getTime())));
-
         const reportPeriod = `${minDate.toLocaleDateString('es-ES')} - ${maxDate.toLocaleDateString('es-ES')}`;
 
         // Secciones del PDF
-        PDFReportHeader({
-            doc,
-            generatedBy: currentUser,
-            generatedAt,
-            reportPeriod
+        PDFReportHeader({ doc, generatedBy: currentUser, generatedAt, reportPeriod });
+
+        PDFReservationSummary({ doc, total: reservations.length });
+
+        PDFTotalGuests({ doc, guestsCounts: reservations.map(r => r.guests) });
+
+        // **Traer habitaciones aquí y generar los tipos**
+        const bedrooms = await getBedrooms();
+        const roomTypesCount: Record<string, number> = {};
+        bedrooms.forEach(b => {
+            const type = b.typeBedroom || 'Desconocido';
+            roomTypesCount[type] = (roomTypesCount[type] || 0) + 1;
         });
 
-        PDFReservationSummary({
-            doc,
-            total: reservations.length
-        });
+        PDFTopRoomTypes({ doc, roomTypesCount });
 
-        PDFTotalGuests({
-            doc,
-            guestsCounts: reservations.map(r => r.guests)
-        });
+        PDFHighDemandDays({ doc, arrivalDates: reservations.map(r => r.arrivalDate) });
 
-        PDFTopRoomTypes({
-            doc,
-            roomTypes: reservations.map(r => r.roomType),
-        });
-
-        PDFHighDemandDays({
-            doc,
-            arrivalDates: reservations.map(r => r.arrivalDate),
-        });
-
-        // Guardar
+        // Guardar PDF
         doc.save(`Reporte_Hotel_Madroño_${now.toISOString().split('T')[0]}.pdf`);
     };
 

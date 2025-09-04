@@ -1,26 +1,13 @@
 'use client';
-import React from 'react';
-import { bedroomsTypes } from '@/bedroomstype/bedroomsType';
 import { jsPDF } from 'jspdf';
 
 interface PDFTopRoomTypesProps {
     doc: jsPDF;
-    roomTypes: string[];
+    roomTypesCount: Record<string, number>;
 }
 
-const PDFTopRoomTypes: React.FC<PDFTopRoomTypesProps> = ({ doc, roomTypes }) => {
-    const roomTypeCount: Record<string, number> = {};
-    bedroomsTypes.forEach(type => {
-        roomTypeCount[type] = 0;
-    });
-
-    roomTypes.forEach(type => {
-        if (bedroomsTypes.includes(type)) {
-            roomTypeCount[type]++;
-        }
-    });
-
-    const sorted = Object.entries(roomTypeCount).sort((a, b) => b[1] - a[1]);
+const PDFTopRoomTypes: React.FC<PDFTopRoomTypesProps> = ({ doc, roomTypesCount }) => {
+    const sorted = Object.entries(roomTypesCount).sort((a, b) => b[1] - a[1]);
     const topRooms = sorted.slice(0, 5);
 
     doc.setFontSize(13);
