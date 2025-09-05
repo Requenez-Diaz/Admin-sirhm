@@ -4,6 +4,8 @@ import { getReservations } from "@/app/actions/reservation";
 import { getServices } from "@/app/actions/services";
 import { getBedrooms } from "@/app/actions/bedrooms";
 import { findManyUsers } from "@/app/actions/users";
+import RoomTypeTable from "../reports/RoomTypeTable";
+import ReportDashboard from "../reports/ReportDashboard";
 
 export default async function DashboardPage() {
 
@@ -44,6 +46,9 @@ export default async function DashboardPage() {
           icon={ShoppingCart}
         />
       </div>
+
+      <ReportDashboard />
+      <RoomTypeTable reservations={reservations} />
     </div>
   );
 }

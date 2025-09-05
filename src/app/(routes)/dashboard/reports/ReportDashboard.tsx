@@ -30,7 +30,7 @@ interface Stats {
     roomTypes: Record<string, number>;
 }
 
-export default function DashboardPage() {
+export function ReportDashboard() {
     const [reservations, setReservations] = useState<Reservation[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -109,3 +109,5 @@ export default function DashboardPage() {
         </div>
     );
 }
+
+export default ReportDashboard;
