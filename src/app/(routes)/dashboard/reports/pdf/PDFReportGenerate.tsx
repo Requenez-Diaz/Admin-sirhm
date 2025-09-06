@@ -25,10 +25,10 @@ const PDFReportGenerate: React.FC = () => {
         (async () => {
             try {
                 const data = await getReservations();
-                const mapped = data.map(res => ({
+                const mapped: Reservation[] = data.map(res => ({
                     arrivalDate: res.arrivalDate,
                     roomType: res.bedroomsType,
-                    guests: res.guests
+                    guests: res.guests,
                 }));
                 setReservations(mapped);
             } catch (error) {
@@ -55,31 +55,32 @@ const PDFReportGenerate: React.FC = () => {
             minute: '2-digit',
         });
 
-        // Calcular periodo del mes actual
-        const dates = reservations.map(r => new Date(r.arrivalDate));
-        const validDates = dates.filter(date => !isNaN(date.getTime()));
+        // Calcular periodo del reporte
+        const validDates = reservations
+            .map(r => new Date(r.arrivalDate))
+            .filter(date => !isNaN(date.getTime()));
+
         const minDate = new Date(Math.min(...validDates.map(d => d.getTime())));
         const maxDate = new Date(Math.max(...validDates.map(d => d.getTime())));
         const reportPeriod = `${minDate.toLocaleDateString('es-ES')} - ${maxDate.toLocaleDateString('es-ES')}`;
 
-        // Secciones del PDF
-        PDFReportHeader({ doc, generatedBy: currentUser, generatedAt, reportPeriod });
+        // Flujo del PDF
+        let y = 20;
+        y = PDFReportHeader({ doc, generatedBy: currentUser, generatedAt, reportPeriod, startY: y });
+        y = PDFReservationSummary({ doc, total: reservations.length, startY: y });
+        y = PDFTotalGuests({ doc, guestsCounts: reservations.map(r => r.guests), startY: y });
 
-        PDFReservationSummary({ doc, total: reservations.length });
-
-        PDFTotalGuests({ doc, guestsCounts: reservations.map(r => r.guests) });
-
-        // **Traer habitaciones aquí y generar los tipos**
+        // Habitaciones
         const bedrooms = await getBedrooms();
         const roomTypesCount: Record<string, number> = {};
         bedrooms.forEach(b => {
             const type = b.typeBedroom || 'Desconocido';
             roomTypesCount[type] = (roomTypesCount[type] || 0) + 1;
         });
+        y = PDFTopRoomTypes({ doc, roomTypesCount, startY: y });
 
-        PDFTopRoomTypes({ doc, roomTypesCount });
-
-        PDFHighDemandDays({ doc, arrivalDates: reservations.map(r => r.arrivalDate) });
+        // Días de mayor demanda
+        PDFHighDemandDays({ doc, arrivalDates: reservations.map(r => r.arrivalDate), startY: y });
 
         // Guardar PDF
         doc.save(`Reporte_Hotel_Madroño_${now.toISOString().split('T')[0]}.pdf`);
