@@ -1,11 +1,7 @@
-import { getReservations } from '@/app/actions/reservation'
-import RoomTypeTable from './RoomTypeTable'
 import ExcelReportGenerator from './GenerateExcelReport'
-import ReportsPage from './ReportDashboard'
-import PDFReportGenerate from './PDFReportGenerate'
+import PDFReportGenerate from './pdf/PDFReportGenerate'
 
 export default async function DashboardPage() {
-  const reservations = await getReservations()
 
   return (
     <div className="space-y-6">
@@ -21,9 +17,6 @@ export default async function DashboardPage() {
           <PDFReportGenerate />
         </div>
       </div>
-
-      <ReportsPage />
-      <RoomTypeTable reservations={reservations} />
     </div>
   )
 }
