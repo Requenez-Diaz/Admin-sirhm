@@ -14,8 +14,8 @@ export default middleware(async (req) => {
   const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
   const isApiRoute = nextUrl.pathname.startsWith("/api");
 
-  if (isLoggedIn && isPublicRoute) {
-    return NextResponse.redirect(new URL("/dashboard/home", nextUrl));
+  if (nextUrl.pathname === "/") {
+    return NextResponse.redirect(new URL("/sign-in", nextUrl));
   }
 
   if (!isLoggedIn && !isPublicRoute && !isApiRoute) {
