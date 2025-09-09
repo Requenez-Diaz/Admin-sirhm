@@ -50,20 +50,19 @@ model Reservation {
 }
 
 model testimonials {
-  id        Int       @id @default(autoincrement())
-  name      String
-  avatar    String
-  comment   String
-  location  String
-  rating    Int
-  roomType  String
-  stayDate  DateTime
-  createdAt DateTime  @default(now())
-  updatedAt DateTime
-  bedroomId Int?
-  userId    Int?
-  Bedrooms  Bedrooms? @relation(fields: [bedroomId], references: [id])
-  User      User?     @relation(fields: [userId], references: [id])
+  id         Int       @id @default(autoincrement())
+  name       String
+  avatar     String
+  comment    String
+  location   String
+  rating     Int
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime
+  bedroomId  Int?
+  userId     Int?
+  isApproved Boolean   @default(false)
+  Bedrooms   Bedrooms? @relation(fields: [bedroomId], references: [id])
+  User       User?     @relation(fields: [userId], references: [id])
 }
 
 model historicReservations {
