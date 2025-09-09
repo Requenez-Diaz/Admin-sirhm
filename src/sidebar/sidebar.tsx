@@ -28,6 +28,11 @@ const links = [
   { name: "configuración", href: "/dashboard/settings", icon: Settings },
   { name: "roles", href: "/dashboard/roles", icon: User },
   { name: "Ofertas", href: "/dashboard/offerts", icon: ShoppingCart },
+  {
+    name: "Testimoniales",
+    href: "/dashboard/testimonials",
+    icon: ClipboardMinus,
+  },
 ];
 
 interface SidebarProps {
