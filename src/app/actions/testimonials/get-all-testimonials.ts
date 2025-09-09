@@ -3,7 +3,6 @@
 import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
-// Obtener todos los testimoniales para el admin (incluyendo no aprobados)
 export const getAllTestimonialsForAdmin = async () => {
   try {
     const testimonials = await prisma.testimonials.findMany({
@@ -34,7 +33,6 @@ export const getAllTestimonialsForAdmin = async () => {
   }
 };
 
-// Aprobar un testimonial
 export const approveTestimonial = async (testimonialId: number) => {
   try {
     const testimonial = await prisma.testimonials.update({
@@ -69,7 +67,6 @@ export const approveTestimonial = async (testimonialId: number) => {
   }
 };
 
-// Rechazar un testimonial
 export const rejectTestimonial = async (testimonialId: number) => {
   try {
     const testimonial = await prisma.testimonials.update({
@@ -106,7 +103,6 @@ export const rejectTestimonial = async (testimonialId: number) => {
   }
 };
 
-// Eliminar un testimonial
 export const deleteTestimonial = async (testimonialId: number) => {
   try {
     await prisma.testimonials.delete({
@@ -132,7 +128,6 @@ export const deleteTestimonial = async (testimonialId: number) => {
   }
 };
 
-// Obtener estadísticas de testimoniales
 export const getTestimonialStats = async () => {
   try {
     const [total, approved, pending, rejected] = await Promise.all([
