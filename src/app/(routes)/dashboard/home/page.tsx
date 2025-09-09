@@ -18,6 +18,10 @@ export default async function DashboardPage() {
   const pending = reservations.filter(r => r.status === "PENDING").length;
   const canceled = reservations.filter(r => r.status === "CANCELLED").length;
 
+  // Total de huéspedes sumando las reservaciones
+  const totalGuests = reservations.reduce((acc, r) => acc + r.guests, 0);
+
+
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Panel de Control</h1>
@@ -35,10 +39,15 @@ export default async function DashboardPage() {
         <DashboardCard
           title="Habitaciones"
           value={bedrooms.length}
-          description="+0% desde el último mes"
+          // description="+0% desde el último mes"
           icon={<Hotel className="h-6 w-6" />}
           href="/dashboard/bedrooms"
           type="rooms"
+          extraContent={
+            <div className="text-xs mt-1">
+              Total de huéspedes: {totalGuests}
+            </div>
+          }
         />
 
         <DashboardCard
