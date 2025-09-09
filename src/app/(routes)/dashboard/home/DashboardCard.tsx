@@ -7,13 +7,14 @@ import React from "react";
 interface DashboardCardProps {
   title: string;
   value: string | number;
-  description: string;
+  description?: string;
   icon: React.ReactNode;
   href?: string;
   type?: "users" | "rooms" | "reservations" | "services";
+  extraContent?: React.ReactNode;
 }
 
-export function DashboardCard({ title, value, description, icon, href, type }: DashboardCardProps) {
+export function DashboardCard({ title, value, description, icon, href, type, extraContent }: DashboardCardProps) {
   const typeColors: Record<string, { icon: string; hover: string }> = {
     users: { icon: "text-green-500", hover: "hover:bg-green-100" },
     rooms: { icon: "text-purple-500", hover: "hover:bg-purple-100" },
@@ -32,6 +33,7 @@ export function DashboardCard({ title, value, description, icon, href, type }: D
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
         <p className="text-xs text-muted-foreground">{description}</p>
+        {extraContent && <div className="mt-1">{extraContent}</div>}
       </CardContent>
     </Card>
   );

@@ -11,7 +11,12 @@ export default async function DashboardPage() {
   const reservations = await getReservations();
   const services = await getServices();
   const bedrooms = await getBedrooms();
-  const user = await findManyUsers();
+  const users = await findManyUsers();
+
+  // Contar reservaciones por estado
+  const confirmed = reservations.filter(r => r.status === "CONFIRMED").length;
+  const pending = reservations.filter(r => r.status === "PENDING").length;
+  const canceled = reservations.filter(r => r.status === "CANCELLED").length;
 
   return (
     <div>
@@ -20,7 +25,7 @@ export default async function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <DashboardCard
           title="Total Usuarios"
-          value={user.length}
+          value={users.length}
           description="+0% desde el último mes"
           icon={<UsersRound className="h-6 w-6" />}
           href="/dashboard/users"
@@ -39,10 +44,17 @@ export default async function DashboardPage() {
         <DashboardCard
           title="Reservaciones"
           value={reservations.length}
-          description="+0% desde el último mes"
+          // description="+0% desde el último mes"
           icon={<Calendar className="h-6 w-6" />}
           href="/dashboard/bookings"
           type="reservations"
+          extraContent={
+            <div className="flex gap-4 mt-1 text-xs">
+              <span>Confirmadas: {confirmed}</span>
+              <span>Pendientes: {pending}</span>
+              <span>Canceladas: {canceled}</span>
+            </div>
+          }
         />
 
         <DashboardCard
