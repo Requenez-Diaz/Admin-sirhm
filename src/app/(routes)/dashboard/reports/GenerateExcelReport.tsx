@@ -238,7 +238,7 @@ export default function ExcelReportGenerator() {
                         size="lg"
                     >
                         <FileSpreadsheet className="h-5 w-5" />
-                        {loading ? 'Generando Reporte...' : 'Generar Reporte Excel'}
+                        {loading ? 'Generando Reporte...' : 'Excel'}
                     </Button>
 
                     {loading && (
