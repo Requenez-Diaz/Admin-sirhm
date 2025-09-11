@@ -10,12 +10,7 @@ import PDFTopRoomTypes from "./PDFTopRoomTypes";
 import PDFTotalGuests from "./PDFTotalGuests";
 import PDFHighDemandDays from "./PDFHighDemandDays";
 import { getBedrooms } from "@/app/actions/bedrooms";
-
-interface Reservation {
-    arrivalDate: string | Date;
-    roomType: string;
-    guests: number;
-}
+import PDFReservationComparisonRender from "./PDFReservationComparison";
 
 interface PDFReportGenerateProps {
     month: number;
@@ -23,19 +18,16 @@ interface PDFReportGenerateProps {
 }
 
 const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) => {
-    const [reservations, setReservations] = useState<Reservation[]>([]);
+    const [reservations, setReservations] = useState<
+        Awaited<ReturnType<typeof getReservations>>
+    >([]);
     const currentUser = "Administrador";
 
     useEffect(() => {
         (async () => {
             try {
                 const data = await getReservations();
-                const mapped: Reservation[] = data.map((res) => ({
-                    arrivalDate: res.arrivalDate,
-                    roomType: res.bedroomsType,
-                    guests: res.guests,
-                }));
-                setReservations(mapped);
+                setReservations(data);
             } catch (error) {
                 console.error("Error cargando reservas:", error);
             }
@@ -43,7 +35,6 @@ const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) =>
     }, []);
 
     const generatePDF = async () => {
-        // Filtrar por mes/año
         const filteredReservations = reservations.filter((r) => {
             const d = new Date(r.arrivalDate);
             return d.getMonth() + 1 === month && d.getFullYear() === year;
@@ -66,7 +57,6 @@ const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) =>
             minute: "2-digit",
         });
 
-        // Calcular periodo del reporte
         const validDates = filteredReservations
             .map((r) => new Date(r.arrivalDate))
             .filter((date) => !isNaN(date.getTime()));
@@ -78,11 +68,8 @@ const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) =>
 
         const minDate = new Date(Math.min(...validDates.map((d) => d.getTime())));
         const maxDate = new Date(Math.max(...validDates.map((d) => d.getTime())));
-        const reportPeriod = `${minDate.toLocaleDateString(
-            "es-ES"
-        )} - ${maxDate.toLocaleDateString("es-ES")}`;
+        const reportPeriod = `${minDate.toLocaleDateString("es-ES")} - ${maxDate.toLocaleDateString("es-ES")}`;
 
-        // Flujo del PDF
         let y = 20;
         y = PDFReportHeader({
             doc,
@@ -91,18 +78,19 @@ const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) =>
             reportPeriod,
             startY: y,
         });
+
         y = PDFReservationSummary({
             doc,
             total: filteredReservations.length,
             startY: y,
         });
+
         y = PDFTotalGuests({
             doc,
             guestsCounts: filteredReservations.map((r) => r.guests),
             startY: y,
         });
 
-        // Habitaciones
         const bedrooms = await getBedrooms();
         const roomTypesCount: Record<string, number> = {};
         bedrooms.forEach((b) => {
@@ -111,14 +99,20 @@ const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) =>
         });
         y = PDFTopRoomTypes({ doc, roomTypesCount, startY: y });
 
-        // Días de mayor demanda
-        PDFHighDemandDays({
+        y = PDFHighDemandDays({
             doc,
             arrivalDates: filteredReservations.map((r) => r.arrivalDate),
             startY: y,
         });
 
-        // Guardar PDF
+        PDFReservationComparisonRender({
+            doc,
+            reservations,
+            month,
+            year,
+            startY: y,
+        });
+
         doc.save(`Reporte_Hotel_Madroño_${now.toISOString().split("T")[0]}.pdf`);
     };
 
