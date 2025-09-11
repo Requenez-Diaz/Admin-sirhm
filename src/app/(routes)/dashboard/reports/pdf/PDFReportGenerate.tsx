@@ -4,13 +4,19 @@ import { jsPDF } from "jspdf";
 import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
 import { getReservations } from "@/app/actions/reservation";
+import { getBedrooms } from "@/app/actions/bedrooms";
 import PDFReportHeader from "./PdfReportHeader";
 import PDFReservationSummary from "./PDFReservationSummary";
 import PDFTopRoomTypes from "./PDFTopRoomTypes";
 import PDFTotalGuests from "./PDFTotalGuests";
 import PDFHighDemandDays from "./PDFHighDemandDays";
-import { getBedrooms } from "@/app/actions/bedrooms";
 import PDFReservationComparisonRender from "./PDFReservationComparison";
+import PDFEstimatedIncome from "./PDFEstimatedIncome";
+
+interface Bedroom {
+    typeBedroom: string;
+    price: number;
+}
 
 interface PDFReportGenerateProps {
     month: number;
@@ -18,9 +24,7 @@ interface PDFReportGenerateProps {
 }
 
 const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) => {
-    const [reservations, setReservations] = useState<
-        Awaited<ReturnType<typeof getReservations>>
-    >([]);
+    const [reservations, setReservations] = useState<Awaited<ReturnType<typeof getReservations>>>([]);
     const currentUser = "Administrador";
 
     useEffect(() => {
@@ -61,56 +65,65 @@ const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) =>
             .map((r) => new Date(r.arrivalDate))
             .filter((date) => !isNaN(date.getTime()));
 
-        if (validDates.length === 0) {
-            alert("No se encontraron fechas válidas.");
-            return;
-        }
-
         const minDate = new Date(Math.min(...validDates.map((d) => d.getTime())));
         const maxDate = new Date(Math.max(...validDates.map((d) => d.getTime())));
         const reportPeriod = `${minDate.toLocaleDateString("es-ES")} - ${maxDate.toLocaleDateString("es-ES")}`;
 
-        let y = 20;
-        y = PDFReportHeader({
+        let _y = 20;
+
+        _y = PDFReportHeader({
             doc,
             generatedBy: currentUser,
             generatedAt,
             reportPeriod,
-            startY: y,
+            startY: _y,
         });
 
-        y = PDFReservationSummary({
+        _y = PDFReservationSummary({
             doc,
             total: filteredReservations.length,
-            startY: y,
+            startY: _y,
         });
 
-        y = PDFTotalGuests({
+        _y = PDFTotalGuests({
             doc,
             guestsCounts: filteredReservations.map((r) => r.guests),
-            startY: y,
+            startY: _y,
         });
 
-        const bedrooms = await getBedrooms();
+        const bedroomsData = await getBedrooms();
         const roomTypesCount: Record<string, number> = {};
-        bedrooms.forEach((b) => {
+        bedroomsData.forEach((b) => {
             const type = b.typeBedroom || "Desconocido";
             roomTypesCount[type] = (roomTypesCount[type] || 0) + 1;
         });
-        y = PDFTopRoomTypes({ doc, roomTypesCount, startY: y });
 
-        y = PDFHighDemandDays({
+        _y = PDFTopRoomTypes({ doc, roomTypesCount, startY: _y });
+
+        _y = PDFHighDemandDays({
             doc,
             arrivalDates: filteredReservations.map((r) => r.arrivalDate),
-            startY: y,
+            startY: _y,
         });
 
-        PDFReservationComparisonRender({
+        _y = PDFReservationComparisonRender({
             doc,
             reservations,
             month,
             year,
-            startY: y,
+            startY: _y,
+        });
+
+        const mappedBedrooms: Bedroom[] = bedroomsData.map((b) => ({
+            typeBedroom: b.typeBedroom,
+            price: b.lowSeasonPrice,
+        }));
+
+        _y = PDFEstimatedIncome({
+            doc,
+            reservations: filteredReservations,
+            bedrooms: mappedBedrooms,
+            startY: _y,
         });
 
         doc.save(`Reporte_Hotel_Madroño_${now.toISOString().split("T")[0]}.pdf`);
