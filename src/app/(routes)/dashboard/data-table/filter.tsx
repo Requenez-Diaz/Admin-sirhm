@@ -13,7 +13,7 @@ export function Filter({ searchTerm, setSearchTerm, selectedFilter, setSelectedF
     const [showDropdown, setShowDropdown] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    const options = ["Name", "LastName", "Status", "Email"];
+    const options = ["Nombre", "Apellido", "Estado", "Email"];
 
     const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
