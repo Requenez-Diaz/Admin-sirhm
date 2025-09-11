@@ -79,13 +79,13 @@ const TableReservation: React.FC<TableReservationProps> = ({
     if (selectedFilter === "Columns") {
       return true;
     }
-    if (selectedFilter === "Name") {
+    if (selectedFilter === "Nombre") {
       return res.name.toLowerCase().includes(searchTerm.toLowerCase());
     }
-    if (selectedFilter === "LastName") {
+    if (selectedFilter === "Apellido") {
       return res.lastName.toLowerCase().includes(searchTerm.toLowerCase());
     }
-    if (selectedFilter === "Status") {
+    if (selectedFilter === "Estado") {
       return statusLabels[res.status]
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
