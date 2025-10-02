@@ -87,7 +87,6 @@ export default function MainSidebar({ onStateChange }: SidebarProps) {
           <h1 className='text-lg font-semibold'>Dashboard</h1>
         </div>
         <div className='flex items-center gap-2'>
-          <span className='text-sm font-medium mr-2'>Admin</span>
           <UserProfile />
         </div>
       </header>
