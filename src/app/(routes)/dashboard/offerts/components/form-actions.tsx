@@ -15,7 +15,7 @@ export function FormActions({
 }: FormActionsProps) {
   return (
     <div className='flex justify-end gap-3'>
-      <Button type='button' variant='danger' onClick={onCancel}>
+      <Button type='button' variant='destructive' onClick={onCancel}>
         Cancelar
       </Button>
       <Button variant={"success"} type='submit' disabled={isSubmitting}>

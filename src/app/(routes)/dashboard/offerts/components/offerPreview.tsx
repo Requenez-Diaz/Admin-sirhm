@@ -17,18 +17,15 @@ export function OfferPreview({ watch, bedrooms }: OfferPreviewProps) {
   const dateRange = watch("dateRange");
   const codePromotions = watch("codePromotions");
 
-  // Si no hay habitación seleccionada o faltan datos esenciales, no mostrar nada
   if (!bedroomId || !porcentageDescuent || !seasonId) {
     return null;
   }
 
-  // Encontrar la habitación seleccionada
   const bedroom = bedrooms.find((b) => b.id.toString() === bedroomId);
   if (!bedroom) {
     return null;
   }
 
-  // Calcular precios
   const isLowSeason = seasonId === "1";
   const originalPrice = isLowSeason
     ? bedroom.lowSeasonPrice
@@ -36,7 +33,6 @@ export function OfferPreview({ watch, bedrooms }: OfferPreviewProps) {
   const discount = (originalPrice * porcentageDescuent) / 100;
   const finalPrice = originalPrice - discount;
 
-  // Formatear fechas
   const formatDate = (date: Date) => {
     return date.toLocaleDateString("es-ES", {
       year: "numeric",
@@ -55,7 +51,6 @@ export function OfferPreview({ watch, bedrooms }: OfferPreviewProps) {
       </CardHeader>
       <CardContent>
         <div className='space-y-4'>
-          {/* Información de la habitación */}
           <div className='space-y-2'>
             <div className='flex items-center gap-2'>
               <MapPin className='h-4 w-4 text-blue-600' />
@@ -77,7 +72,6 @@ export function OfferPreview({ watch, bedrooms }: OfferPreviewProps) {
             </div>
           </div>
 
-          {/* Información de precios */}
           <div className='grid grid-cols-1 gap-2 mt-4'>
             <div className='grid grid-cols-3 gap-2 font-medium text-sm'>
               <div>Precio Original</div>
@@ -95,7 +89,6 @@ export function OfferPreview({ watch, bedrooms }: OfferPreviewProps) {
             </div>
           </div>
 
-          {/* Código de promoción */}
           {codePromotions && (
             <div className='mt-4'>
               <Badge variant='secondary' className='text-lg px-3 py-1'>
@@ -104,7 +97,6 @@ export function OfferPreview({ watch, bedrooms }: OfferPreviewProps) {
             </div>
           )}
 
-          {/* Fechas */}
           {dateRange?.from && dateRange?.to && (
             <div className='flex items-center gap-2 text-muted-foreground mt-2'>
               <CalendarDays className='h-4 w-4' />
