@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -39,12 +39,12 @@
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.383.0",
-    "next": "^14.2.18",
+    "next": "15.5.4",
     "next-auth": "^5.0.0-beta.25",
     "next-themes": "^0.3.0",
-    "react": "^18",
+    "react": "19.2.0",
     "react-day-picker": "^8.10.1",
-    "react-dom": "^18",
+    "react-dom": "19.2.0",
     "react-hook-form": "^7.53.1",
     "recharts": "^2.15.3",
     "sonner": "^1.5.0",
@@ -59,14 +59,14 @@
     "@types/bcrypt": "^5.0.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
+    "@types/react": "19.2.0",
+    "@types/react-dom": "19.2.0",
     "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "autoprefixer": "^10.0.1",
     "eslint": "^8",
-    "eslint-config-next": "14.2.3",
+    "eslint-config-next": "15.5.4",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",
     "eslint-plugin-react": "^7.33.2",
@@ -81,5 +81,9 @@
   },
   "lint-staged": {
     "*": "eslint --config ./.eslintrc.json"
+  },
+  "overrides": {
+    "@types/react": "19.2.0",
+    "@types/react-dom": "19.2.0"
   }
 }
