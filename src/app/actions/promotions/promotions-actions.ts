@@ -10,13 +10,12 @@ type PromotionData = {
   dateEnd: Date;
   description?: string;
   seasonId: number;
-  bedroomId: number; // Cambiado de bedroomIds: number[] a bedroomId: number
+  bedroomId: number;
 };
 
 // Crear una nueva promoción
 export async function createPromotion(data: PromotionData) {
   try {
-    // Verificar si ya existe una promoción con el mismo código
     const existingPromotion = await prisma.promotions.findFirst({
       where: {
         codePromotions: data.codePromotions,
@@ -75,7 +74,6 @@ export async function createPromotion(data: PromotionData) {
       },
     });
 
-    // Crear la relación con la habitación específica
     await prisma.bedroomsPromotions.create({
       data: {
         promotionId: promotion.id,
@@ -83,7 +81,6 @@ export async function createPromotion(data: PromotionData) {
       },
     });
 
-    // Revalidar la ruta para actualizar los datos
     revalidatePath("/dashboard/offerts");
 
     return { success: true, data: promotion };
@@ -146,7 +143,6 @@ export async function getPromotion(id: number) {
 // Actualizar una promoción
 export async function updatePromotion(id: number, data: PromotionData) {
   try {
-    // Verificar si la promoción existe
     const existingPromotion = await prisma.promotions.findUnique({
       where: { id },
     });
@@ -217,7 +213,6 @@ export async function updatePromotion(id: number, data: PromotionData) {
       },
     });
 
-    // Eliminar relación existente
     await prisma.bedroomsPromotions.deleteMany({
       where: { promotionId: id },
     });
@@ -230,7 +225,6 @@ export async function updatePromotion(id: number, data: PromotionData) {
       },
     });
 
-    // Revalidar la ruta para actualizar los datos
     revalidatePath("/dashboard/offerts");
 
     return { success: true, data: updatedPromotion };
@@ -262,7 +256,6 @@ export async function deletePromotion(id: number) {
       where: { id },
     });
 
-    // Revalidar la ruta para actualizar los datos
     revalidatePath("/dashboard/offerts");
 
     return { success: true, message: "Promoción eliminada correctamente" };
