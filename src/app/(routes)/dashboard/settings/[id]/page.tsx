@@ -13,12 +13,13 @@ import Link from "next/link";
 import { getPromotion } from "@/app/actions/promotions/promotions-actions";
 
 interface PromotionPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-export default async function PromotionPage({ params }: PromotionPageProps) {
+export default async function PromotionPage(props: PromotionPageProps) {
+  const params = await props.params;
   const promotionId = Number.parseInt(params.id);
   const result = await getPromotion(promotionId);
 

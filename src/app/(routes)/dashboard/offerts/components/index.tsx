@@ -21,7 +21,6 @@ import { PromotionCodeField } from "./promotionsFields";
 import { formSchema, type FormValues } from "../form-schema";
 import { LoadingState } from "./loading-state";
 import { DescriptionField } from "./descriptionsFields";
-
 import { DateRangeField } from "./dateRangeFields";
 import { DiscountPercentageField } from "./discountPorcentage";
 import { OfferPreview } from "./offerPreview";
@@ -39,7 +38,6 @@ export function OfferForm({ onSuccess, editingOffer }: OfferFormProps) {
   // Determinar si estamos editando o creando
   const isEditing = !!editingOffer;
 
-  // Initialize form
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -56,19 +54,17 @@ export function OfferForm({ onSuccess, editingOffer }: OfferFormProps) {
           },
       seasonId: editingOffer?.season?.id?.toString() || "",
       bedroomId:
-        editingOffer?.bedroomPromotions?.[0]?.bedroom?.id?.toString() || "", // Cambio: tomar solo la primera habitación
+        editingOffer?.bedroomPromotions?.[0]?.bedroom?.id?.toString() || "",
       description: editingOffer?.description || "",
     },
   });
 
-  // Establecer la temporada seleccionada al cargar el formulario
   useEffect(() => {
     if (editingOffer?.season?.id) {
       setSelectedSeason(editingOffer.season.id.toString());
     }
   }, [editingOffer, setSelectedSeason]);
 
-  // Update date range when season changes
   useEffect(() => {
     const seasonId = form.watch("seasonId");
     if (seasonId) {
@@ -82,15 +78,12 @@ export function OfferForm({ onSuccess, editingOffer }: OfferFormProps) {
     }
   }, [form.watch("seasonId"), seasons, form]);
 
-  // Form submission handler
   async function onSubmit(values: FormValues) {
     setIsSubmitting(true);
     try {
-      // Preparar los datos para enviar
       const dateStart = values.dateRange.from;
       const dateEnd = values.dateRange.to;
 
-      // Asegurar que las fechas tienen el formato correcto
       dateStart.setHours(0, 0, 0, 0);
       dateEnd.setHours(23, 59, 59, 999);
 
@@ -101,17 +94,14 @@ export function OfferForm({ onSuccess, editingOffer }: OfferFormProps) {
         dateEnd: dateEnd,
         description: values.description,
         seasonId: Number.parseInt(values.seasonId),
-        bedroomId: Number.parseInt(values.bedroomId), // Cambio: solo un ID de habitación en lugar de array
+        bedroomId: Number.parseInt(values.bedroomId),
       };
 
       let result;
-      console.log("Datos de la oferta a enviar:", promotionData);
 
       if (isEditing) {
-        // Actualizar promoción existente
         result = await updatePromotion(editingOffer.id, promotionData);
       } else {
-        // Crear nueva promoción
         result = await createPromotion(promotionData);
       }
 
@@ -123,10 +113,7 @@ export function OfferForm({ onSuccess, editingOffer }: OfferFormProps) {
             : "La oferta ha sido creada correctamente.",
         });
 
-        // Reset form
         form.reset();
-
-        // Call onSuccess callback if provided
         if (onSuccess) {
           onSuccess();
         }

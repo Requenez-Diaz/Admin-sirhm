@@ -16,39 +16,29 @@ export function useOfferFormData() {
     const loadData = async () => {
       setIsLoading(true);
       try {
-        // Crear una función asíncrona que llama a los server actions
         const fetchServerData = async () => {
           try {
-            // Usamos Promise.all para hacer ambas peticiones en paralelo
             const [bedroomsResult, seasonsResult] = await Promise.all([
               getAllBedrooomToPromotions(),
 
               getAllSeasons(),
             ]);
-
-            console.log("Datos obtenidos - Habitaciones:", bedroomsResult);
-            console.log("Datos obtenidos - Temporadas:", seasonsResult);
-
             return {
               bedrooms: bedroomsResult || [],
               seasons: seasonsResult || [],
             };
           } catch (error) {
-            console.error("Error al obtener datos del servidor:", error);
             return { bedrooms: [], seasons: [] };
           }
         };
 
-        // Ejecutar la función
         const data = await fetchServerData();
 
-        // Actualizar los estados con los datos obtenidos
         if (data.bedrooms && data.bedrooms.length > 0) {
           setBedrooms(data.bedrooms);
         }
 
         if (data.seasons && data.seasons.length > 0) {
-          // Convertir las fechas de string a Date si es necesario
           const formattedSeasons = data.seasons.map((season) => ({
             ...season,
             dateStart: new Date(season.dateStart),

@@ -33,7 +33,6 @@ export interface BedroomPromotion {
   promotionId?: number;
   bedroomId?: number;
   bedroom: Bedroom;
-  // Make all fields optional except bedroom to handle both structures
 }
 
 export interface Promotion {
@@ -45,12 +44,8 @@ export interface Promotion {
   description?: string;
   seasonId?: number;
   createdAt: string | Date;
-
-  // Support both naming conventions
   season?: Season;
   seasons?: Season;
-
-  // Support both naming conventions
   bedroomPromotions?: BedroomPromotion[];
   BedroomsPromotions?: BedroomPromotion[];
 }
