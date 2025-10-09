@@ -1,101 +1,155 @@
-'use client';
-import React, { useEffect, useState } from 'react';
-import { jsPDF } from 'jspdf';
-import { Button } from '@/components/ui/button';
-import { FileText } from 'lucide-react';
-import { getReservations } from '@/app/actions/reservation';
-import PDFReportHeader from './PdfReportHeader';
-import PDFReservationSummary from './PDFReservationSummary';
-import PDFTopRoomTypes from './PDFTopRoomTypes';
-import PDFTotalGuests from './PDFTotalGuests';
-import PDFHighDemandDays from './PDFHighDemandDays';
-import { getBedrooms } from '@/app/actions/bedrooms';
+"use client";
+import React, { useEffect, useState } from "react";
+import { jsPDF } from "jspdf";
+import { Button } from "@/components/ui/button";
+import { FileText } from "lucide-react";
+import { getReservations } from "@/app/actions/reservation";
+import { getBedrooms } from "@/app/actions/bedrooms";
+import PDFReportHeader from "./PdfReportHeader";
+import PDFReservationSummary from "./PDFReservationSummary";
+import PDFTopRoomTypes from "./PDFTopRoomTypes";
+import PDFTotalGuests from "./PDFTotalGuests";
+import PDFHighDemandDays from "./PDFHighDemandDays";
+import PDFReservationComparisonRender from "./PDFReservationComparison";
+import PDFEstimatedIncome from "./PDFEstimatedIncome";
+import { useSession } from "next-auth/react";
 
-interface Reservation {
-    arrivalDate: string | Date;
-    roomType: string;
-    guests: number;
+interface Bedroom {
+  typeBedroom: string;
+  price: number;
 }
 
-const PDFReportGenerate: React.FC = () => {
-    const [reservations, setReservations] = useState<Reservation[]>([]);
-    const currentUser = 'Administrador';
+interface PDFReportGenerateProps {
+  month: number;
+  year: number;
+}
 
-    useEffect(() => {
-        (async () => {
-            try {
-                const data = await getReservations();
-                const mapped: Reservation[] = data.map(res => ({
-                    arrivalDate: res.arrivalDate,
-                    roomType: res.bedroomsType,
-                    guests: res.guests,
-                }));
-                setReservations(mapped);
-            } catch (error) {
-                console.error('Error cargando reservas:', error);
-            }
-        })();
-    }, []);
+const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) => {
+  const [reservations, setReservations] = useState<Awaited<ReturnType<typeof getReservations>>>([]);
+  const { data: session } = useSession();
 
-    const generatePDF = async () => {
-        if (reservations.length === 0) {
-            alert('No hay datos de reservas disponibles para generar el reporte.');
-            return;
-        }
+  const currentUser =
+    session?.user?.role === "Admin"
+      ? session?.user?.name || "Administrador"
+      : "Usuario no autorizado";
 
-        const doc = new jsPDF();
-        const now = new Date();
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await getReservations();
+        setReservations(data);
+      } catch (error) {
+        console.error("Error cargando reservas:", error);
+      }
+    })();
+  }, []);
 
-        const generatedAt = now.toLocaleDateString('es-ES', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        });
+  const generatePDF = async () => {
+    if (currentUser === "Usuario no autorizado") {
+      alert("Solo los administradores pueden generar reportes.");
+      return;
+    }
 
-        // Calcular periodo del reporte
-        const validDates = reservations
-            .map(r => new Date(r.arrivalDate))
-            .filter(date => !isNaN(date.getTime()));
+    const filteredReservations = reservations.filter((r) => {
+      const d = new Date(r.arrivalDate);
+      return d.getMonth() + 1 === month && d.getFullYear() === year;
+    });
 
-        const minDate = new Date(Math.min(...validDates.map(d => d.getTime())));
-        const maxDate = new Date(Math.max(...validDates.map(d => d.getTime())));
-        const reportPeriod = `${minDate.toLocaleDateString('es-ES')} - ${maxDate.toLocaleDateString('es-ES')}`;
+    if (filteredReservations.length === 0) {
+      alert("No hay datos de reservas para el mes/año seleccionado.");
+      return;
+    }
 
-        // Flujo del PDF
-        let y = 20;
-        y = PDFReportHeader({ doc, generatedBy: currentUser, generatedAt, reportPeriod, startY: y });
-        y = PDFReservationSummary({ doc, total: reservations.length, startY: y });
-        y = PDFTotalGuests({ doc, guestsCounts: reservations.map(r => r.guests), startY: y });
+    const doc = new jsPDF();
+    const now = new Date();
 
-        // Habitaciones
-        const bedrooms = await getBedrooms();
-        const roomTypesCount: Record<string, number> = {};
-        bedrooms.forEach(b => {
-            const type = b.typeBedroom || 'Desconocido';
-            roomTypesCount[type] = (roomTypesCount[type] || 0) + 1;
-        });
-        y = PDFTopRoomTypes({ doc, roomTypesCount, startY: y });
+    const generatedAt = now.toLocaleDateString("es-ES", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
-        // Días de mayor demanda
-        PDFHighDemandDays({ doc, arrivalDates: reservations.map(r => r.arrivalDate), startY: y });
+    const validDates = filteredReservations
+      .map((r) => new Date(r.arrivalDate))
+      .filter((date) => !isNaN(date.getTime()));
 
-        // Guardar PDF
-        doc.save(`Reporte_Hotel_Madroño_${now.toISOString().split('T')[0]}.pdf`);
-    };
+    const minDate = new Date(Math.min(...validDates.map((d) => d.getTime())));
+    const maxDate = new Date(Math.max(...validDates.map((d) => d.getTime())));
+    const reportPeriod = `${minDate.toLocaleDateString("es-ES")} - ${maxDate.toLocaleDateString("es-ES")}`;
 
-    return (
-        <Button
-            onClick={generatePDF}
-            className="bg-blue-600 hover:bg-blue-700 gap-2"
-            size="lg"
-        >
-            <FileText className="h-5 w-5" />
-            Generar Reporte PDF
-        </Button>
-    );
+    let _y = 20;
+
+    _y = PDFReportHeader({
+      doc,
+      generatedBy: currentUser,
+      generatedAt,
+      reportPeriod,
+      startY: _y,
+    });
+
+    _y = PDFReservationSummary({
+      doc,
+      total: filteredReservations.length,
+      startY: _y,
+    });
+
+    _y = PDFTotalGuests({
+      doc,
+      guestsCounts: filteredReservations.map((r) => r.guests),
+      startY: _y,
+    });
+
+    const bedroomsData = await getBedrooms();
+    const roomTypesCount: Record<string, number> = {};
+    bedroomsData.forEach((b) => {
+      const type = b.typeBedroom || "Desconocido";
+      roomTypesCount[type] = (roomTypesCount[type] || 0) + 1;
+    });
+
+    _y = PDFTopRoomTypes({ doc, roomTypesCount, startY: _y });
+
+    _y = PDFHighDemandDays({
+      doc,
+      arrivalDates: filteredReservations.map((r) => r.arrivalDate),
+      startY: _y,
+    });
+
+    _y = PDFReservationComparisonRender({
+      doc,
+      reservations,
+      month,
+      year,
+      startY: _y,
+    });
+
+    const mappedBedrooms: Bedroom[] = bedroomsData.map((b) => ({
+      typeBedroom: b.typeBedroom,
+      price: b.lowSeasonPrice,
+    }));
+
+    _y = PDFEstimatedIncome({
+      doc,
+      reservations: filteredReservations,
+      bedrooms: mappedBedrooms,
+      startY: _y,
+    });
+
+    doc.save(`Reporte_Hotel_Madroño_${now.toISOString().split("T")[0]}.pdf`);
+  };
+
+  return (
+    <Button
+      onClick={generatePDF}
+      className="bg-blue-600 hover:bg-blue-700 gap-2"
+      size="lg"
+    >
+      <FileText className="h-5 w-5" />
+      PDF
+    </Button>
+  );
 };
 
 export default PDFReportGenerate;

@@ -48,6 +48,7 @@ model Reservation {
   promotionId   Int?
   Promotions    Promotions? @relation(fields: [promotionId], references: [id])
   user          User        @relation(fields: [userId], references: [id])
+  isRead      Boolean     @default(false)
 }
 
 model testimonials {

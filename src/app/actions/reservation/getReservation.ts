@@ -2,7 +2,7 @@
 
 import prisma from "@/lib/db";
 
-export const getReservations = async () => {
+export const getReservations = async (onlyUnread?: boolean) => {
   try {
     const reservations = await prisma.reservation.findMany({
       orderBy: {
@@ -15,6 +15,7 @@ export const getReservations = async () => {
           },
         },
       },
+      where: onlyUnread ? { isRead: false } : {},
     });
 
     const formattedReservations = reservations.map((reservation) => ({
@@ -26,5 +27,16 @@ export const getReservations = async () => {
   } catch (error) {
     console.error("Error al obtener las reservas", error);
     return [];
+  }
+};
+
+export const markAllAsRead = async () => {
+  try {
+    await prisma.reservation.updateMany({
+      where: { isRead: false },
+      data: { isRead: true },
+    });
+  } catch (error) {
+    console.error("Error al marcar reservas como leídas", error);
   }
 };
