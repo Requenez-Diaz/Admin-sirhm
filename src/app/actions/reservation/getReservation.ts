@@ -2,21 +2,34 @@
 
 import prisma from "@/lib/db";
 
-// Obtener reservaciones, opcionalmente solo las no leídas
 export const getReservations = async (onlyUnread?: boolean) => {
   try {
     const reservations = await prisma.reservation.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        Promotions: {
+          select: {
+            codePromotions: true,
+          },
+        },
+      },
       where: onlyUnread ? { isRead: false } : {},
-      orderBy: { createdAt: "desc" },
     });
-    return reservations;
+
+    const formattedReservations = reservations.map((reservation) => ({
+      ...reservation,
+      offerts: reservation.Promotions?.codePromotions || null,
+    }));
+
+    return formattedReservations;
   } catch (error) {
     console.error("Error al obtener las reservas", error);
     return [];
   }
 };
 
-// Marcar todas las reservaciones como leídas
 export const markAllAsRead = async () => {
   try {
     await prisma.reservation.updateMany({

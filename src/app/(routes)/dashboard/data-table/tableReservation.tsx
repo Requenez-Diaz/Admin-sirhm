@@ -40,6 +40,7 @@ interface TableReservationProps {
     bedroomsType: string;
     arrivalDate: Date;
     departureDate: Date;
+    offerts: string | null;
   }>;
 }
 
@@ -167,6 +168,8 @@ const TableReservation: React.FC<TableReservationProps> = ({
                 Tipo de Habitación
               </TableHead>
               <TableHead className='text-xs sm:text-sm'>Estancia</TableHead>
+              <TableHead className='text-xs sm:text-sm'>Llegada</TableHead>
+              <TableHead className='text-xs sm:text-sm'>Ofertas</TableHead>
               <TableHead className='text-xs sm:text-sm'>Acciones</TableHead>
             </TableRow>
           </TableHeader>
@@ -209,6 +212,22 @@ const TableReservation: React.FC<TableReservationProps> = ({
                   <TableCell className='text-xs sm:text-sm text-right'>
                     {duration} {durationLabel}
                   </TableCell>
+                  <TableCell className='text-xs sm:text-sm text-right'>
+                    {new Date(reservation.arrivalDate).toLocaleDateString(
+                      "es-ES",
+                      {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "2-digit",
+                      }
+                    )}{" "}
+                    -{" "}
+                  </TableCell>
+
+                  <TableCell className='text-xs sm:text-sm text-right'>
+                    {reservation.offerts ? reservation.offerts : "N/A"}
+                  </TableCell>
+
                   <TableCell className='flex flex-wrap gap-2 text-xs sm:text-sm'>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
