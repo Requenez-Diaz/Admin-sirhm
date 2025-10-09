@@ -8,19 +8,20 @@ datasource db {
 }
 
 model User {
-  id           Int            @id @default(autoincrement())
-  email        String         @unique
-  username     String         @unique
-  password     String
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  roleName     String
-  image        String?
-  Comments     Comments[]
-  reservations Reservation[]
-  role         Role           @relation(fields: [roleName], references: [roleName])
-  UserImage    UserImage?
-  testimonials testimonials[]
+  id                 Int                 @id @default(autoincrement())
+  email              String              @unique
+  username           String              @unique
+  password           String
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  roleName           String
+  image              String?
+  Comments           Comments[]
+  PasswordResetToken PasswordResetToken?
+  reservations       Reservation[]
+  role               Role                @relation(fields: [roleName], references: [roleName])
+  UserImage          UserImage?
+  testimonials       testimonials[]
 }
 
 model Role {
@@ -221,6 +222,19 @@ model BedroomsPromotions {
   promotion   Promotions @relation(fields: [promotionId], references: [id])
 
   @@unique([bedroomId, promotionId])
+}
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  used      Boolean  @default(false)
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
 }
 
 enum BookingsStatus {
