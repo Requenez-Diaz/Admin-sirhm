@@ -96,7 +96,6 @@ export default function MainSidebar({ onStateChange }: SidebarProps) {
             )}
           </div>
 
-          <span className="text-sm font-medium">Admin</span>
           <UserProfile />
         </div>
       </header>

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { Bell } from "lucide-react";
 import { getReservations, markAllAsRead } from "@/app/actions/reservation/getReservation";
 import { calculateDuration } from "@/app/actions/reservation/calculateDuration";
-
 import {
   Dialog,
   DialogContent,
@@ -16,12 +15,12 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function NotificationsPage() {
   const [reservations, setReservations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedReservation, setSelectedReservation] = useState<any | null>(null);
-
   const router = useRouter();
 
   useEffect(() => {
@@ -29,7 +28,6 @@ export default function NotificationsPage() {
       try {
         const allReservations = await getReservations();
         setReservations(allReservations);
-
         await markAllAsRead();
       } catch (error) {
         console.error("Error cargando reservaciones", error);
@@ -70,17 +68,31 @@ export default function NotificationsPage() {
                 >
                   <DialogTrigger asChild>
                     <div
-                      className="p-4 border rounded-xl bg-white shadow-md hover:shadow-lg transition-shadow cursor-pointer flex items-center gap-4"
+                      className="p-4 border rounded-xl bg-white shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center gap-4"
                       onClick={() => setSelectedReservation(res)}
                     >
-                      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600 text-lg">
-                        <Bell className="h-6 w-6" />
-                      </span>
+                      {res.userImage ? (
+                        <div className="relative h-12 w-12 flex-shrink-0 rounded-full overflow-hidden border border-gray-300">
+                          <Image
+                            src={res.userImage}
+                            alt="Usuario"
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                          <Bell className="h-6 w-6" />
+                        </div>
+                      )}
+
                       <div className="flex-1">
-                        <p className="text-sm text-gray-800">
-                          📌 <span className="font-semibold">{res.name} {res.lastName}</span> reservó{" "}
+                        <p className="text-sm text-gray-800 leading-snug">
+                          <span className="font-semibold">{res.userName}</span> reservó{" "}
                           <span className="font-medium text-blue-600">{res.bedroomsType}</span> por{" "}
-                          <span className="font-semibold">{nights} {nights === 1 ? "noche" : "noches"}</span>.
+                          <span className="font-semibold">
+                            {nights} {nights === 1 ? "noche" : "noches"}
+                          </span>.
                         </p>
                         <p className="text-xs text-gray-500 mt-1">
                           {new Date(res.createdAt).toLocaleString("es-ES", {
@@ -95,9 +107,9 @@ export default function NotificationsPage() {
                     </div>
                   </DialogTrigger>
 
-                  <DialogContent className="sm:max-w-xl rounded-2xl p-6 shadow-2xl bg-white">
+                  <DialogContent className="sm:max-w-xl rounded-2xl p-8 shadow-2xl bg-white border border-gray-100">
                     <DialogHeader>
-                      <DialogTitle className="flex items-center gap-2 text-2xl font-bold">
+                      <DialogTitle className="flex items-center gap-2 text-2xl font-bold text-gray-800">
                         <Bell className="h-6 w-6 text-blue-600" />
                         Detalle de Reservación
                       </DialogTitle>
@@ -106,49 +118,55 @@ export default function NotificationsPage() {
                       </DialogDescription>
                     </DialogHeader>
 
-                    <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="bg-gray-50 p-4 rounded-xl shadow-inner">
-                        <p className="text-gray-600 text-sm">Nombre</p>
-                        <p className="font-semibold text-gray-800">{res.name} {res.lastName}</p>
-                      </div>
-                      <div className="bg-gray-50 p-4 rounded-xl shadow-inner">
-                        <p className="text-gray-600 text-sm">Habitación</p>
-                        <p className="font-semibold text-gray-800">{res.bedroomsType}</p>
-                      </div>
-                      <div className="bg-gray-50 p-4 rounded-xl shadow-inner">
-                        <p className="text-gray-600 text-sm">Estado</p>
-                        <p className="font-semibold text-gray-800">{res.status}</p>
-                      </div>
-                      <div className="bg-gray-50 p-4 rounded-xl shadow-inner">
-                        <p className="text-gray-600 text-sm">Noches</p>
-                        <p className="font-semibold text-gray-800">{nights}</p>
-                      </div>
-                      <div className="bg-gray-50 p-4 rounded-xl shadow-inner">
-                        <p className="text-gray-600 text-sm">Habitaciones</p>
-                        <p className="font-semibold text-gray-800">{res.roomsCount || 1}</p>
-                      </div>
-                      <div className="bg-gray-50 p-4 rounded-xl shadow-inner">
-                        <p className="text-gray-600 text-sm">Huéspedes</p>
-                        <p className="font-semibold text-gray-800">{res.guestsCount || 1}</p>
-                      </div>
-
-                      <div className="bg-gray-50 p-4 rounded-xl shadow-inner">
-                        <p className="text-gray-600 text-sm">Fecha de llegada</p>
-                        <p className="font-semibold text-gray-800">{new Date(res.arrivalDate).toLocaleDateString()}</p>
-                      </div>
-
-                      <div className="bg-gray-50 p-4 rounded-xl shadow-inner">
-                        <p className="text-gray-600 text-sm">Fecha de salida</p>
-                        <p className="font-semibold text-gray-800">{new Date(res.departureDate).toLocaleDateString()}</p>
+                    <div className="mt-6 flex flex-col sm:flex-row items-center gap-5">
+                      {res.userImage ? (
+                        <div className="relative h-20 w-20 rounded-full overflow-hidden border-2 border-blue-200 shadow-sm">
+                          <Image
+                            src={res.userImage}
+                            alt="Usuario"
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                          <Bell className="h-8 w-8" />
+                        </div>
+                      )}
+                      <div className="text-center sm:text-left">
+                        <p className="font-semibold text-gray-800 text-lg">{res.userName}</p>
+                        <p className="text-sm text-gray-500">{res.email}</p>
                       </div>
                     </div>
 
-                    <div className="mt-6 flex justify-end gap-3">
+                    <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {[
+                        { label: "Habitación", value: res.bedroomsType },
+                        { label: "Estado", value: res.status },
+                        { label: "Noches", value: nights },
+                        { label: "Habitaciones", value: res.rooms },
+                        { label: "Huéspedes", value: res.guests },
+                        { label: "Llegada", value: new Date(res.arrivalDate).toLocaleDateString() },
+                        { label: "Salida", value: new Date(res.departureDate).toLocaleDateString() },
+                      ].map((item, i) => (
+                        <div
+                          key={i}
+                          className="bg-gray-50 hover:bg-gray-100 p-4 rounded-xl shadow-inner transition-colors duration-150"
+                        >
+                          <p className="text-gray-600 text-sm">{item.label}</p>
+                          <p className="font-semibold text-gray-800">{item.value}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-8 flex justify-end gap-3">
                       <DialogClose asChild>
-                        <Button className="bg-gray-200 hover:bg-gray-300 text-gray-800">Cerrar</Button>
+                        <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-100">
+                          Cerrar
+                        </Button>
                       </DialogClose>
                       <Button
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-5"
                         onClick={() => router.push("/dashboard/bookings")}
                       >
                         Ir a Reservaciones
