@@ -5,22 +5,26 @@ import prisma from "@/lib/db";
 export const getReservations = async (onlyUnread?: boolean) => {
   try {
     const reservations = await prisma.reservation.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: { createdAt: "desc" },
+      where: onlyUnread ? { isRead: false } : {},
       include: {
-        Promotions: {
+        Promotions: { select: { codePromotions: true } },
+        user: {
           select: {
-            codePromotions: true,
+            username: true,
+            image: true,
+            email: true,
           },
         },
       },
-      where: onlyUnread ? { isRead: false } : {},
     });
 
     const formattedReservations = reservations.map((reservation) => ({
       ...reservation,
       offerts: reservation.Promotions?.codePromotions || null,
+      userName: reservation.user?.username || `${reservation.name} ${reservation.lastName}`,
+      userEmail: reservation.user?.email || reservation.email,
+      userImage: reservation.user?.image || null,
     }));
 
     return formattedReservations;
