@@ -22,10 +22,21 @@ export const updateReservation = async (data: {
     }
 
     try {
+        const reservationIdNum = parseInt(reservationId);
+
+        // Obtener la reservación antigua con su usuario
+        const oldReservation = await prisma.reservation.findUnique({
+            where: { id: reservationIdNum },
+            include: { user: true },
+        });
+
+        if (!oldReservation) {
+            return { success: false, message: "Reserva no encontrada." };
+        }
+
+        // Actualizar la reservación
         await prisma.reservation.update({
-            where: {
-                id: parseInt(reservationId),
-            },
+            where: { id: reservationIdNum },
             data: {
                 name,
                 lastName,
@@ -38,7 +49,21 @@ export const updateReservation = async (data: {
             },
         });
 
+        // Crear notificación si cambió el tipo de habitación
+        if (bedroomsType && bedroomsType !== oldReservation.bedroomsType) {
+            await prisma.notification.create({
+                data: {
+                    type: "ROOM_TYPE_CHANGED",
+                    message: `El usuario ${oldReservation.user.username} cambió su tipo de habitación a "${bedroomsType}".`,
+                    userId: oldReservation.userId,
+                    reservationId: reservationIdNum,
+                    isRead: false,
+                },
+            });
+        }
+
         revalidatePath("/dashboard/bookings");
+
         return { success: true, message: "La reservación se actualizó correctamente." };
 
     } catch (error) {
