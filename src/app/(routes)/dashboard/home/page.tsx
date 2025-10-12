@@ -1,4 +1,4 @@
-import { UsersRound, Hotel, Calendar, ShoppingCart } from "lucide-react";
+import { UsersRound, Hotel, Calendar, ShoppingCart, BedDouble } from "lucide-react";
 import { DashboardCard } from "./DashboardCard";
 import { getReservations } from "@/app/actions/reservation";
 import { getServices } from "@/app/actions/services";
@@ -21,12 +21,16 @@ export default async function DashboardPage() {
   // Total de huéspedes sumando las reservaciones
   const totalGuests = reservations.reduce((acc, r) => acc + r.guests, 0);
 
+  // Habitaciones ocupadas sumando 'rooms' de reservas confirmadas
+  const occupiedRooms = reservations
+    .filter(r => r.status === "CONFIRMED")
+    .reduce((acc, r) => acc + r.rooms, 0);
 
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Panel de Control</h1>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <DashboardCard
           title="Total Usuarios"
           value={users.length}
@@ -39,7 +43,6 @@ export default async function DashboardPage() {
         <DashboardCard
           title="Habitaciones"
           value={bedrooms.length}
-          // description="+0% desde el último mes"
           icon={<Hotel className="h-6 w-6" />}
           href="/dashboard/bedrooms"
           type="rooms"
@@ -51,9 +54,16 @@ export default async function DashboardPage() {
         />
 
         <DashboardCard
+          title="Habitaciones Ocupadas"
+          value={occupiedRooms}
+          description="Habitaciones actualmente reservadas"
+          icon={<BedDouble className="h-6 w-6" />}
+          type="occupied"
+        />
+
+        <DashboardCard
           title="Reservaciones"
           value={reservations.length}
-          // description="+0% desde el último mes"
           icon={<Calendar className="h-6 w-6" />}
           href="/dashboard/bookings"
           type="reservations"
