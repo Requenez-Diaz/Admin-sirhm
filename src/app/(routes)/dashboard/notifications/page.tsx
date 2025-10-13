@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Bell } from "lucide-react";
 import { getReservations } from "@/app/actions/reservation/getReservation";
 import ReservationDetailModal from "./ReservationDetailModal";
-import { getNotifications } from "./getNotifications";
+// import { getNotifications } from "./getNotifications";
 
 export default function NotificationsPage() {
   const [items, setItems] = useState<any[]>([]);
@@ -14,14 +14,14 @@ export default function NotificationsPage() {
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const [reservations, notifications] = await Promise.all([
+        const [reservations,] = await Promise.all([
           getReservations(),
-          getNotifications(),
+          // getNotifications(),
         ]);
 
         const combined = [
           ...reservations.map((r) => ({ ...r, kind: "reservation" })),
-          ...notifications.map((n) => ({ ...n, kind: "notification" })),
+          // ...notifications.map((n) => ({ ...n, kind: "notification" })),
         ];
 
         combined.sort(
