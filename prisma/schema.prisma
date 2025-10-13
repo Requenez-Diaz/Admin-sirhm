@@ -22,7 +22,6 @@ model User {
   role               Role                @relation(fields: [roleName], references: [roleName])
   UserImage          UserImage?
   testimonials       testimonials[]
-  Notification       Notification[]
 }
 
 model Role {
@@ -50,7 +49,6 @@ model Reservation {
   Promotions    Promotions?    @relation(fields: [promotionId], references: [id])
   user          User           @relation(fields: [userId], references: [id])
   isRead        Boolean        @default(false)
-  Notification  Notification[]
 }
 
 model testimonials {
@@ -157,18 +155,6 @@ model Bedrooms {
   bookingsDetails    BookingsDetails[]
   Comments           Comments[]
   testimonials       testimonials[]
-}
-
-model Notification {
-  id            Int          @id @default(autoincrement())
-  type          String
-  message       String
-  createdAt     DateTime     @default(now())
-  isRead        Boolean      @default(false)
-  userId        Int?
-  reservationId Int?
-  user          User?        @relation(fields: [userId], references: [id])
-  reservation   Reservation? @relation(fields: [reservationId], references: [id])
 }
 
 model BedroomImages {
