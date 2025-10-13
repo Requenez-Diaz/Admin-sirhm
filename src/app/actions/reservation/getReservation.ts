@@ -21,7 +21,9 @@ export const getReservations = async () => {
     const formattedReservations = reservations.map((reservation) => ({
       ...reservation,
       offerts: reservation.Promotions?.codePromotions || null,
-      userName: reservation.user?.username || `${reservation.name} ${reservation.lastName}`,
+      userName:
+        reservation.user?.username ||
+        `${reservation.name} ${reservation.lastName}`,
       userEmail: reservation.user?.email || reservation.email,
       userImage: reservation.user?.image || null,
       kind: "reservation",
