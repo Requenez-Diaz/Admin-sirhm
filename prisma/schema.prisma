@@ -32,7 +32,7 @@ model Role {
 }
 
 model Reservation {
-  id            Int            @id @default(autoincrement())
+  id            Int         @id @default(autoincrement())
   name          String
   lastName      String
   email         String
@@ -41,14 +41,14 @@ model Reservation {
   rooms         Int
   arrivalDate   DateTime
   departureDate DateTime
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
   status        Status
   userId        Int
   promotionId   Int?
-  Promotions    Promotions?    @relation(fields: [promotionId], references: [id])
-  user          User           @relation(fields: [userId], references: [id])
-  isRead        Boolean        @default(false)
+  isRead        Boolean     @default(false)
+  Promotions    Promotions? @relation(fields: [promotionId], references: [id])
+  user          User        @relation(fields: [userId], references: [id])
 }
 
 model testimonials {
