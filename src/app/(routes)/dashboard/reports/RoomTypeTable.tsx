@@ -14,12 +14,13 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Calendar } from '@/components/ui/calendar' // ✅ Asegúrate de tenerlo instalado
+import { Calendar } from '@/components/ui/calendar'
 
 type Reservation = {
     bedroomsType: string
     status: string
     rooms: number
+    guests: number
     arrivalDate: Date | string
 }
 
@@ -28,22 +29,10 @@ type Props = {
 }
 
 const ROOM_TYPE_ALIASES: Record<string, { name: string; color: string }> = {
-    'habitacion con abanico': {
-        name: 'Habitación con abanico',
-        color: '#FF8042',
-    },
-    'habitacion doble con abanico': {
-        name: 'Habitación Doble con abanico',
-        color: '#FFBB28',
-    },
-    'con aire acondicionado': {
-        name: 'Con aire acondicionado',
-        color: '#0088FE',
-    },
-    'doble con aire acondicionado': {
-        name: 'Doble con aire acondicionado',
-        color: '#00C49F',
-    },
+    'habitacion con abanico': { name: 'Habitación con abanico', color: '#FF8042' },
+    'habitacion doble con abanico': { name: 'Habitación Doble con abanico', color: '#FFBB28' },
+    'con aire acondicionado': { name: 'Con aire acondicionado', color: '#0088FE' },
+    'doble con aire acondicionado': { name: 'Doble con aire acondicionado', color: '#00C49F' },
 }
 
 const normalizeString = (str: string) =>
@@ -60,31 +49,20 @@ const RoomTypeTable: React.FC<Props> = ({ reservations }) => {
 
     const monthOptions = Array.from({ length: 12 }, (_, i) => {
         const date = new Date(currentYear, i, 1)
-        return {
-            value: i,
-            label: date.toLocaleString('es-ES', { month: 'long' }),
-        }
+        return { value: i, label: date.toLocaleString('es-ES', { month: 'long' }) }
     })
 
-    const weeksInSelectedMonth = getWeeksInMonth(new Date(currentYear, selectedMonthIndex, 1), {
-        weekStartsOn: 1,
-    })
-
+    const weeksInSelectedMonth = getWeeksInMonth(new Date(currentYear, selectedMonthIndex, 1), { weekStartsOn: 1 })
     const weekOptions = Array.from({ length: weeksInSelectedMonth }, (_, i) => {
         const start = startOfWeek(new Date(currentYear, selectedMonthIndex, 1 + i * 7), { weekStartsOn: 1 })
         const end = endOfWeek(start, { weekStartsOn: 1 })
         return {
             value: i,
-            label: `${start.toLocaleDateString('es-ES', {
-                day: 'numeric',
-                month: 'short',
-            })} - ${end.toLocaleDateString('es-ES', {
-                day: 'numeric',
-                month: 'short',
-            })}`,
+            label: `${start.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })} - ${end.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`,
         }
     })
 
+    // Filtrar solo reservaciones CONFIRMADAS según filtro
     const filteredReservations = useMemo(() => {
         return reservations.filter(res => {
             if (res.status !== 'CONFIRMED' || !res.arrivalDate) return false
@@ -93,9 +71,7 @@ const RoomTypeTable: React.FC<Props> = ({ reservations }) => {
             if (filterType === 'today') return isSameDay(arrivalDate, currentDate)
             if (filterType === 'month') return isSameMonth(arrivalDate, new Date(currentYear, selectedMonthIndex, 1))
             if (filterType === 'week') {
-                const start = startOfWeek(new Date(currentYear, selectedMonthIndex, 1 + selectedWeekIndex * 7), {
-                    weekStartsOn: 1,
-                })
+                const start = startOfWeek(new Date(currentYear, selectedMonthIndex, 1 + selectedWeekIndex * 7), { weekStartsOn: 1 })
                 const end = endOfWeek(start, { weekStartsOn: 1 })
                 return isWithinInterval(arrivalDate, { start, end })
             }
@@ -103,57 +79,38 @@ const RoomTypeTable: React.FC<Props> = ({ reservations }) => {
                 const selectedDate = new Date(currentYear, selectedMonthIndex, selectedDay)
                 return isSameDay(arrivalDate, selectedDate)
             }
-
             return false
         })
     }, [reservations, filterType, selectedMonthIndex, selectedWeekIndex, selectedDay, currentDate, currentYear])
 
+    // Calcular resumen por tipo de habitación
     const calculateRoomDetails = () => {
-        const roomTypes: Record<string, { total: number; color: string }> = {}
+        const roomTypes: Record<string, { total: number; color: string; guests: number }> = {}
         filteredReservations.forEach(res => {
             const normalizedType = normalizeString(res.bedroomsType)
-            const roomTypeInfo =
-                Object.entries(ROOM_TYPE_ALIASES).find(([alias]) => normalizeString(alias) === normalizedType)?.[1] || {
-                    name: res.bedroomsType,
-                    color: '#888',
-                }
-
-            if (!roomTypes[roomTypeInfo.name]) {
-                roomTypes[roomTypeInfo.name] = { total: 0, color: roomTypeInfo.color }
+            const roomTypeInfo = Object.entries(ROOM_TYPE_ALIASES).find(([alias]) => normalizeString(alias) === normalizedType)?.[1] || {
+                name: res.bedroomsType,
+                color: '#888',
             }
+            if (!roomTypes[roomTypeInfo.name]) roomTypes[roomTypeInfo.name] = { total: 0, color: roomTypeInfo.color, guests: 0 }
             roomTypes[roomTypeInfo.name].total += 1
+            roomTypes[roomTypeInfo.name].guests += res.guests || 0
         })
 
         return Object.entries(roomTypes)
-            .map(([type, data]) => ({
-                type,
-                total: data.total,
-                color: data.color,
-            }))
+            .map(([type, data]) => ({ type, total: data.total, color: data.color, guests: data.guests }))
             .sort((a, b) => b.total - a.total)
     }
 
     const roomDetails = calculateRoomDetails()
     const totalReservations = roomDetails.reduce((sum, room) => sum + room.total, 0)
+    const totalGuests = roomDetails.reduce((sum, room) => sum + room.guests, 0)
 
     let dateLabel = ''
-    if (filterType === 'today') {
-        dateLabel = currentDate.toLocaleDateString('es-ES', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-        })
-    } else if (filterType === 'month') {
-        dateLabel = `${monthOptions[selectedMonthIndex].label} ${currentYear}`
-    } else if (filterType === 'week') {
-        dateLabel = weekOptions[selectedWeekIndex]?.label || ''
-    } else if (filterType === 'day') {
-        dateLabel = new Date(currentYear, selectedMonthIndex, selectedDay).toLocaleDateString('es-ES', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-        })
-    }
+    if (filterType === 'today') dateLabel = currentDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+    else if (filterType === 'month') dateLabel = `${monthOptions[selectedMonthIndex].label} ${currentYear}`
+    else if (filterType === 'week') dateLabel = weekOptions[selectedWeekIndex]?.label || ''
+    else if (filterType === 'day') dateLabel = new Date(currentYear, selectedMonthIndex, selectedDay).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
 
     return (
         <Card className="border-0 shadow-sm">
@@ -163,9 +120,7 @@ const RoomTypeTable: React.FC<Props> = ({ reservations }) => {
 
                     <div className="flex gap-2 flex-wrap">
                         <Select value={filterType} onValueChange={value => setFilterType(value as any)}>
-                            <SelectTrigger className="w-[140px]">
-                                <SelectValue placeholder="Filtro" />
-                            </SelectTrigger>
+                            <SelectTrigger className="w-[140px]"><SelectValue placeholder="Filtro" /></SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="month">Ver por mes</SelectItem>
                                 <SelectItem value="week">Ver por semana</SelectItem>
@@ -176,14 +131,10 @@ const RoomTypeTable: React.FC<Props> = ({ reservations }) => {
 
                         {(filterType === 'month' || filterType === 'week') && (
                             <Select value={String(selectedMonthIndex)} onValueChange={value => setSelectedMonthIndex(Number(value))}>
-                                <SelectTrigger className="w-[140px]">
-                                    <SelectValue placeholder="Seleccionar mes" />
-                                </SelectTrigger>
+                                <SelectTrigger className="w-[140px]"><SelectValue placeholder="Seleccionar mes" /></SelectTrigger>
                                 <SelectContent>
                                     {monthOptions.map(month => (
-                                        <SelectItem key={month.value} value={String(month.value)}>
-                                            {month.label}
-                                        </SelectItem>
+                                        <SelectItem key={month.value} value={String(month.value)}>{month.label}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
@@ -191,14 +142,10 @@ const RoomTypeTable: React.FC<Props> = ({ reservations }) => {
 
                         {filterType === 'week' && (
                             <Select value={String(selectedWeekIndex)} onValueChange={value => setSelectedWeekIndex(Number(value))}>
-                                <SelectTrigger className="w-[180px]">
-                                    <SelectValue placeholder="Seleccionar semana" />
-                                </SelectTrigger>
+                                <SelectTrigger className="w-[180px]"><SelectValue placeholder="Seleccionar semana" /></SelectTrigger>
                                 <SelectContent>
                                     {weekOptions.map(week => (
-                                        <SelectItem key={week.value} value={String(week.value)}>
-                                            {week.label}
-                                        </SelectItem>
+                                        <SelectItem key={week.value} value={String(week.value)}>{week.label}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
@@ -218,9 +165,7 @@ const RoomTypeTable: React.FC<Props> = ({ reservations }) => {
                                 }
                             }}
                             month={new Date(currentYear, selectedMonthIndex)}
-                            onMonthChange={date => {
-                                setSelectedMonthIndex(date.getMonth())
-                            }}
+                            onMonthChange={date => setSelectedMonthIndex(date.getMonth())}
                             weekStartsOn={1}
                         />
                     </div>
@@ -234,6 +179,7 @@ const RoomTypeTable: React.FC<Props> = ({ reservations }) => {
                             <TableRow>
                                 <TableHead className="w-[200px]">Tipo de Habitación</TableHead>
                                 <TableHead className="text-center">Reservaciones</TableHead>
+                                <TableHead className="text-center">Huéspedes</TableHead>
                                 <TableHead className="text-center">Porcentaje</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -248,11 +194,8 @@ const RoomTypeTable: React.FC<Props> = ({ reservations }) => {
                                                 {room.type}
                                             </div>
                                         </TableCell>
-                                        <TableCell className="text-center">
-                                            <Badge variant="outline" className="px-3 py-1">
-                                                {room.total}
-                                            </Badge>
-                                        </TableCell>
+                                        <TableCell className="text-center"><Badge variant="outline" className="px-3 py-1">{room.total}</Badge></TableCell>
+                                        <TableCell className="text-center"><Badge variant="outline" className="px-3 py-1">{room.guests}</Badge></TableCell>
                                         <TableCell className="text-center">
                                             <div className="flex items-center justify-center gap-2">
                                                 <span>{percentage}%</span>
@@ -267,20 +210,15 @@ const RoomTypeTable: React.FC<Props> = ({ reservations }) => {
 
                             {roomDetails.length === 0 && (
                                 <TableRow>
-                                    <TableCell colSpan={3} className="h-24 text-center text-muted-foreground">
-                                        No hay datos disponibles
-                                    </TableCell>
+                                    <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">No hay datos disponibles</TableCell>
                                 </TableRow>
                             )}
 
                             {roomDetails.length > 0 && (
                                 <TableRow className="bg-muted/50 font-medium">
                                     <TableCell>Total</TableCell>
-                                    <TableCell className="text-center">
-                                        <Badge variant="default" className="px-3 py-1">
-                                            {totalReservations}
-                                        </Badge>
-                                    </TableCell>
+                                    <TableCell className="text-center"><Badge variant="default" className="px-3 py-1">{totalReservations}</Badge></TableCell>
+                                    <TableCell className="text-center"><Badge variant="default" className="px-3 py-1">{totalGuests}</Badge></TableCell>
                                     <TableCell className="text-center">100%</TableCell>
                                 </TableRow>
                             )}

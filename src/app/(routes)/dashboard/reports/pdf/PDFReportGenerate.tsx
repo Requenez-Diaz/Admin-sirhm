@@ -50,6 +50,7 @@ const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) =>
       return;
     }
 
+    // Filtrar solo reservas del mes y año seleccionados
     const filteredReservations = reservations.filter((r) => {
       const d = new Date(r.arrivalDate);
       return d.getMonth() + 1 === month && d.getFullYear() === year;
@@ -59,6 +60,11 @@ const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) =>
       alert("No hay datos de reservas para el mes/año seleccionado.");
       return;
     }
+
+    // Filtrar solo reservas CONFIRMADAS
+    const confirmedReservations = filteredReservations.filter(
+      (r) => r.status === "CONFIRMED"
+    );
 
     const doc = new jsPDF();
     const now = new Date();
@@ -90,26 +96,30 @@ const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) =>
       startY: _y,
     });
 
+    // RESUMEN GENERAL solo con reservas confirmadas
     _y = PDFReservationSummary({
       doc,
-      total: filteredReservations.length,
+      total: confirmedReservations.length,
       startY: _y,
     });
 
+    // TOTAL DE HUÉSPEDES solo con reservas confirmadas
     _y = PDFTotalGuests({
       doc,
-      guestsCounts: filteredReservations.map((r) => r.guests),
+      guestsCounts: confirmedReservations.map((r) => r.guests),
       startY: _y,
     });
 
-    const bedroomsData = await getBedrooms();
-    const roomTypesCount: Record<string, number> = {};
-    bedroomsData.forEach((b) => {
-      const type = b.typeBedroom || "Desconocido";
-      roomTypesCount[type] = (roomTypesCount[type] || 0) + 1;
+    // CONTAR reservas y huéspedes por tipo de habitación solo confirmadas
+    const roomTypesData: Record<string, { reservations: number; guests: number }> = {};
+    confirmedReservations.forEach((r) => {
+      const type = r.bedroomsType || "Desconocido";
+      if (!roomTypesData[type]) roomTypesData[type] = { reservations: 0, guests: 0 };
+      roomTypesData[type].reservations += 1;
+      roomTypesData[type].guests += r.guests;
     });
 
-    _y = PDFTopRoomTypes({ doc, roomTypesCount, startY: _y });
+    _y = PDFTopRoomTypes({ doc, roomTypesCount: roomTypesData, startY: _y });
 
     _y = PDFHighDemandDays({
       doc,
@@ -125,6 +135,7 @@ const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) =>
       startY: _y,
     });
 
+    const bedroomsData = await getBedrooms();
     const mappedBedrooms: Bedroom[] = bedroomsData.map((b) => ({
       typeBedroom: b.typeBedroom,
       price: b.lowSeasonPrice,
