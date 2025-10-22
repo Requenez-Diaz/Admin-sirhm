@@ -1,114 +1,132 @@
 'use client';
 
-import React, { useState, useEffect, ChangeEvent } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Upload, User } from 'lucide-react';
-import { toast } from 'sonner';
+import { GeneralTab } from '@/sidebar/components/profile/cardsProfile';
+import { AvatarCard } from '@/sidebar/components/profile/AvatarCard';
+import { SecurityTab } from '@/sidebar/components/profile/SecurityTabs';
+import { ProfileNavigation, SettingsTab } from '@/sidebar/components/profile/ProfileNavigations';
 import { getUserImage } from '@/app/actions/profile/getUserImage';
 import { UploadFile } from '@/app/actions/profile/uploadFile';
+import { toast } from 'sonner';
 
-export default function ProfilePage() {
-    const { data: session, status } = useSession();
-    const [isUploading, setIsUploading] = useState(false);
+export default function Page() {
+    const { data: session } = useSession();
+    const [activeTab, setActiveTab] = useState<SettingsTab>('general');
+
+    const [isEditing, setIsEditing] = useState(false);
     const [avatarSrc, setAvatarSrc] = useState<string | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // ⚠️ Cargar la imagen desde la base de datos
+    const [profileData, setProfileData] = useState({
+        username: session?.user?.name || '',
+        email: session?.user?.email || ''
+    });
+
+    // Cargar imagen del usuario desde la base de datos
     useEffect(() => {
         if (!session?.user?.id) return;
 
-        const fetchImage = async () => {
+        const fetchAvatar = async () => {
             const image = await getUserImage(Number(session.user.id));
             if (image) setAvatarSrc(image);
         };
 
-        fetchImage();
+        fetchAvatar();
     }, [session?.user?.id]);
 
-    if (status === 'loading') {
-        return <p className="text-center text-gray-500 mt-10">Cargando sesión...</p>;
-    }
+    useEffect(() => {
+        setProfileData({
+            username: session?.user?.name || '',
+            email: session?.user?.email || ''
+        });
+    }, [session]);
 
-    if (!session?.user?.id) {
-        return (
-            <p className="text-center text-red-500 mt-10">
-                Error de sesión: no se pudo identificar tu usuario. <br />
-                Por favor, inicia sesión nuevamente.
-            </p>
-        );
-    }
+    const handleTabChange = (tab: SettingsTab) => setActiveTab(tab);
+    const handleEditToggle = () => setIsEditing(!isEditing);
+    const handleCancel = () => setIsEditing(false);
 
-    // Subir imagen
-    const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+    const handleSubmit = async (data: typeof profileData) => {
+        console.log('Datos enviados:', data);
+        setProfileData(data);
+        setIsEditing(false);
+    };
 
-        setIsUploading(true);
+    const handleAvatarClick = () => {
+        if (fileInputRef.current && isEditing) {
+            fileInputRef.current.click();
+        }
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        const file = e.target.files[0];
 
         const reader = new FileReader();
         reader.onloadend = async () => {
             const imageBase64 = reader.result as string;
             setAvatarSrc(imageBase64);
+            setIsUploading(true);
 
             try {
-                const result = await UploadFile(Number(session.user.id), imageBase64);
+                const result = await UploadFile(Number(session?.user?.id), imageBase64);
 
                 if (result.success) {
-                    toast.success('Imagen actualizada correctamente ✅');
+                    toast.success('Imagen de perfil actualizada ✅');
                 } else {
                     toast.error(result.error || 'Error al subir la imagen ❌');
                 }
             } catch (error) {
                 console.error(error);
-                toast.error('Error al guardar la imagen en la base de datos');
+                toast.error('Error al guardar la imagen en la base de datos ❌');
             } finally {
                 setIsUploading(false);
             }
         };
+
         reader.readAsDataURL(file);
     };
 
+    const handlePasswordSubmit = async (data: {
+        currentPassword: string;
+        newPassword: string;
+        confirmNewPassword: string;
+    }) => {
+        console.log('Nueva contraseña:', data);
+    };
+
     return (
-        <div className="max-w-xl mx-auto mt-10">
-            <Card className="shadow-lg border border-gray-200">
-                <CardHeader className="text-center">
-                    <CardTitle className="text-2xl font-semibold">Perfil de Usuario</CardTitle>
-                </CardHeader>
+        <div className="flex flex-col md:flex-row gap-6 p-6">
+            <ProfileNavigation activeTab={activeTab} onTabChange={handleTabChange} />
 
-                <CardContent className="flex flex-col items-center gap-6">
-                    <div className="relative group cursor-pointer">
-                        <label htmlFor="avatar-upload" className="cursor-pointer">
-                            <Avatar className="w-32 h-32 border-2 border-gray-300">
-                                <AvatarImage src={avatarSrc ?? undefined} alt="Avatar del usuario" />
-                                <AvatarFallback>
-                                    <User className="w-12 h-12 text-gray-400" />
-                                </AvatarFallback>
-                            </Avatar>
-                        </label>
+            <div className="flex-1">
+                {activeTab === 'general' && (
+                    <GeneralTab
+                        defaultProfile={profileData}
+                        isEditing={isEditing}
+                        onEditToggle={handleEditToggle}
+                        onSubmit={handleSubmit}
+                        onCancel={handleCancel}
+                    />
+                )}
 
-                        <input
-                            type="file"
-                            id="avatar-upload"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={handleFileChange}
-                        />
+                {activeTab === 'avatar' && (
+                    <AvatarCard
+                        avatarSrc={avatarSrc}
+                        isUploading={isUploading}
+                        isEditing={isEditing}
+                        name={profileData.username}
+                        onAvatarClick={handleAvatarClick}
+                        fileInputRef={fileInputRef}
+                        onFileChange={handleFileChange}
+                    />
+                )}
 
-                        {isUploading && (
-                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-full">
-                                <Upload className="w-8 h-8 text-white animate-pulse" />
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="text-center">
-                        <p className="text-lg font-medium">{session.user.name}</p>
-                        <p className="text-sm text-gray-500">{session.user.email}</p>
-                        <p className="text-sm text-gray-400 mt-1">Rol: {session.user.role}</p>
-                    </div>
-                </CardContent>
-            </Card>
+                {activeTab === 'security' && (
+                    <SecurityTab onPasswordSubmit={handlePasswordSubmit} />
+                )}
+            </div>
         </div>
     );
 }

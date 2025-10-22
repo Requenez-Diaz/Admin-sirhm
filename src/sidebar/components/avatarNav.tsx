@@ -1,5 +1,3 @@
-// components/AvatarIconUsers.tsx
-
 "use client";
 
 import { GetUserImageById } from "@/app/actions/userImage/get-image-user-by-id";
@@ -13,7 +11,7 @@ const AvatarNavigations = () => {
 
   useEffect(() => {
     const fetchUserImage = async () => {
-      const result = await GetUserImageById(); // ya obtiene el userId desde la sesión
+      const result = await GetUserImageById();
       if (result.success && result.image) {
         setUserImageSrc(result.image);
       } else {
@@ -24,7 +22,6 @@ const AvatarNavigations = () => {
     fetchUserImage();
   }, []);
 
-  // Iniciales del usuario si no hay imagen
   const initials = session?.user?.name
     ? session.user.name
       .split(" ")
