@@ -81,11 +81,32 @@ export function OfferForm({ onSuccess, editingOffer }: OfferFormProps) {
   async function onSubmit(values: FormValues) {
     setIsSubmitting(true);
     try {
+      if (!values.bedroomId || values.bedroomId === "") {
+        toast({
+          title: "Error",
+          description: "Debes seleccionar una habitación para la oferta.",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
       const dateStart = values.dateRange.from;
       const dateEnd = values.dateRange.to;
 
       dateStart.setHours(0, 0, 0, 0);
       dateEnd.setHours(23, 59, 59, 999);
+
+      const bedroomIdNumber = Number.parseInt(values.bedroomId);
+      if (isNaN(bedroomIdNumber)) {
+        toast({
+          title: "Error",
+          description: "El ID de la habitación no es válido.",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
 
       const promotionData = {
         codePromotions: values.codePromotions,
@@ -94,7 +115,7 @@ export function OfferForm({ onSuccess, editingOffer }: OfferFormProps) {
         dateEnd: dateEnd,
         description: values.description,
         seasonId: Number.parseInt(values.seasonId),
-        bedroomId: Number.parseInt(values.bedroomId),
+        bedroomIds: [bedroomIdNumber],
       };
 
       let result;
