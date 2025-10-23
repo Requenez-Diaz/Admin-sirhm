@@ -10,7 +10,7 @@ type PromotionData = {
   dateEnd: Date;
   description?: string;
   seasonId: number;
-  bedroomId: number;
+  bedroomIds: number[]; // Updated to accept multiple bedroom IDs
 };
 
 // Crear una nueva promoción
@@ -29,37 +29,40 @@ export async function createPromotion(data: PromotionData) {
       };
     }
 
-    // Verificar que la habitación existe
-    const bedroom = await prisma.bedrooms.findUnique({
-      where: { id: data.bedroomId },
+    // Verificar que las habitaciones existen
+    const bedrooms = await prisma.bedrooms.findMany({
+      where: { id: { in: data.bedroomIds } },
     });
 
-    if (!bedroom) {
+    if (bedrooms.length !== data.bedroomIds.length) {
       return {
         success: false,
-        error: "La habitación seleccionada no existe",
+        error: "Una o más habitaciones seleccionadas no existen",
       };
     }
 
-    // Verificar si ya existe una promoción activa para esta habitación específica
-    const existingBedroomPromotion = await prisma.bedroomsPromotions.findFirst({
-      where: {
-        bedroomId: data.bedroomId,
-        promotion: {
-          dateStart: { lte: data.dateEnd },
-          dateEnd: { gte: data.dateStart },
-        },
-      },
-      include: {
-        promotion: true,
-      },
-    });
+    // Verificar si ya existe una promoción activa para estas habitaciones específicas
+    for (const bedroomId of data.bedroomIds) {
+      const existingBedroomPromotion =
+        await prisma.bedroomsPromotions.findFirst({
+          where: {
+            bedroomId: bedroomId,
+            promotion: {
+              dateStart: { lte: data.dateEnd },
+              dateEnd: { gte: data.dateStart },
+            },
+          },
+          include: {
+            promotion: true,
+          },
+        });
 
-    if (existingBedroomPromotion) {
-      return {
-        success: false,
-        error: `Ya existe una promoción activa para esta habitación específica (${existingBedroomPromotion.promotion.codePromotions})`,
-      };
+      if (existingBedroomPromotion) {
+        return {
+          success: false,
+          error: `Ya existe una promoción activa para la habitación ${existingBedroomPromotion.bedroomId} (${existingBedroomPromotion.promotion.codePromotions})`,
+        };
+      }
     }
 
     // Crear la promoción
@@ -74,11 +77,11 @@ export async function createPromotion(data: PromotionData) {
       },
     });
 
-    await prisma.bedroomsPromotions.create({
-      data: {
+    await prisma.bedroomsPromotions.createMany({
+      data: data.bedroomIds.map((bedroomId) => ({
         promotionId: promotion.id,
-        bedroomId: data.bedroomId,
-      },
+        bedroomId: bedroomId,
+      })),
     });
 
     revalidatePath("/dashboard/offerts");
@@ -143,6 +146,13 @@ export async function getPromotion(id: number) {
 // Actualizar una promoción
 export async function updatePromotion(id: number, data: PromotionData) {
   try {
+    if (!data.bedroomIds || data.bedroomIds.length === 0) {
+      return {
+        success: false,
+        error: "Debes seleccionar al menos una habitación",
+      };
+    }
+
     const existingPromotion = await prisma.promotions.findUnique({
       where: { id },
     });
@@ -166,38 +176,40 @@ export async function updatePromotion(id: number, data: PromotionData) {
       };
     }
 
-    // Verificar que la habitación existe
-    const bedroom = await prisma.bedrooms.findUnique({
-      where: { id: data.bedroomId },
+    const bedrooms = await prisma.bedrooms.findMany({
+      where: { id: { in: data.bedroomIds } },
     });
 
-    if (!bedroom) {
+    if (bedrooms.length !== data.bedroomIds.length) {
       return {
         success: false,
-        error: "La habitación seleccionada no existe",
+        error: "Una o más habitaciones seleccionadas no existen",
       };
     }
 
-    // Verificar si ya existe una promoción activa para esta habitación específica (excepto la actual)
-    const existingBedroomPromotion = await prisma.bedroomsPromotions.findFirst({
-      where: {
-        bedroomId: data.bedroomId,
-        promotionId: { not: id },
-        promotion: {
-          dateStart: { lte: data.dateEnd },
-          dateEnd: { gte: data.dateStart },
-        },
-      },
-      include: {
-        promotion: true,
-      },
-    });
+    for (const bedroomId of data.bedroomIds) {
+      const existingBedroomPromotion =
+        await prisma.bedroomsPromotions.findFirst({
+          where: {
+            bedroomId: bedroomId,
+            promotionId: { not: id },
+            promotion: {
+              dateStart: { lte: data.dateEnd },
+              dateEnd: { gte: data.dateStart },
+            },
+          },
+          include: {
+            promotion: true,
+            bedroom: true,
+          },
+        });
 
-    if (existingBedroomPromotion) {
-      return {
-        success: false,
-        error: `Ya existe una promoción activa para esta habitación específica (${existingBedroomPromotion.promotion.codePromotions})`,
-      };
+      if (existingBedroomPromotion) {
+        return {
+          success: false,
+          error: `Ya existe una promoción activa para la habitación ${existingBedroomPromotion.bedroom.typeBedroom} (${existingBedroomPromotion.promotion.codePromotions})`,
+        };
+      }
     }
 
     // Actualizar la promoción
@@ -217,12 +229,11 @@ export async function updatePromotion(id: number, data: PromotionData) {
       where: { promotionId: id },
     });
 
-    // Crear nueva relación con la habitación específica
-    await prisma.bedroomsPromotions.create({
-      data: {
+    await prisma.bedroomsPromotions.createMany({
+      data: data.bedroomIds.map((bedroomId) => ({
         promotionId: id,
-        bedroomId: data.bedroomId,
-      },
+        bedroomId: bedroomId,
+      })),
     });
 
     revalidatePath("/dashboard/offerts");
@@ -303,6 +314,7 @@ export async function checkBedroomPromotions(bedroomId: number) {
             seasons: true,
           },
         },
+        bedroom: true,
       },
     });
 
