@@ -9,10 +9,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
   session: { strategy: "jwt" },
   callbacks: {
-    //TODO: jwt se ejecuta cada vez que se crea un token
-    //TODO: se puede agregar informacion adicional al token
     jwt({ token, user }) {
       if (user) {
+        token.id = user.id;
         token.role = user.role;
       }
       return token;
@@ -20,12 +19,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
     session({ session, token }) {
       if (session.user) {
+        session.user.id = token.id;
         session.user.role = token.role;
       }
       return session;
     },
   },
-  // pages: {
-  //   signIn: "/login",
-  // },
 });

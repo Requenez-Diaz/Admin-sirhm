@@ -1,43 +1,43 @@
-// components/AvatarIconUsers.tsx
-
 "use client";
 
 import { GetUserImageById } from "@/app/actions/userImage/get-image-user-by-id";
-import { AvatarFallback, AvatarImage, Avatar } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import React, { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 
-interface AvatarIconUsersProps {
-  userId: number;
-}
-
-const AvatarNavigations = ({ userId }: AvatarIconUsersProps) => {
+const AvatarNavigations = () => {
+  const { data: session } = useSession();
   const [userImageSrc, setUserImageSrc] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchUserImage = async () => {
-      if (!userId) {
-        return;
-      }
-
       const result = await GetUserImageById();
       if (result.success && result.image) {
         setUserImageSrc(result.image);
+      } else {
+        setUserImageSrc(null);
       }
     };
 
     fetchUserImage();
-  }, [userId]);
+  }, []);
+
+  const initials = session?.user?.name
+    ? session.user.name
+      .split(" ")
+      .map((n: string) => n[0])
+      .join("")
+      .toUpperCase()
+    : "U";
 
   return (
-    <div>
-      <Avatar>
-        <AvatarImage
-          src={userImageSrc || "https://github.com/shadcn.png"}
-          alt='User Avatar'
-        />
-        <AvatarFallback>CN</AvatarFallback>
-      </Avatar>
-    </div>
+    <Avatar className="w-12 h-12">
+      {userImageSrc ? (
+        <AvatarImage src={userImageSrc} alt="User Avatar" />
+      ) : (
+        <AvatarFallback>{initials}</AvatarFallback>
+      )}
+    </Avatar>
   );
 };
 

@@ -14,7 +14,7 @@ export default {
           throw new Error("Credenciales incorrectas");
         }
 
-        //TODO: verificar si el usuario existe en la base de datos
+        // Buscar usuario en la BD
         const user = await prisma.user.findUnique({
           where: {
             email: data.email,
@@ -28,20 +28,20 @@ export default {
           throw new Error("Usuario no encontrado");
         }
 
-        //TODO: verificar si la contraseña es correcta
+        // Validar contraseña
         const isValid = await bcrypt.compare(data.password, user.password);
-
         if (!isValid) {
           throw new Error("Contraseña incorrecta");
         }
 
+        // ⚠️ Restricción de roles (si aplica)
         if (user.roleName !== "Admin") {
           throw new Error("Usuario no autorizado");
         }
 
-        console.log(user.roleName);
-
+        // ✅ IMPORTANTE: convertir id numérico a string
         return {
+          id: user.id.toString(),
           email: user.email,
           name: user.username,
           role: user.roleName,
