@@ -64,11 +64,11 @@ export default async function DashboardPage() {
         <DashboardCard
           title="Reservaciones"
           value={reservations.length}
-          icon={<Calendar className="h-6 w-6" />}
+          icon={<Calendar className="grid grid-cols-2 gap-x-2 gap-y-1 mt-1 text-xs" />}
           href="/dashboard/bookings"
           type="reservations"
           extraContent={
-            <div className="flex gap-4 mt-1 text-xs">
+            <div className="flex flex-wrap gap-2 mt-1 text-xs">
               <span>Confirmadas: {confirmed}</span>
               <span>Pendientes: {pending}</span>
               <span>Canceladas: {canceled}</span>

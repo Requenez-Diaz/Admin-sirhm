@@ -1,40 +1,41 @@
 'use client';
 
-import type React from 'react';
-import { User, KeyRound, LogOut, ImageIcon } from 'lucide-react';
+import React from 'react';
+
+import {
+  User, KeyRound, LogOut, ImageIcon, Bell,
+  Palette, Clock, HelpCircle
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { signOut } from 'next-auth/react';
 
-export type SettingsTab = 'general' | 'security' | 'avatar' | 'notifications';
+export type SettingsTab =
+  | 'general'
+  | 'security'
+  | 'avatar'
+  | 'notifications'
+  | 'preferences'
+  | 'activity'
+  | 'support';
 
 interface ProfileNavigationProps {
   activeTab: SettingsTab;
   onTabChange: (tab: SettingsTab) => void;
 }
 
-export function ProfileNavigation({
-  activeTab,
-  onTabChange
-}: ProfileNavigationProps) {
+export function ProfileNavigation({ activeTab, onTabChange }: ProfileNavigationProps) {
   const accentText = 'text-blue-700';
   const activeBg = 'bg-blue-50';
   const hoverBg = 'hover:bg-blue-100';
   const textMuted = 'text-gray-600';
   const textActive = 'text-blue-800';
 
-  const NavLink: React.FC<{
-    tab: SettingsTab;
-    icon: React.ReactNode;
-    label: string;
-  }> = ({ tab, icon, label }) => (
+  const NavLink = ({ tab, icon, label }: { tab: SettingsTab; icon: React.ReactNode; label: string }) => (
     <button
       type="button"
-      className={`flex items-center gap-3 rounded-lg px-4 py-2 text-base transition-all duration-200 ${hoverBg} ${
-        activeTab === tab
-          ? `${activeBg} font-semibold ${textActive} shadow-sm`
-          : `${textMuted}`
-      }`}
+      className={`flex items-center gap-3 rounded-lg px-4 py-2 text-base transition-all duration-200 ${hoverBg} ${activeTab === tab ? `${activeBg} font-semibold ${textActive} shadow-sm` : `${textMuted}`
+        }`}
       onClick={() => onTabChange(tab)}
     >
       {icon}
@@ -52,21 +53,13 @@ export function ProfileNavigation({
       </p>
 
       <nav className="flex flex-col gap-1 p-3 rounded-xl bg-white shadow-md">
-        <NavLink
-          tab="general"
-          icon={<User className="h-5 w-5" />}
-          label="General"
-        />
-        <NavLink
-          tab="avatar"
-          icon={<ImageIcon className="h-5 w-5" />}
-          label="Foto de Perfil"
-        />
-        <NavLink
-          tab="security"
-          icon={<KeyRound className="h-5 w-5" />}
-          label="Seguridad"
-        />
+        <NavLink tab="general" icon={<User className="h-5 w-5" />} label="General" />
+        <NavLink tab="avatar" icon={<ImageIcon className="h-5 w-5" />} label="Foto de Perfil" />
+        <NavLink tab="security" icon={<KeyRound className="h-5 w-5" />} label="Seguridad" />
+        <NavLink tab="notifications" icon={<Bell className="h-5 w-5" />} label="Notificaciones" />
+        <NavLink tab="preferences" icon={<Palette className="h-5 w-5" />} label="Preferencias" />
+        <NavLink tab="activity" icon={<Clock className="h-5 w-5" />} label="Actividad" />
+        <NavLink tab="support" icon={<HelpCircle className="h-5 w-5" />} label="Soporte" />
 
         <Separator className="my-2 bg-gray-200" />
 
