@@ -162,7 +162,9 @@ model BedroomImages {
   bedroomId    Int
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  imageContent String
+  imageContent String?
+  mimeType     String
+  fileName     String
   bedroom      Bedrooms @relation(fields: [bedroomId], references: [id])
 }
 

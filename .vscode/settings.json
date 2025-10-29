@@ -1,12 +1,12 @@
 {
     "git.ignoreLimitWarning": true,
-    "editor.fontFamily": "'JetBrains Mono', Menlo, Monaco, 'Courier New', monospace",
+    "editor.fontFamily": "'Cascadia Code', monospace",
     "editor.fontLigatures": true,
+    "editor.fontWeight": "normal",
     "editor.tokenColorCustomizations": {
         "textMateRules": [
             {
                 "scope": [
-                    // Ajusta los scopes según tus preferencias
                     "comment",
                     "entity.name.type.class",
                     "keyword",
@@ -18,10 +18,9 @@
                     "variable.parameter"
                 ],
                 "settings": {
-                    "fontStyle": "JetBrains Mono"
+                    "fontStyle": "italic"
                 }
             }
         ]
-    },
-    "editor.fontWeight": "normal"
+    }
 }

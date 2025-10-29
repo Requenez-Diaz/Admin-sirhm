@@ -1,9 +1,8 @@
+// src/app/actions/bedrooms/saveBedrooms.ts
 "use server";
 
 import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
-import { promises as fs } from "fs";
-import path from "path";
 
 function generateSlug(text: string): string {
   return text
@@ -15,51 +14,57 @@ function generateSlug(text: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-export const saveBedrooms = async (data: {
-  typeBedroom: string;
-  description: string;
-  lowSeasonPrice: number;
-  highSeasonPrice: number;
-  numberBedroom: number;
-  capacity: number;
-  status: string;
-  image: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-}) => {
-  const {
-    typeBedroom,
-    description,
-    lowSeasonPrice,
-    highSeasonPrice,
-    numberBedroom,
-    capacity,
-    status,
-    image,
-  } = data;
+export type ActionState = { success: boolean; message: string; data?: any };
 
-  const active = status === "1";
-
-  const slug = generateSlug(typeBedroom);
-
+export async function saveBedroomsWithUpload(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
   try {
-    const existingBedroom = await prisma.bedrooms.findFirst({
-      where: {
-        numberBedroom: numberBedroom,
-      },
-    });
+    const typeBedroom = String(formData.get("typeBedroom") || "").trim();
+    const description = String(formData.get("description") || "").trim();
+    const lowSeasonPrice = Number(formData.get("lowSeasonPrice"));
+    const highSeasonPrice = Number(formData.get("highSeasonPrice"));
+    const numberBedroom = Number(formData.get("numberBedroom"));
+    const capacity = Number(formData.get("capacity"));
+    const statusStr = String(formData.get("status") ?? "1");
 
-    if (existingBedroom) {
-      console.log(
-        `El número de habitación ${numberBedroom} ya está registrado.`
-      );
+    const mimeType = String(formData.get("mimeType") || "");
+    const fileName = String(formData.get("fileName") || "");
+
+    if (!typeBedroom || !numberBedroom) {
+      return {
+        success: false,
+        message: "Faltan datos requeridos (Tipo o Número de Habitación).",
+      };
+    }
+
+    if (
+      [lowSeasonPrice, highSeasonPrice, numberBedroom, capacity].some((n) =>
+        Number.isNaN(n)
+      )
+    ) {
+      return { success: false, message: "Hay valores numéricos inválidos." };
+    }
+
+    const exists = await prisma.bedrooms.findFirst({
+      where: { numberBedroom },
+    });
+    if (exists) {
       return {
         success: false,
         message: `El número de habitación ${numberBedroom} ya está registrado.`,
       };
     }
 
-    const newBedroom = await prisma.bedrooms.create({
+    const active = statusStr === "1";
+    const slug = generateSlug(typeBedroom);
+
+    const now = new Date();
+    const nextYear = new Date(now);
+    nextYear.setFullYear(now.getFullYear() + 1);
+
+    const created = await prisma.bedrooms.create({
       data: {
         typeBedroom,
         description,
@@ -68,103 +73,33 @@ export const saveBedrooms = async (data: {
         numberBedroom,
         capacity,
         status: active,
-        image,
+        image: "",
         slug,
         Seasons: {
           create: {
-            nameSeason: "defaultSeason",
-            dateStart: new Date(),
-            dateEnd: new Date(),
+            nameSeason: `Temporada de ${typeBedroom}`,
+            dateStart: now,
+            dateEnd: nextYear,
           },
         },
+
+        galleryImages:
+          mimeType && fileName ? { create: { mimeType, fileName } } : undefined,
       },
-      include: {
-        Seasons: true,
-      },
+      include: { galleryImages: true },
     });
 
     revalidatePath("/bedrooms");
-
     return {
       success: true,
       message: "La habitación se registró correctamente.",
-      data: newBedroom,
+      data: { id: created.id, numberBedroom: created.numberBedroom },
     };
   } catch (error) {
     console.error("Error al guardar la habitación:", error);
     return {
       success: false,
-      message: "Error al guardar la habitación. Por favor intenta nuevamente.",
+      message: "Error al guardar la habitación. Intenta nuevamente.",
     };
   }
-};
-
-export const getBedrooms = async () => {
-  try {
-    const bedrooms = await prisma.bedrooms.findMany({
-      include: {
-        Seasons: true,
-      },
-      orderBy: {
-        numberBedroom: "asc",
-      },
-    });
-
-    return {
-      success: true,
-      data: bedrooms,
-    };
-  } catch (error) {
-    console.error("Error al obtener habitaciones:", error);
-    return {
-      success: false,
-      message: "Error al obtener las habitaciones.",
-      data: [],
-    };
-  }
-};
-
-export const deleteBedroom = async (id: string) => {
-  try {
-    const bedroom = await prisma.bedrooms.findUnique({
-      where: { id: Number(id) },
-      select: {
-        image: true,
-      },
-    });
-
-    if (!bedroom) {
-      return {
-        success: false,
-        message: "Habitación no encontrada.",
-      };
-    }
-
-    await prisma.bedrooms.delete({
-      where: { id: Number(id) },
-    });
-
-    // Opcional: Eliminar el archivo físico de imagen
-    if (bedroom.image && bedroom.image.startsWith("/uploads/")) {
-      try {
-        const imagePath = path.join(process.cwd(), "public", bedroom.image);
-        await fs.unlink(imagePath);
-      } catch (fileError) {
-        console.log("No se pudo eliminar el archivo de imagen:", fileError);
-      }
-    }
-
-    revalidatePath("/bedrooms");
-
-    return {
-      success: true,
-      message: "Habitación eliminada correctamente.",
-    };
-  } catch (error) {
-    console.error("Error al eliminar habitación:", error);
-    return {
-      success: false,
-      message: "Error al eliminar la habitación.",
-    };
-  }
-};
+}
