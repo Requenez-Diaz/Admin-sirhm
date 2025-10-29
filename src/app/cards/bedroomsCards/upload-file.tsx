@@ -1,6 +1,6 @@
 "use client";
 
-import type React from "react";
+import * as React from "react";
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { X, Upload, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 interface ImageUploadProps {
-  onImageUpload: (imageBase64: string, fileName?: string) => void;
+  onImageUpload: (info: { mimeType: string; fileName: string }) => void;
   currentImage?: string;
   onImageRemove: () => void;
   disabled?: boolean;
@@ -23,6 +23,7 @@ export default function ImageUpload({
   disabled = false,
 }: ImageUploadProps) {
   const [imagePreview, setImagePreview] = useState<string>(currentImage || "");
+  const [objectUrl, setObjectUrl] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -31,18 +32,20 @@ export default function ImageUpload({
     setImagePreview(currentImage || "");
   }, [currentImage]);
 
-  const handleImageChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  useEffect(() => {
+    return () => {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [objectUrl]);
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) {
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+      if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
 
-    const allowedTypes = [
+    const allowed = [
       "image/jpeg",
       "image/jpg",
       "image/png",
@@ -51,70 +54,59 @@ export default function ImageUpload({
     ];
     const maxSize = 5 * 1024 * 1024; // 5MB
 
-    if (!allowedTypes.includes(file.type)) {
+    if (!allowed.includes(file.type)) {
       toast({
         title: "Error de archivo",
-        description:
-          "Tipo de archivo no permitido. Sube un JPG, PNG, GIF o WEBP.",
+        description: "Tipo no permitido. Usa JPG, PNG, GIF o WEBP.",
         variant: "destructive",
       });
       return;
     }
-
     if (file.size > maxSize) {
       toast({
         title: "Error de tamaño",
-        description: "El archivo es demasiado grande. El tamaño máximo es 5MB.",
+        description: "El archivo es muy grande. Máximo 5MB.",
         variant: "destructive",
       });
       return;
     }
 
     setIsProcessing(true);
-
     try {
-      const base64 = await convertFileToBase64(file);
-      onImageUpload(base64, file.name);
-      setImagePreview(base64); // Actualiza la vista previa solo después de una carga exitosa
+      const url = URL.createObjectURL(file);
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      setObjectUrl(url);
+      setImagePreview(url);
+
+      // Mandamos SOLO metadatos al padre
+      onImageUpload({ mimeType: file.type, fileName: file.name });
+
       toast({
-        title: "Imagen cargada",
-        description: `"${file.name}" subida con éxito.`,
+        title: "Imagen lista",
+        description: `"${file.name}" preparada.`,
       });
-    } catch (error) {
-      console.error("Error al procesar la imagen:", error);
-      toast({
-        title: "Error de carga",
-        description:
-          "Hubo un problema al procesar la imagen. Intenta de nuevo.",
-        variant: "destructive",
-      });
+    } catch (e) {
+      console.error(e);
       setImagePreview("");
       onImageRemove();
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      toast({
+        title: "Error",
+        description: "No se pudo procesar la imagen.",
+        variant: "destructive",
+      });
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const convertFileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (reader.result) {
-          resolve(reader.result as string);
-        } else {
-          reject(new Error("Error al leer el archivo."));
-        }
-      };
-      reader.onerror = () => reject(new Error("Error al leer el archivo."));
-      reader.readAsDataURL(file);
-    });
-  };
-
   const removeImage = () => {
     setImagePreview("");
     onImageRemove();
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (objectUrl) {
+      URL.revokeObjectURL(objectUrl);
+      setObjectUrl("");
     }
   };
 
@@ -123,9 +115,7 @@ export default function ImageUpload({
       {!imagePreview ? (
         <Label
           htmlFor='uploadImage'
-          className={`
-            flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg
-            transition-colors
+          className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg transition-colors
             ${
               disabled || isProcessing
                 ? "bg-gray-100 border-gray-200 cursor-not-allowed text-gray-400"
@@ -179,3 +169,4 @@ export default function ImageUpload({
     </div>
   );
 }
+``;
