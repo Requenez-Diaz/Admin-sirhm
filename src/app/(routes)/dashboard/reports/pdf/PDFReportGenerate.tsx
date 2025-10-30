@@ -88,7 +88,7 @@ const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) =>
 
     let _y = 20;
 
-    _y = PDFReportHeader({
+    _y = await PDFReportHeader({
       doc,
       generatedBy: currentUser,
       generatedAt,
