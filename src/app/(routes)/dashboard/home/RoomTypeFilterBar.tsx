@@ -2,6 +2,8 @@
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
+import { Button } from '@/components/ui/button';
+import { RotateCcw } from 'lucide-react';
 
 interface RoomTypeFilterBarProps {
     filterType: string;
@@ -30,11 +32,23 @@ export function RoomTypeFilterBar({
     setSelectedWeekIndex,
     setSelectedDay,
 }: RoomTypeFilterBarProps) {
+    const currentDate = new Date();
+
+    const handleResetFilters = () => {
+        setFilterType('month');
+        setSelectedMonthIndex(currentDate.getMonth());
+        setSelectedWeekIndex(0);
+        setSelectedDay(currentDate.getDate());
+    };
+
     return (
         <div className="flex flex-col sm:flex-row justify-between gap-4 sm:items-center">
             <div className="flex gap-2 flex-wrap">
+                {/* Selector de tipo de filtro */}
                 <Select value={filterType} onValueChange={value => setFilterType(value)}>
-                    <SelectTrigger className="w-[140px]"><SelectValue placeholder="Filtro" /></SelectTrigger>
+                    <SelectTrigger className="w-[140px]">
+                        <SelectValue placeholder="Filtro" />
+                    </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="month">Ver por mes</SelectItem>
                         <SelectItem value="week">Ver por semana</SelectItem>
@@ -44,22 +58,36 @@ export function RoomTypeFilterBar({
                 </Select>
 
                 {(filterType === 'month' || filterType === 'week') && (
-                    <Select value={String(selectedMonthIndex)} onValueChange={value => setSelectedMonthIndex(Number(value))}>
-                        <SelectTrigger className="w-[140px]"><SelectValue placeholder="Seleccionar mes" /></SelectTrigger>
+                    <Select
+                        value={String(selectedMonthIndex)}
+                        onValueChange={value => setSelectedMonthIndex(Number(value))}
+                    >
+                        <SelectTrigger className="w-[140px]">
+                            <SelectValue placeholder="Seleccionar mes" />
+                        </SelectTrigger>
                         <SelectContent>
                             {monthOptions.map(month => (
-                                <SelectItem key={month.value} value={String(month.value)}>{month.label}</SelectItem>
+                                <SelectItem key={month.value} value={String(month.value)}>
+                                    {month.label}
+                                </SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
                 )}
 
                 {filterType === 'week' && (
-                    <Select value={String(selectedWeekIndex)} onValueChange={value => setSelectedWeekIndex(Number(value))}>
-                        <SelectTrigger className="w-[180px]"><SelectValue placeholder="Seleccionar semana" /></SelectTrigger>
+                    <Select
+                        value={String(selectedWeekIndex)}
+                        onValueChange={value => setSelectedWeekIndex(Number(value))}
+                    >
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Seleccionar semana" />
+                        </SelectTrigger>
                         <SelectContent>
                             {weekOptions.map(week => (
-                                <SelectItem key={week.value} value={String(week.value)}>{week.label}</SelectItem>
+                                <SelectItem key={week.value} value={String(week.value)}>
+                                    {week.label}
+                                </SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
@@ -81,6 +109,16 @@ export function RoomTypeFilterBar({
                     weekStartsOn={1}
                 />
             )}
+
+            <Button
+                variant="outline"
+                size="sm"
+                onClick={handleResetFilters}
+                className="flex items-center gap-2 self-start sm:self-auto"
+            >
+                <RotateCcw className="w-4 h-4" />
+                Restablecer filtros
+            </Button>
         </div>
     );
 }
