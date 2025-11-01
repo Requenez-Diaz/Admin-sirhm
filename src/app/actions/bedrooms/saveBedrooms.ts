@@ -1,4 +1,3 @@
-// src/app/actions/bedrooms/saveBedrooms.ts
 "use server";
 
 import prisma from "@/lib/db";
@@ -29,6 +28,7 @@ export async function saveBedroomsWithUpload(
     const capacity = Number(formData.get("capacity"));
     const statusStr = String(formData.get("status") ?? "1");
 
+    const imageUrl = String(formData.get("imageUrl") || "");
     const mimeType = String(formData.get("mimeType") || "");
     const fileName = String(formData.get("fileName") || "");
 
@@ -73,23 +73,31 @@ export async function saveBedroomsWithUpload(
         numberBedroom,
         capacity,
         status: active,
-        image: "",
+        image: imageUrl || "",
         slug,
         Seasons: {
           create: {
-            nameSeason: `Temporada de ${typeBedroom}`,
+            nameSeason: "",
             dateStart: now,
             dateEnd: nextYear,
           },
         },
-
         galleryImages:
-          mimeType && fileName ? { create: { mimeType, fileName } } : undefined,
+          imageUrl && mimeType && fileName
+            ? {
+                create: {
+                  imageContent: imageUrl,
+                  mimeType,
+                  fileName,
+                },
+              }
+            : undefined,
       },
       include: { galleryImages: true },
     });
 
     revalidatePath("/bedrooms");
+    revalidatePath("/");
     return {
       success: true,
       message: "La habitación se registró correctamente.",
