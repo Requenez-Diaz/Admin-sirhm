@@ -3,9 +3,9 @@
 import React, { useState, useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { startOfWeek, endOfWeek, getWeeksInMonth } from 'date-fns';
-import { RoomTypeFilterBar } from '../home/RoomTypeFilterBar';
-import { RoomTypeSummaryTable } from '../home/RoomTypeSummaryTable';
-import { filterReservations, normalizeString, ROOM_TYPE_ALIASES } from '../home/roomHelpers';
+import { RoomTypeFilterBar } from '../RoomTypeFilterBar';
+import { RoomTypeSummaryTable } from '../RoomTypeSummaryTable';
+import { filterReservations, normalizeString, ROOM_TYPE_ALIASES } from '../roomHelpers';
 
 type Reservation = {
     bedroomsType: string;

@@ -44,7 +44,6 @@ export function RoomTypeFilterBar({
     return (
         <div className="flex flex-col sm:flex-row justify-between gap-4 sm:items-center">
             <div className="flex gap-2 flex-wrap">
-                {/* Selector de tipo de filtro */}
                 <Select value={filterType} onValueChange={value => setFilterType(value)}>
                     <SelectTrigger className="w-[140px]">
                         <SelectValue placeholder="Filtro" />

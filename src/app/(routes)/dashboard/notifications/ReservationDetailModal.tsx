@@ -78,7 +78,7 @@ export default function ReservationDetailModal({
                 </div>
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-xl rounded-2xl p-8 shadow-2xl bg-white border border-gray-100">
+            <DialogContent className="w-full max-w-[95vw] sm:max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl p-6 sm:p-8 shadow-2xl bg-white border border-gray-100">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2 text-2xl font-bold text-gray-800">
                         <Bell className="h-6 w-6 text-blue-600" />
@@ -138,7 +138,7 @@ export default function ReservationDetailModal({
                     ))}
                 </div>
 
-                <div className="mt-8 flex justify-end gap-3">
+                <div className="mt-8 flex flex-col sm:flex-row justify-end gap-3">
                     <DialogClose asChild>
                         <Button
                             variant="outline"

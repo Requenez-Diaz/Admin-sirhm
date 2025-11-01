@@ -4,8 +4,8 @@ import { getReservations } from "@/app/actions/reservation";
 import { getServices } from "@/app/actions/services";
 import { getBedrooms } from "@/app/actions/bedrooms";
 import { findManyUsers } from "@/app/actions/users";
-import RoomTypeTable from "../reports/RoomTypeTable";
-import ReportDashboard from "../reports/ReportDashboard";
+import RoomTypeTable from "./dashboard-charts/RoomTypeTable";
+import ReportDashboard from "./dashboard-charts/ReportDashboard";
 
 export default async function DashboardPage() {
   const reservations = await getReservations();

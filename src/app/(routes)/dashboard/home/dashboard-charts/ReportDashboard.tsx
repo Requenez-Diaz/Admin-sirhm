@@ -3,8 +3,8 @@ import { getReservations } from '@/app/actions/reservation';
 import { OccupancyChart } from './OccupancyChart';
 import { useState, useEffect } from 'react';
 import { RoomTypeDistribution } from './RoomTypeDistribution';
-import { ReservationStatusChart } from './ReservationStatusChart';
 import { QuickStats } from './QuickStats';
+import { ReservationStatusChart } from './ReservationStatusChart';
 
 interface Reservation {
     id: number;

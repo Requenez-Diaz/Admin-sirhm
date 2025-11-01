@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { Bell } from "lucide-react";
 import { getReservations } from "@/app/actions/reservation/getReservation";
 import ReservationDetailModal from "./ReservationDetailModal";
-// import { getNotifications } from "./getNotifications";
 
 export default function NotificationsPage() {
   const [items, setItems] = useState<any[]>([]);
@@ -16,12 +15,10 @@ export default function NotificationsPage() {
       try {
         const [reservations,] = await Promise.all([
           getReservations(),
-          // getNotifications(),
         ]);
 
         const combined = [
           ...reservations.map((r) => ({ ...r, kind: "reservation" })),
-          // ...notifications.map((n) => ({ ...n, kind: "notification" })),
         ];
 
         combined.sort(

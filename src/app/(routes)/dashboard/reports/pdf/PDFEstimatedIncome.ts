@@ -49,18 +49,18 @@ export default function PDFEstimatedIncome({
     doc.setFontSize(11);
     doc.setFont("helvetica", "normal");
     currentY += 8;
-    doc.text(`Ingreso total: $${totalIncome.toFixed(2)}`, 14, currentY);
+    doc.text(`Ingreso total: C$${totalIncome.toFixed(2)}`, 14, currentY);
 
     currentY += 6;
     doc.text(
-        `Ingreso promedio por reservación: $${avgPerReservation.toFixed(2)}`,
+        `Ingreso promedio por reservación: C$${avgPerReservation.toFixed(2)}`,
         14,
         currentY
     );
 
     currentY += 6;
     doc.text(
-        `Ingreso promedio por huésped: $${avgPerGuest.toFixed(2)}`,
+        `Ingreso promedio por huésped: C$${avgPerGuest.toFixed(2)}`,
         14,
         currentY
     );
