@@ -1,25 +1,47 @@
 "use server";
 
 import prisma from "@/lib/db";
+import { revalidatePath } from "next/cache";
 
-export const uploadGalleryImage = async (
-  bedroomsId: number,
-  imageBase64: string
-) => {
+export type ActionState = { success: boolean; message: string; data?: any };
+
+export async function uploadGalleryImage(
+  _prevState: ActionState | null,
+  formData: FormData
+): Promise<ActionState> {
   try {
-    if (!bedroomsId || !imageBase64) {
+    const bedroomId = Number(formData.get("bedroomId"));
+    const imageUrl = String(formData.get("imageUrl") || "");
+    const mimeType = String(formData.get("mimeType") || "");
+    const fileName = String(formData.get("fileName") || "");
+
+    // Validate required fields
+    if (!bedroomId || !imageUrl) {
       return {
         success: false,
-        error: "Los datos de la habitación y la imagen son obligatorios.",
+        message: "Los datos de la habitación y la imagen son obligatorios.",
       };
     }
 
+    if (Number.isNaN(bedroomId)) {
+      return {
+        success: false,
+        message: "El ID de la habitación es inválido.",
+      };
+    }
+
+    // Create the gallery image record
     const newImage = await prisma.bedroomImages.create({
       data: {
-        bedroomId: bedroomsId,
-        imageContent: imageBase64,
+        bedroomId,
+        imageContent: imageUrl,
+        mimeType,
+        fileName,
       },
     });
+
+    revalidatePath("/bedrooms");
+    revalidatePath("/");
 
     return {
       success: true,
@@ -27,13 +49,10 @@ export const uploadGalleryImage = async (
       data: newImage,
     };
   } catch (error) {
-    console.error("Error al guardar la imagen de galería:", error);
+    console.error("Error al guardar imagen de galería:", error);
     return {
       success: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : "Error desconocido al guardar la imagen.",
+      message: "Error al guardar la imagen. Intenta nuevamente.",
     };
   }
-};
+}
