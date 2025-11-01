@@ -13,9 +13,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-
-import ImageUpload from "./upload-file";
 import { saveBedroomsWithUpload } from "@/app/actions/bedrooms/saveBedrooms";
+import ImageUpload from "./upload-file";
 
 type ActionState = { success: boolean; message: string };
 
@@ -30,6 +29,7 @@ function SubmitButton() {
 
 export function FormBedrooms() {
   const [statusValue, setStatusValue] = useState("1");
+  const [imageUrl, setImageUrl] = useState("");
   const [mimeType, setMimeType] = useState("");
   const [fileName, setFileName] = useState("");
   const { toast } = useToast();
@@ -49,6 +49,7 @@ export function FormBedrooms() {
     });
     if (state.success) {
       setStatusValue("1");
+      setImageUrl("");
       setMimeType("");
       setFileName("");
       (
@@ -210,21 +211,24 @@ export function FormBedrooms() {
               Imagen
             </h3>
             <p className='text-sm text-muted-foreground'>
-              Sube una imagen de la habitación (solo vista previa)
+              Sube una imagen de la habitación
             </p>
           </div>
 
           <div className='space-y-2'>
             <ImageUpload
-              onImageUpload={({ mimeType, fileName }) => {
+              onImageUpload={({ url, mimeType, fileName }) => {
+                setImageUrl(url);
                 setMimeType(mimeType);
                 setFileName(fileName);
               }}
               onImageRemove={() => {
+                setImageUrl("");
                 setMimeType("");
                 setFileName("");
               }}
             />
+            <input type='hidden' name='imageUrl' value={imageUrl} />
             <input type='hidden' name='mimeType' value={mimeType} />
             <input type='hidden' name='fileName' value={fileName} />
           </div>
