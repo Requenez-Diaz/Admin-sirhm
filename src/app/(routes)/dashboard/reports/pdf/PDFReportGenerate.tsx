@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { jsPDF } from "jspdf";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import PDFHighDemandDays from "./PDFHighDemandDays";
 import PDFReservationComparisonRender from "./PDFReservationComparison";
 import PDFEstimatedIncome from "./PDFEstimatedIncome";
 import { useSession } from "next-auth/react";
+import { InfoDialog } from "./InfoDialog";
 
 interface Bedroom {
   typeBedroom: string;
@@ -26,6 +28,10 @@ interface PDFReportGenerateProps {
 
 const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) => {
   const [reservations, setReservations] = useState<Awaited<ReturnType<typeof getReservations>>>([]);
+  const [showDialog, setShowDialog] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState("");
+  const [dialogType, setDialogType] = useState<"info" | "warning" | "success">("info");
+
   const { data: session } = useSession();
 
   const currentUser =
@@ -44,24 +50,28 @@ const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) =>
     })();
   }, []);
 
+  const openDialog = (message: string, type: "info" | "warning" | "success" = "info") => {
+    setDialogMessage(message);
+    setDialogType(type);
+    setShowDialog(true);
+  };
+
   const generatePDF = async () => {
     if (currentUser === "Usuario no autorizado") {
-      alert("Solo los administradores pueden generar reportes.");
+      openDialog("Solo los administradores pueden generar reportes.", "warning");
       return;
     }
 
-    // Filtrar solo reservas del mes y año seleccionados
     const filteredReservations = reservations.filter((r) => {
       const d = new Date(r.arrivalDate);
       return d.getMonth() + 1 === month && d.getFullYear() === year;
     });
 
     if (filteredReservations.length === 0) {
-      alert("No hay datos de reservas para el mes/año seleccionado.");
+      openDialog("No hay datos de reservas para el mes o año seleccionado.", "info");
       return;
     }
 
-    // Filtrar solo reservas CONFIRMADAS
     const confirmedReservations = filteredReservations.filter(
       (r) => r.status === "CONFIRMED"
     );
@@ -96,21 +106,18 @@ const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) =>
       startY: _y,
     });
 
-    // RESUMEN GENERAL solo con reservas confirmadas
     _y = PDFReservationSummary({
       doc,
       total: confirmedReservations.length,
       startY: _y,
     });
 
-    // TOTAL DE HUÉSPEDES solo con reservas confirmadas
     _y = PDFTotalGuests({
       doc,
       guestsCounts: confirmedReservations.map((r) => r.guests),
       startY: _y,
     });
 
-    // CONTAR reservas y huéspedes por tipo de habitación solo confirmadas
     const roomTypesData: Record<string, { reservations: number; guests: number }> = {};
     confirmedReservations.forEach((r) => {
       const type = r.bedroomsType || "Desconocido";
@@ -149,17 +156,27 @@ const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) =>
     });
 
     doc.save(`Reporte_Hotel_Madroño_${now.toISOString().split("T")[0]}.pdf`);
+    openDialog("El reporte se generó correctamente.", "success");
   };
 
   return (
-    <Button
-      onClick={generatePDF}
-      className="bg-blue-600 hover:bg-blue-700 gap-2"
-      size="lg"
-    >
-      <FileText className="h-5 w-5" />
-      PDF
-    </Button>
+    <>
+      <Button
+        onClick={generatePDF}
+        className="bg-blue-600 hover:bg-blue-700 gap-2"
+        size="lg"
+      >
+        <FileText className="h-5 w-5" />
+        PDF
+      </Button>
+
+      <InfoDialog
+        open={showDialog}
+        onClose={() => setShowDialog(false)}
+        message={dialogMessage}
+        type={dialogType}
+      />
+    </>
   );
 };
 
