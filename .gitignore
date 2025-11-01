@@ -39,3 +39,9 @@ next-env.d.ts
 # Ignore .env file, but include .env.example
 .env
 !.env.example
+
+# Ignorar todos los archivos DENTRO de la carpeta bedrooms
+/public/uploads/bedrooms/*
+
+# Permitir que la carpeta sea rastreada añadiendo un archivo .gitkeep
+!/public/uploads/bedrooms/.gitkeep
