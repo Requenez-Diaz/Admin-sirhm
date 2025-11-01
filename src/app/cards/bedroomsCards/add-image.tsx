@@ -3,11 +3,11 @@
 import type { FC } from "react";
 import { useState } from "react";
 import Image from "next/image";
-import { BedroomImages } from "@prisma/client";
+import type { BedroomImages } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import Icon from "@/components/ui/icons/icons";
-import ImageUpload from "./upload-file";
+import ImageUploadGallery from "./upload-file-gallery";
 import { uploadGalleryImage } from "@/app/actions/uploadsImage/uploadImageGallery";
 
 interface GalleryImageUploaderProps {
@@ -26,22 +26,31 @@ const GalleryImageUploader: FC<GalleryImageUploaderProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
 
-  const handleImageUpload = async (base64Image: string) => {
+  const handleImageUpload = async (imageData: {
+    imageUrl: string;
+    mimeType: string;
+    fileName: string;
+  }) => {
     setIsUploading(true);
     try {
-      // Llamar a la acción de servidor para guardar la imagen
-      const response = await uploadGalleryImage(bedroomId, base64Image);
+      const formData = new FormData();
+      formData.append("bedroomId", bedroomId.toString());
+      formData.append("imageUrl", imageData.imageUrl);
+      formData.append("mimeType", imageData.mimeType);
+      formData.append("fileName", imageData.fileName);
+
+      const response = await uploadGalleryImage(null, formData);
 
       if (response.success) {
         toast({
           title: "Imagen de galería subida.",
-          description: "La imagen se agregó a la galería.",
+          description: response.message,
         });
         onImageUploaded();
       } else {
         toast({
           title: "Error al subir imagen.",
-          description: response.error,
+          description: response.message,
           variant: "destructive",
         });
       }
@@ -68,7 +77,7 @@ const GalleryImageUploader: FC<GalleryImageUploaderProps> = ({
               className='relative w-32 h-32 rounded-lg overflow-hidden border'
             >
               <Image
-                src={img.imageContent}
+                src={img.imageContent || "/placeholder.svg"}
                 alt='Imagen de la galería'
                 fill
                 className='object-cover'
@@ -78,9 +87,7 @@ const GalleryImageUploader: FC<GalleryImageUploaderProps> = ({
                 variant='destructive'
                 size='sm'
                 className='absolute top-1 right-1'
-                onClick={() => {
-                  /* Lógica de eliminación */
-                }}
+                onClick={() => {}}
                 disabled={disabled || isUploading}
               >
                 <Icon action='delete' className='w-4 h-4' />
@@ -95,7 +102,7 @@ const GalleryImageUploader: FC<GalleryImageUploaderProps> = ({
       </div>
 
       <div className='mt-4'>
-        <ImageUpload
+        <ImageUploadGallery
           onImageUpload={handleImageUpload}
           onImageRemove={() => {}}
           currentImage=''
