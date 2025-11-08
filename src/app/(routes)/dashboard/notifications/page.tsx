@@ -2,41 +2,44 @@
 
 import { useEffect, useState } from "react";
 import { Bell } from "lucide-react";
-import { getReservations } from "@/app/actions/reservation/getReservation";
+import Image from "next/image";
 import ReservationDetailModal from "./ReservationDetailModal";
+import NotificationMenu from "./NotificationMenu";
+import { getAllNotifications } from "@/app/actions/notification/getNotification";
 
 export default function NotificationsPage() {
   const [items, setItems] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedReservation, setSelectedReservation] = useState<any | null>(null);
 
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const [reservations,] = await Promise.all([
-          getReservations(),
-        ]);
+        const response = await getAllNotifications();
+        if (!response.success) {
+          console.error("Error cargando notificaciones:", response.message);
+          setItems([]);
+          return;
+        }
 
-        const combined = [
-          ...reservations.map((r) => ({ ...r, kind: "reservation" })),
-        ];
+        const combined = response.notifications.map((n) => ({
+          id: n.id,
+          user: n.user,
+          message: n.message,
+          reservation: n.reservation,
+          createdAt: n.createdAt,
+        }));
 
         combined.sort(
           (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
-
         setItems(combined);
       } catch (error) {
         console.error("Error cargando notificaciones:", error);
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchAll();
   }, []);
-
-  if (loading) return <p className="p-6 text-gray-500">Cargando notificaciones...</p>;
 
   return (
     <div className="p-6">
@@ -54,36 +57,72 @@ export default function NotificationsPage() {
         <ul className="space-y-4">
           {items.map((item) => (
             <li key={item.id}>
-              {item.kind === "reservation" ? (
-                <ReservationDetailModal
-                  reservation={item}
-                  selectedReservation={selectedReservation}
-                  setSelectedReservation={setSelectedReservation}
-                />
-              ) : (
-                <div className="p-4 border rounded-lg bg-blue-50 shadow-sm flex items-center gap-3">
+              <div
+                onClick={() =>
+                  item.reservation &&
+                  setSelectedReservation({
+                    ...item.reservation,
+                    user: item.user,
+                  })
+                }
+                className="cursor-pointer p-4 border rounded-lg bg-white hover:shadow-md transition-shadow flex items-center justify-between"
+              >
+                <div className="flex items-center gap-3">
                   {item.user?.image ? (
-                    <img
-                      src={item.user.image}
-                      alt={item.user.username}
-                      className="w-10 h-10 rounded-full object-cover border"
-                    />
+                    <div className="relative w-10 h-10">
+                      <Image
+                        src={item.user.image}
+                        alt={item.user.username}
+                        fill
+                        className="object-cover rounded-full border border-gray-300"
+                      />
+                    </div>
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center text-blue-800 font-bold">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
                       {item.user?.username?.[0]?.toUpperCase() ?? "U"}
                     </div>
                   )}
-                  <div>
-                    <p className="font-semibold text-blue-700">{item.message}</p>
+
+                  <div className="flex flex-col">
+                    <p className="text-sm text-gray-700">
+                      <span className="font-semibold text-gray-900">
+                        {item.user?.username ?? "Usuario"}
+                      </span>{" "}
+                      ha reservado una{" "}
+                      <span className="text-blue-600 font-medium">
+                        {item.reservation?.bedroomsType || "habitación"}
+                      </span>.
+                    </p>
                     <p className="text-xs text-gray-500">
-                      {new Date(item.createdAt).toLocaleString()}
+                      {new Date(item.createdAt).toLocaleString("es-ES", {
+                        day: "2-digit",
+                        month: "long",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </p>
                   </div>
                 </div>
-              )}
+
+                <NotificationMenu
+                  notificationId={item.id}
+                  onDeleted={() =>
+                    setItems((prev) => prev.filter((i) => i.id !== item.id))
+                  }
+                />
+              </div>
             </li>
           ))}
         </ul>
+      )}
+
+      {selectedReservation && (
+        <ReservationDetailModal
+          reservation={selectedReservation}
+          selectedReservation={selectedReservation}
+          setSelectedReservation={setSelectedReservation}
+        />
       )}
     </div>
   );
