@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { MoreHorizontal } from "lucide-react";
 import {
@@ -18,7 +18,9 @@ export default function NotificationMenu({
     notificationId,
     onDeleted,
 }: NotificationMenuProps) {
-    const handleDelete = async () => {
+
+    const handleDelete = async (e: React.MouseEvent) => {
+        e.stopPropagation();
         try {
             const response = await deleteNotification({ id: notificationId });
             if (response.success) onDeleted();
@@ -28,7 +30,8 @@ export default function NotificationMenu({
         }
     };
 
-    const handleDisable = () => {
+    const handleDisable = (e: React.MouseEvent) => {
+        e.stopPropagation();
         console.log("Desactivar notificaciones");
     };
 

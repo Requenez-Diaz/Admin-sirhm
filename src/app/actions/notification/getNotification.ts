@@ -2,14 +2,18 @@
 
 import prisma from '@/lib/db';
 
-export const getAllNotifications = async () => {
+export const getAllUserNotifications = async () => {
   try {
     const notifications = await prisma.notification.findMany({
+      where: {
+        type: 'CREATED',
+      },
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,
         title: true,
         message: true,
+        type: true,
         isRead: true,
         createdAt: true,
         user: {
@@ -26,9 +30,9 @@ export const getAllNotifications = async () => {
             bedroomsType: true,
             arrivalDate: true,
             departureDate: true,
-            status: true,
             guests: true,
-            rooms: true
+            rooms: true,
+            status: true
           }
         }
       }
@@ -39,10 +43,9 @@ export const getAllNotifications = async () => {
       notifications
     };
   } catch (error) {
-    console.error('Error al obtener las notificaciones:', error);
     return {
       success: false,
-      message: 'Error al obtener las notificaciones.',
+      message: 'Error al obtener notificaciones.',
       notifications: []
     };
   }

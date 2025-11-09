@@ -57,12 +57,20 @@ model Notification {
   id            Int          @id @default(autoincrement())
   title         String
   message       String
+  email         String
   isRead        Boolean      @default(false)
   createdAt     DateTime     @default(now())
   userId        Int
   user          User         @relation(fields: [userId], references: [id])
   reservationId Int?
   reservation   Reservation? @relation(fields: [reservationId], references: [id])
+  type          NotificationType
+}
+
+enum NotificationType {
+  CREATED
+  CONFIRMED
+  CANCELLED
 }
 
 model testimonials {
