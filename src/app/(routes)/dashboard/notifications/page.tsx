@@ -5,7 +5,7 @@ import { Bell } from "lucide-react";
 import Image from "next/image";
 import ReservationDetailModal from "./ReservationDetailModal";
 import NotificationMenu from "./NotificationMenu";
-import { getAllNotifications } from "@/app/actions/notification/getNotification";
+import { getAllUserNotifications } from "@/app/actions/notification/getNotification";
 
 export default function NotificationsPage() {
   const [items, setItems] = useState<any[]>([]);
@@ -14,9 +14,8 @@ export default function NotificationsPage() {
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const response = await getAllNotifications();
+        const response = await getAllUserNotifications();
         if (!response.success) {
-          console.error("Error cargando notificaciones:", response.message);
           setItems([]);
           return;
         }
@@ -34,7 +33,7 @@ export default function NotificationsPage() {
         );
         setItems(combined);
       } catch (error) {
-        console.error("Error cargando notificaciones:", error);
+        console.error("Error al obtener notificaciones:", error);
       }
     };
 
@@ -69,16 +68,16 @@ export default function NotificationsPage() {
               >
                 <div className="flex items-center gap-3">
                   {item.user?.image ? (
-                    <div className="relative w-10 h-10">
+                    <div className="relative w-10 aspect-square rounded-full overflow-hidden border border-gray-300">
                       <Image
                         src={item.user.image}
                         alt={item.user.username}
                         fill
-                        className="object-cover rounded-full border border-gray-300"
+                        className="object-cover"
                       />
                     </div>
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
+                    <div className="w-10 aspect-square rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
                       {item.user?.username?.[0]?.toUpperCase() ?? "U"}
                     </div>
                   )}
