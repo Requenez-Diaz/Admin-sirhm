@@ -14,17 +14,17 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { calculateDuration } from "@/app/actions/reservation/calculateDuration";
 
-interface ReservationDetailModalProps {
+interface NotificationDetailModalProps {
   reservation: any;
   selectedReservation: any | null;
   setSelectedReservation: (res: any | null) => void;
 }
 
-export default function ReservationDetailModal({
+export default function NotificationDetailModal({
   reservation,
   selectedReservation,
   setSelectedReservation,
-}: ReservationDetailModalProps) {
+}: NotificationDetailModalProps) {
   const router = useRouter();
   const nights = calculateDuration(
     reservation.arrivalDate,

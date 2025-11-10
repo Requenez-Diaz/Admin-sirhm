@@ -73,11 +73,11 @@ export default function Page() {
 
             try {
                 const result = await UploadFile(Number(session.user.id), imageBase64);
-                if (result.success) toast.success('Imagen de perfil actualizada ✅');
-                else toast.error(result.error || 'Error al subir la imagen ❌');
+                if (result.success) toast.success('Imagen de perfil actualizada');
+                else toast.error(result.error || 'Error al subir la imagen');
             } catch (error) {
                 console.error(error);
-                toast.error('Error al guardar la imagen en la base de datos ❌');
+                toast.error('Error al guardar la imagen en la base de datos');
             } finally {
                 setIsUploading(false);
             }

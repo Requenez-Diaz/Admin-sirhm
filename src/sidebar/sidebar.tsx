@@ -20,7 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import UserProfile from "./components/usersProfile";
-import { getReservations } from "@/app/actions/reservation";
+import { getUnreadNotificationsCount } from "@/app/actions/notification/getUnreadNotificationsCount";
 
 const links = [
   { name: "usuarios", href: "/dashboard/users", icon: UsersRound },
@@ -53,12 +53,15 @@ export default function MainSidebar({ onStateChange }: SidebarProps) {
 
   const fetchUnreadNotifications = async () => {
     try {
-      const unreadReservations = await getReservations();
-      setNotificationsCount(unreadReservations.length);
+      const response = await getUnreadNotificationsCount();
+      if (response.success) {
+        setNotificationsCount(response.count);
+      }
     } catch (error) {
-      console.error("Error al cargar notificaciones", error);
+      console.error("Error al cargar notificaciones:", error);
     }
   };
+
 
   useEffect(() => {
     onStateChange?.(isExpanded || isPinned);
