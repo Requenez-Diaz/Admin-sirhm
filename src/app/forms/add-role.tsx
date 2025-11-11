@@ -107,7 +107,7 @@ export function FormRole() {
               Cancelar
             </Button>
           </DialogClose>
-          <Button type='submit' variant='update' disabled={loading}>
+          <Button type='submit' variant='ghost' disabled={loading}>
             <svg
               xmlns='http://www.w3.org/2000/svg'
               width='24'

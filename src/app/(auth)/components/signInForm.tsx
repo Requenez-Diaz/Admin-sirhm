@@ -41,7 +41,6 @@ const SignInForm = () => {
         description: "Inicio de sesión exitoso",
         variant: "success",
       });
-      console.log(response);
       if (response.error) {
         toast({
           title: "Error",

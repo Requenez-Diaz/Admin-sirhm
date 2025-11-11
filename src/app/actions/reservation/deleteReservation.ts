@@ -18,8 +18,6 @@ export async function deleteReservation(formData: FormData) {
             },
         });
         revalidatePath("/dashboard/bookings");
-
-        console.log(`Reservación con ID ${reservationId} eliminada exitosamente`);
         return { success: true, message: "Reservación eliminada correctamente" };
     } catch (error) {
         console.error(`Error al eliminar la reservación con ID ${reservationId}:`, error);

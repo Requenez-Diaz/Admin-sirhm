@@ -8,7 +8,6 @@ export default async function findManyUsers() {
         id: "asc",
       },
     });
-    console.log("Users fetched:", users); // Para depuración
     return users;
   } catch (error) {
     console.error("Error getting users:", error);

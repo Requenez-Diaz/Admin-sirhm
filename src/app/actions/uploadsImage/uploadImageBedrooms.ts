@@ -61,10 +61,16 @@ export const uploadImageBedrooms = async (
         },
       };
     } else {
+
+      // Si ya existe imagen principal, se guarda en la galería
+      const fileName = _generateImageName(bedroomsId, imageBase64);
+      const mimeType = getImageExtensionFromBase64(imageBase64);
       const newGalleryImage = await prisma.bedroomImages.create({
         data: {
           bedroomId: bedroomsId,
           imageContent: imageBase64,
+          fileName: fileName,
+          mimeType: mimeType
         },
       });
 

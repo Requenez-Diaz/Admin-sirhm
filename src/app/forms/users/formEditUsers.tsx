@@ -96,7 +96,7 @@ export function FormEditUsers({ user }: { user: User | null }) {
           <DialogClose asChild>
             <Button
               type='submit'
-              variant='update'
+              variant='ghost'
               onClick={() => {
                 toast({
                   title: "Usuario actualizado",

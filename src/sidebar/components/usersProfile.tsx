@@ -4,7 +4,6 @@ import { useSession } from "next-auth/react";
 
 export default function UserProfile() {
   const { data: session } = useSession();
-  console.log(session);
   return (
     <div>
       <div className='flex items-center'>

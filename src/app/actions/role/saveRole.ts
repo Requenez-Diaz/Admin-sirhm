@@ -7,8 +7,6 @@ export default async function saveRole(formData: FormData) {
   try {
     const rawFormRole = Object.fromEntries(formData);
 
-    console.log("Raw form role:", rawFormRole);
-
     if (!prisma || !prisma.role) {
       throw new Error("Prisma client or role model is not defined");
     }
@@ -20,7 +18,6 @@ export default async function saveRole(formData: FormData) {
       },
     });
 
-    console.log("Role saved:", role);
     revalidatePath("/roles");
     return role;
   } catch (error) {

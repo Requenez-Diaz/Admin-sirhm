@@ -12,7 +12,6 @@ export const getAllBedrooomToPromotions = async () => {
         highSeasonPrice: true,
       },
     });
-    console.log("Habitaciones obtenidas", { bedrooms });
     return bedrooms;
   } catch (error) {
     console.error("Error al obtener las habitaciones", error);

@@ -20,7 +20,7 @@ export async function EditUsers({ userId }: { userId: number }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant='update'>
+        <Button variant='ghost'>
           <svg
             xmlns='http://www.w3.org/2000/svg'
             width='24'
