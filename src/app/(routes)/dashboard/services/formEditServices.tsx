@@ -129,7 +129,7 @@ export function FormEditServices({ service }: { service: Services | null }) {
                         </Button>
                     </DialogClose>
 
-                    <Button type="submit" variant="update">
+                    <Button type="submit" variant="ghost">
                         <Icon action='save' className="mr-2" />
                         Actualizar
                     </Button>

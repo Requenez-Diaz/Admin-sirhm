@@ -70,8 +70,14 @@ export function TestimonialManagement() {
     try {
       setLoading(true);
       const result = await getAllTestimonialsForAdmin();
-      if (result.success) {
-        setTestimonials(result.testimonials);
+      if (result.success && result.testimonials) {
+        // Convertimos createdAt y updatedAt a string
+        const mappedTestimonials: Testimonial[] = result.testimonials.map(t => ({
+          ...t,
+          createdAt: t.createdAt.toISOString(),
+          updatedAt: t.updatedAt.toISOString(),
+        }));
+        setTestimonials(mappedTestimonials);
       } else {
         toast({
           title: "Error",
@@ -94,12 +100,14 @@ export function TestimonialManagement() {
     try {
       const result = await getTestimonialStats();
       if (result.success) {
-        setStats(result.stats);
+        // Aseguramos que stats siempre tenga un valor
+        setStats(result.stats ?? { total: 0, pending: 0, approved: 0, rejected: 0 });
       }
     } catch (error) {
       console.error("Error loading stats:", error);
     }
   };
+
 
   const handleApprove = async (id: number) => {
     try {

@@ -21,7 +21,7 @@ export async function EditServices({ serviceId }: { serviceId: string }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="update">
+        <Button variant="ghost">
           <Icon action='edit' />
         </Button>
       </DialogTrigger>

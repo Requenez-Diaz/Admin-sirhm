@@ -37,7 +37,6 @@ export const saveReservation = async (data: {
         });
 
         if (existingReservations + rooms > roomLimits[bedroomsType]) {
-            console.log(`No hay suficientes habitaciones disponibles del tipo ${bedroomsType}.`);
             return {
                 success: false,
                 message: `No hay suficientes habitaciones disponibles del tipo ${bedroomsType}.`,

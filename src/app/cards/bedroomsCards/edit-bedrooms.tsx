@@ -21,7 +21,7 @@ export async function EditBedrooms({ bedroomId }: { bedroomId: number }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="update">
+        <Button variant="ghost">
           <Icon action='edit' />
         </Button>
       </DialogTrigger>

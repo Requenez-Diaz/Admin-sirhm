@@ -3,7 +3,6 @@ import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
 export default async function deleteRole(formData: FormData) {
-  console.log("Form data: ", formData);
   const roleId = formData.get("roleId");
 
   if (!roleId) {
@@ -12,7 +11,6 @@ export default async function deleteRole(formData: FormData) {
   }
   try {
     const parsedRoleId = parseInt(roleId.toString());
-    console.log("Role deleted");
     await prisma.role.delete({
       where: {
         id: parsedRoleId,

@@ -13,7 +13,5 @@ export default async function getUserById(
       id: userId,
     },
   });
-
-  console.log("User: ", user);
   return user;
 }

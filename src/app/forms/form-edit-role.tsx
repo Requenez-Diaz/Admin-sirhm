@@ -83,7 +83,7 @@ export function FormEditRole({ role }: { role: Role | null }) {
           <DialogClose asChild>
             <Button
               type='submit'
-              variant='update'
+              variant='ghost'
               onClick={() => {
                 toast({
                   title: "Habitación actualizada.",

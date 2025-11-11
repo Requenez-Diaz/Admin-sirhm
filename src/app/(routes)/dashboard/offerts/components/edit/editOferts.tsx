@@ -78,6 +78,11 @@ interface EditOfferModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
+interface BedroomPromotion {
+  bedroomId: number;
+  // puedes agregar más propiedades si existen
+}
+
 export function EditOfferModal({
   offer,
   seasons,
@@ -134,10 +139,10 @@ export function EditOfferModal({
   // Extraer los IDs de habitaciones seleccionadas
   const getSelectedBedroomIds = () => {
     if (offer.BedroomsPromotions && Array.isArray(offer.BedroomsPromotions)) {
-      return offer.BedroomsPromotions.map((bp) => bp.bedroomId);
+      return offer.BedroomsPromotions.map((bp: BedroomPromotion) => bp.bedroomId);
     }
     if (offer.bedroomPromotions && Array.isArray(offer.bedroomPromotions)) {
-      return offer.bedroomPromotions.map((bp) => bp.bedroomId);
+      return offer.bedroomPromotions.map((bp: BedroomPromotion) => bp.bedroomId);
     }
     return [];
   };
@@ -250,7 +255,7 @@ export function EditOfferModal({
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
-                          variant='info'
+                          variant='ghost'
                           className={cn(
                             "pl-3 text-left font-normal",
                             !field.value && "text-muted-foreground"

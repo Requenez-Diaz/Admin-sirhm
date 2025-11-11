@@ -1,6 +1,6 @@
 "use client";
-import { useState, useEffect, useActionState } from "react";
-import { useFormStatus } from "react-dom";
+import { useState, useEffect } from "react";
+import { useFormState, useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,7 +35,7 @@ export function FormBedrooms() {
   const { toast } = useToast();
 
   const initialState: ActionState = { success: false, message: "" };
-  const [state, formAction] = useActionState<ActionState, FormData>(
+  const [state, formAction] = useFormState<ActionState, FormData>(
     saveBedroomsWithUpload,
     initialState
   );
