@@ -65,7 +65,7 @@ export function ConfirmReservation({ reservationId }: { reservationId: number })
                         <DialogClose asChild>
                             <Button
                                 type="submit"
-                                variant="update"
+                                variant="ghost"
                             >
                                 <Icon action='accept' className="mr-2" />
                                 Acceptar
