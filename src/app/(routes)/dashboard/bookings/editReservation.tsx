@@ -29,6 +29,8 @@ interface Reservation {
     updatedAt: Date;
     status: Status;
     userId: number;
+    promotionId: number | null;
+    isRead: boolean;
 }
 
 interface EditReservationProps {
