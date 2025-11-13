@@ -12,7 +12,6 @@ export const getAllSeasons = async () => {
         dateEnd: true,
       },
     });
-    console.log("Temporadas obtenidas", seasons);
     return seasons;
   } catch (error) {
     console.error("Error al obtener las temporadas", error);

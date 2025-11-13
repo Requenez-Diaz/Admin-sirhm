@@ -22,11 +22,6 @@ export async function GetUserImageById() {
       select: { image: true },
     });
 
-    console.log("Fetched user:", {  
-      userId,
-      image: user?.image,
-    });
-
     if (!user?.image) {
       return { success: false, error: "Image not found" };
     }
