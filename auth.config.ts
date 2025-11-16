@@ -1,5 +1,3 @@
-export const runtime = 'nodejs';
-
 import prisma from "@/lib/db";
 import { loginSchema } from "@/lib/zod";
 import type { NextAuthConfig } from "next-auth";
