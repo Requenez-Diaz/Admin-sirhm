@@ -1,5 +1,9 @@
-import { auth as middleware } from "../auth";
+// src/middleware.ts
+import NextAuth from "next-auth";
 import { NextResponse } from "next/server";
+import authConfig from "../auth.config";
+
+const { auth: middleware } = NextAuth(authConfig);
 
 const publicRoutes = ["/sign-in"];
 
