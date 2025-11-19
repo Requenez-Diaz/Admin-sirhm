@@ -1,7 +1,10 @@
+// src/app/actions/role/saveRole.ts
+
 "use server";
 
 import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"; // Importar el tipo de error
 
 export default async function saveRole(formData: FormData) {
   try {
@@ -19,8 +22,25 @@ export default async function saveRole(formData: FormData) {
     });
 
     revalidatePath("/roles");
-    return role;
+    return { success: true, role };
   } catch (error) {
     console.error("Error saving role:", error);
+
+    if (
+      error instanceof PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      // Error de violación de restricción única
+      return {
+        success: false,
+        message: "El nombre de rol ya existe. Por favor, elige uno diferente.",
+      };
+    }
+
+    // Otros errores
+    return {
+      success: false,
+      message: "Ocurrió un error desconocido al guardar el rol.",
+    };
   }
 }
