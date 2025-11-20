@@ -13,7 +13,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { saveBedroomsWithUpload } from "@/app/actions/bedrooms/saveBedrooms";
 import ImageUpload from "./upload-file";
 
 type ActionState = { success: boolean; message: string };
@@ -27,7 +26,14 @@ function SubmitButton() {
   );
 }
 
-export function FormBedrooms() {
+interface FormBedroomsProps {
+  saveAction: (
+    prevState: ActionState,
+    formData: FormData
+  ) => Promise<ActionState>;
+}
+
+export function FormBedrooms({ saveAction }: FormBedroomsProps) {
   const [statusValue, setStatusValue] = useState("1");
   const [imageUrl, setImageUrl] = useState("");
   const [mimeType, setMimeType] = useState("");
@@ -36,7 +42,7 @@ export function FormBedrooms() {
 
   const initialState: ActionState = { success: false, message: "" };
   const [state, formAction] = useFormState<ActionState, FormData>(
-    saveBedroomsWithUpload,
+    saveAction,
     initialState
   );
 
@@ -217,8 +223,13 @@ export function FormBedrooms() {
 
           <div className='space-y-2'>
             <ImageUpload
-              onImageUpload={({ url, mimeType, fileName }) => {
-                setImageUrl(url);
+              onImageUpload={({ imageUrl, mimeType, fileName }) => {
+                console.log("[v0] Form received image data:", {
+                  imageUrl,
+                  mimeType,
+                  fileName,
+                });
+                setImageUrl(imageUrl);
                 setMimeType(mimeType);
                 setFileName(fileName);
               }}

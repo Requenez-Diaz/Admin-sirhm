@@ -8,7 +8,7 @@ import Image from "next/image";
 
 interface ImageUploadProps {
   onImageUpload: (data: {
-    url: string;
+    imageUrl: string;
     mimeType: string;
     fileName: string;
   }) => void;
@@ -39,9 +39,9 @@ export default function ImageUpload({
       };
       reader.readAsDataURL(file);
 
-      // Subir archivo al servidor
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("folder", "bedrooms");
 
       const response = await fetch("/api/upload", {
         method: "POST",
@@ -50,17 +50,17 @@ export default function ImageUpload({
 
       const data = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok || !data.success) {
         throw new Error(data.error || "Error al subir la imagen");
       }
 
-      // Notificar al componente padre con la URL del servidor
       onImageUpload({
-        url: data.url,
-        mimeType: data.mimeType,
-        fileName: data.fileName,
+        imageUrl: data.url,
+        mimeType: file.type,
+        fileName: file.name,
       });
     } catch (err) {
+      console.error("[v0] Upload error:", err);
       setError(err instanceof Error ? err.message : "Error al subir la imagen");
       setPreview("");
       if (fileInputRef.current) {

@@ -1,58 +1,48 @@
 "use server";
 
 import prisma from "@/lib/db";
-import { revalidatePath } from "next/cache";
 
-export type ActionState = { success: boolean; message: string; data?: any };
-
-export async function uploadGalleryImage(
-  _prevState: ActionState | null,
+export const uploadGalleryImage = async (
+  _prevState: unknown,
   formData: FormData
-): Promise<ActionState> {
+) => {
   try {
-    const bedroomId = Number(formData.get("bedroomId"));
-    const imageUrl = String(formData.get("imageUrl") || "");
-    const mimeType = String(formData.get("mimeType") || "");
-    const fileName = String(formData.get("fileName") || "");
+    const bedroomId = parseInt(formData.get("bedroomId") as string);
+    const imageUrl = formData.get("imageUrl") as string;
+    const mimeType = formData.get("mimeType") as string;
+    const fileName = formData.get("fileName") as string;
 
-    // Validate required fields
-    if (!bedroomId || !imageUrl) {
+    if (!bedroomId || !imageUrl || !mimeType || !fileName) {
       return {
         success: false,
-        message: "Los datos de la habitación y la imagen son obligatorios.",
+        message: "Faltan datos requeridos.",
       };
     }
 
-    if (Number.isNaN(bedroomId)) {
-      return {
-        success: false,
-        message: "El ID de la habitación es inválido.",
-      };
-    }
-
-    // Create the gallery image record
-    const newImage = await prisma.bedroomImages.create({
+    const newGalleryImage = await prisma.bedroomImages.create({
       data: {
-        bedroomId,
+        bedroomId: bedroomId,
         imageContent: imageUrl,
-        mimeType,
-        fileName,
+        fileName: fileName,
+        mimeType: mimeType,
       },
     });
 
-    revalidatePath("/bedrooms");
-    revalidatePath("/");
-
     return {
       success: true,
-      message: "Imagen de galería guardada con éxito.",
-      data: newImage,
+      message: "Imagen de galería subida exitosamente.",
+      data: {
+        id: newGalleryImage.id,
+        imageContent: newGalleryImage.imageContent,
+      },
     };
   } catch (error) {
-    console.error("Error al guardar imagen de galería:", error);
+    console.error("Error uploading gallery image:", error);
+
     return {
       success: false,
-      message: "Error al guardar la imagen. Intenta nuevamente.",
+      message:
+        error instanceof Error ? error.message : "Error al subir imagen.",
     };
   }
-}
+};

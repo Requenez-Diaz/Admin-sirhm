@@ -1,14 +1,11 @@
-// src/components/bedrooms/upload-file-gallery.tsx
 "use client";
 
 import { useState, useRef, type ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
-import Icon from "@/components/ui/icons/icons";
-import Image from "next/image";
-import { useToast } from "@/components/ui/use-toast";
+import { Upload, Loader2 } from "lucide-react";
 
-interface ImageUploadProps {
-  onImageUpload: (imageData: {
+interface UploadFileGalleryProps {
+  onImageUpload: (data: {
     imageUrl: string;
     mimeType: string;
     fileName: string;
@@ -18,63 +15,47 @@ interface ImageUploadProps {
   disabled?: boolean;
 }
 
-export default function ImageUploadGallery({
+export default function UploadFileGallery({
   onImageUpload,
+  onImageRemove,
+  currentImage,
   disabled = false,
-}: ImageUploadProps) {
-  const [preview, setPreview] = useState<string>("");
-  const [isUploadingLocal, setIsUploadingLocal] = useState(false);
+}: UploadFileGalleryProps) {
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validaciones
-    if (!file.type.startsWith("image/")) {
-      toast({
-        title: "Error",
-        description: "Selecciona una imagen válida.",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: "Error",
-        description: "La imagen no debe superar los 5MB.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // 1. Mostrar preview instantáneo
-    const reader = new FileReader();
-    reader.onloadend = () => setPreview(reader.result as string);
-    reader.readAsDataURL(file);
-
-    setIsUploadingLocal(true);
+    setError("");
+    setUploading(true);
 
     try {
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("folder", "bedrooms/gallery");
 
-      // 2. Subir archivo a la API Route
       const response = await fetch("/api/upload", {
-        // Ruta relativa es suficiente
         method: "POST",
         body: formData,
       });
 
-      if (!response.ok) {
-        throw new Error("Error en la subida al servidor (API Route).");
-      }
-
       const data = await response.json();
 
-      if (!data.url) {
-        throw new Error("La ruta del archivo no fue devuelta por el servidor.");
+      console.log("[v0] Gallery upload response:", data);
+
+      console.log("[v0] mimeType:", data.mimeType, "fileName:", data.fileName);
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Error al subir la imagen");
+      }
+
+      if (!data.mimeType || !data.fileName) {
+        throw new Error(
+          "El servidor no devolvió el tipo o nombre del archivo."
+        );
       }
 
       onImageUpload({
@@ -83,71 +64,83 @@ export default function ImageUploadGallery({
         fileName: data.fileName,
       });
 
-      // 5. Limpiar input para permitir otra subida
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      setPreview("");
-    } catch (error) {
-      console.error("Error al subir imagen:", error);
-      toast({
-        title: "Error de Subida",
-        description: `Error: ${error instanceof Error ? error.message : "Desconocido"}`,
-        variant: "destructive",
-      });
-      setPreview("");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al subir la imagen");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     } finally {
-      setIsUploadingLocal(false);
+      setUploading(false);
     }
+  };
+
+  const handleRemoveImage = () => {
+    onImageRemove();
   };
 
   return (
     <div className='space-y-4'>
-      <Button
-        type='button'
-        onClick={() => fileInputRef.current?.click()}
-        disabled={disabled || isUploadingLocal}
-      >
-        {isUploadingLocal ? (
-          <>
-            <Icon action='loading' className='mr-2 animate-spin' />
-            Subiendo Archivo...
-          </>
-        ) : (
-          <>
-            <Icon action='accept' className='mr-2' />
-            Seleccionar Nueva Imagen
-          </>
-        )}
-      </Button>
-
-      <input
-        ref={fileInputRef}
-        type='file'
-        accept='image/*'
-        onChange={handleFileChange}
-        className='hidden'
-        disabled={disabled || isUploadingLocal}
-      />
-
-      {/* Vista previa de la imagen que se está subiendo */}
-      {preview && (
-        <div className='relative w-48 h-48 rounded-lg overflow-hidden border'>
-          <Image
-            src={preview || "/placeholder.svg"}
-            alt='Vista previa'
-            fill
-            className='object-cover'
-            sizes='100vw'
+      {currentImage && (
+        <div className='flex flex-col items-center justify-center w-full'>
+          <img
+            src={currentImage || "/placeholder.svg"}
+            alt='Uploaded Image'
+            className='w-full h-32 object-cover rounded-lg'
           />
-          {isUploadingLocal && (
-            <div className='absolute inset-0 bg-black/50 flex items-center justify-center'>
-              <Icon
-                action='loading'
-                className='animate-spin h-8 w-8 text-white'
-              />
-            </div>
-          )}
+          <Button
+            variant='destructive'
+            className='mt-2'
+            onClick={handleRemoveImage}
+            disabled={uploading || disabled}
+          >
+            Eliminar imagen
+          </Button>
         </div>
       )}
+
+      <div className='flex flex-col items-center justify-center w-full'>
+        <label
+          htmlFor='gallery-image-upload'
+          className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted/80 transition-colors ${
+            disabled ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+        >
+          <div className='flex flex-col items-center justify-center pt-5 pb-6'>
+            {uploading ? (
+              <>
+                <Loader2 className='w-8 h-8 mb-2 text-muted-foreground animate-spin' />
+                <p className='text-sm text-muted-foreground'>
+                  Subiendo imagen...
+                </p>
+              </>
+            ) : (
+              <>
+                <Upload className='w-8 h-8 mb-2 text-muted-foreground' />
+                <p className='text-sm text-muted-foreground'>
+                  <span className='font-semibold'>Agregar imagen</span>
+                </p>
+                <p className='text-xs text-muted-foreground'>
+                  PNG, JPG o WebP (MAX. 5MB)
+                </p>
+              </>
+            )}
+          </div>
+          <input
+            id='gallery-image-upload'
+            ref={fileInputRef}
+            type='file'
+            className='hidden'
+            accept='image/jpeg,image/jpg,image/png,image/webp'
+            onChange={handleFileChange}
+            disabled={uploading || disabled}
+          />
+        </label>
+      </div>
+
+      {error && <p className='text-sm text-destructive'>{error}</p>}
     </div>
   );
 }
