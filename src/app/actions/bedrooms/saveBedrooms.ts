@@ -32,6 +32,7 @@ export async function saveBedroomsWithUpload(
     const mimeType = String(formData.get("mimeType") || "");
     const fileName = String(formData.get("fileName") || "");
 
+    // 3. Validaciones
     if (!typeBedroom || !numberBedroom) {
       return {
         success: false,
@@ -45,6 +46,10 @@ export async function saveBedroomsWithUpload(
       )
     ) {
       return { success: false, message: "Hay valores numéricos inválidos." };
+    }
+
+    if (!imageUrl) {
+      return { success: false, message: "La imagen principal es requerida." };
     }
 
     const exists = await prisma.bedrooms.findFirst({
@@ -64,6 +69,19 @@ export async function saveBedroomsWithUpload(
     const nextYear = new Date(now);
     nextYear.setFullYear(now.getFullYear() + 1);
 
+    const galleryData =
+      imageUrl && mimeType && fileName
+        ? {
+            create: [
+              {
+                imageContent: imageUrl,
+                mimeType,
+                fileName,
+              },
+            ],
+          }
+        : undefined;
+
     const created = await prisma.bedrooms.create({
       data: {
         typeBedroom,
@@ -73,7 +91,7 @@ export async function saveBedroomsWithUpload(
         numberBedroom,
         capacity,
         status: active,
-        image: imageUrl || "",
+        image: imageUrl,
         slug,
         Seasons: {
           create: {
@@ -82,22 +100,14 @@ export async function saveBedroomsWithUpload(
             dateEnd: nextYear,
           },
         },
-        galleryImages:
-          imageUrl && mimeType && fileName
-            ? {
-                create: {
-                  imageContent: imageUrl,
-                  mimeType,
-                  fileName,
-                },
-              }
-            : undefined,
+        galleryImages: galleryData,
       },
       include: { galleryImages: true },
     });
 
     revalidatePath("/bedrooms");
     revalidatePath("/");
+
     return {
       success: true,
       message: "La habitación se registró correctamente.",

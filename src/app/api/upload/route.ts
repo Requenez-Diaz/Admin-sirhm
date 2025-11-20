@@ -1,75 +1,87 @@
-import { type NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
-import { existsSync } from "fs";
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+
+const BUCKET_NAME = "images";
 
 export async function POST(request: NextRequest) {
   try {
+    if (
+      !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+      !process.env.SUPABASE_SERVICE_ROLE_KEY
+    ) {
+      return NextResponse.json(
+        { success: false, error: "Configuración de Supabase incompleta" },
+        { status: 500 }
+      );
+    }
+
     const formData = await request.formData();
     const file = formData.get("file") as File;
-
-    console.log("Received file:", file);
+    const folder = (formData.get("folder") as string) || "";
 
     if (!file) {
       return NextResponse.json(
-        { error: "No se proporcionó ningún archivo" },
+        { success: false, error: "No se proporcionó un archivo" },
         { status: 400 }
       );
     }
 
-    // Validar tipo de archivo
-    const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-    if (!validTypes.includes(file.type)) {
-      return NextResponse.json(
-        {
-          error:
-            "Tipo de archivo no válido. Solo se permiten imágenes JPG, PNG o WebP",
+    const originalFileName = file.name;
+    const mimeType = file.type;
+
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
         },
-        { status: 400 }
-      );
-    }
+      }
+    );
 
-    // Validar tamaño (máximo 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
-      return NextResponse.json(
-        { error: "El archivo es demasiado grande. Máximo 5MB" },
-        { status: 400 }
-      );
-    }
-
-    // Crear directorio si no existe
-    const uploadDir = join(process.cwd(), "public", "uploads", "bedrooms");
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
-    }
-
-    // Generar nombre único para el archivo
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 15);
-    const extension = file.name.split(".").pop();
-    const fileName = `bedroom_${timestamp}_${randomString}.${extension}`;
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${timestamp}-${randomString}.${fileExt}`;
+    const filePath = folder ? `${folder}/${fileName}` : fileName;
 
-    // Convertir el archivo a buffer y guardarlo
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    const filePath = join(uploadDir, fileName);
-    await writeFile(filePath, buffer);
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
 
-    // Retornar la URL pública del archivo
-    const publicUrl = `/uploads/bedrooms/${fileName}`;
+    const { data: _data, error } = await supabase.storage
+      .from(BUCKET_NAME)
+      .upload(filePath, buffer, {
+        contentType: mimeType,
+        cacheControl: "3600",
+        upsert: false,
+      });
+
+    if (error) {
+      return NextResponse.json(
+        { success: false, error: error.message },
+        { status: 500 }
+      );
+    }
+
+    // Obtener URL pública
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
 
     return NextResponse.json({
       success: true,
       url: publicUrl,
-      fileName: file.name,
-      mimeType: file.type,
-      size: file.size,
+      path: filePath,
+      fileName: originalFileName,
+      mimeType: mimeType,
     });
   } catch (error) {
-    console.error("Error al subir archivo:", error);
     return NextResponse.json(
-      { error: "Error al procesar el archivo" },
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Error desconocido",
+      },
       { status: 500 }
     );
   }

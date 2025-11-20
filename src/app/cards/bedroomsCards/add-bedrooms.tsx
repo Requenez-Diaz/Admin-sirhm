@@ -10,6 +10,7 @@ import {
 
 import Icon from "@/components/ui/icons/icons";
 import { FormBedrooms } from "./form-bedrooms";
+import { saveBedroomsWithUpload } from "@/app/actions/bedrooms/saveBedrooms";
 
 export function AddBedrooms() {
   return (
@@ -27,7 +28,7 @@ export function AddBedrooms() {
             ¿Está seguro de que desea agregar esta habitación?
           </DialogDescription>
         </DialogHeader>
-        <FormBedrooms />
+        <FormBedrooms saveAction={saveBedroomsWithUpload} />
       </DialogContent>
     </Dialog>
   );

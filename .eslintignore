@@ -1,0 +1,9 @@
+# Archivos y directorios a ignorar por ESLint
+
+# Directorios comunes
+node_modules
+.next
+out
+
+# Ignorar específicamente el archivo de políticas SQL
+scripts/supabase-storage-policies.sql

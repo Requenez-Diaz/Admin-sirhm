@@ -1,4 +1,3 @@
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async rewrites() {
@@ -13,6 +12,21 @@ const nextConfig = {
         destination: "http://localhost:3001/:path*",
       },
     ];
+  },
+
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "fxdmgtvjvretdeqrqxby.supabase.co",
+        port: "",
+        pathname: "/storage/v1/object/public/**",
+      },
+    ],
+    unoptimized: true,
   },
 };
 

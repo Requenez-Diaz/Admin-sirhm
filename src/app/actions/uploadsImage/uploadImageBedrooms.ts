@@ -1,17 +1,42 @@
 "use server";
 
 import prisma from "@/lib/db";
-import { v4 as uuidv4 } from "uuid";
+import { createClient } from "@supabase/supabase-js"; // 💡 Importar createClient regular para usar la Service Role Key
+// import { createServerClient } from "@supabase/ssr"; // Ya no se necesita
+// import { cookies } from "next/headers"; // Ya no se necesita
 
-export const uploadImageBedrooms = async (
-  bedroomsId: number,
-  imageBase64: string
-) => {
+const BUCKET_NAME = "images";
+
+export const uploadImageBedrooms = async (bedroomsId: number, file: File) => {
   try {
-    if (!bedroomsId || !imageBase64) {
+    console.log("[v0] Starting uploadImageBedrooms", {
+      bedroomsId,
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type,
+    });
+
+    if (!bedroomsId || !file) {
       return {
         success: false,
-        error: "Invalid input: bedroomsId and imageBase64 are required.",
+        error: "Invalid input: bedroomsId and file are required.",
+      };
+    }
+
+    // Validaciones de tipo y tamaño (mantener)
+    const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    if (!validTypes.includes(file.type)) {
+      return {
+        success: false,
+        error:
+          "Tipo de archivo no válido. Solo se permiten imágenes JPG, PNG o WebP",
+      };
+    }
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      return {
+        success: false,
+        error: "El archivo es demasiado grande. Máximo 5MB",
       };
     }
 
@@ -26,28 +51,72 @@ export const uploadImageBedrooms = async (
       };
     }
 
-    const approximateSizeInBytes = (imageBase64.length * 3) / 4;
-    const maxSizeInBytes = 10 * 1024 * 1024;
-
-    if (approximateSizeInBytes > maxSizeInBytes) {
+    if (
+      !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+      !process.env.SUPABASE_SERVICE_ROLE_KEY // 💡 ¡Verificar la Service Role Key!
+    ) {
       return {
         success: false,
-        error: "Image is too large (max 10MB)",
+        error:
+          "Configuración de Supabase incompleta. Verifica las variables de entorno.",
       };
     }
 
-    if (!imageBase64.startsWith("data:image/")) {
+    // 💡 MODIFICACIÓN CLAVE: Usar la clave de Servicio (Service Role Key)
+    // Usamos createClient regular, ya que no necesitamos manejar cookies de sesión de usuario
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      }
+    );
+
+    // Generar nombre único
+    const timestamp = Date.now();
+    const randomString = Math.random().toString(36).substring(2, 15);
+    const fileExt = file.name.split(".").pop();
+    const fileName = `bedroom_${bedroomsId}_${timestamp}_${randomString}.${fileExt}`;
+    const filePath = `bedrooms/${fileName}`;
+
+    // Convertir File a Buffer
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    // Subir a Supabase Storage (ahora con permisos de Service Role)
+    const { data: _uploadData, error: uploadError } = await supabase.storage
+      .from(BUCKET_NAME)
+      .upload(filePath, buffer, {
+        contentType: file.type,
+        cacheControl: "3600",
+        upsert: false,
+      });
+
+    if (uploadError) {
+      console.error(
+        "[v0] Supabase Upload Error:",
+        JSON.stringify(uploadError, null, 2)
+      );
       return {
         success: false,
-        error: "Invalid image format. Must be a valid base64 image.",
+        error: `Error de Supabase: ${uploadError.message}`,
       };
     }
 
+    // Obtener URL pública (usa el mismo cliente, ya tiene permisos)
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
+
+    // Actualizar registro en Prisma
     if (!existingBedroom.image) {
       const updatedBedroom = await prisma.bedrooms.update({
         where: { id: bedroomsId },
         data: {
-          image: imageBase64,
+          image: publicUrl,
           updatedAt: new Date(),
         },
       });
@@ -61,16 +130,14 @@ export const uploadImageBedrooms = async (
         },
       };
     } else {
-
+      console.log("[v0] Creating gallery image");
       // Si ya existe imagen principal, se guarda en la galería
-      const fileName = _generateImageName(bedroomsId, imageBase64);
-      const mimeType = getImageExtensionFromBase64(imageBase64);
       const newGalleryImage = await prisma.bedroomImages.create({
         data: {
           bedroomId: bedroomsId,
-          imageContent: imageBase64,
+          imageContent: publicUrl,
           fileName: fileName,
-          mimeType: mimeType
+          mimeType: file.type,
         },
       });
 
@@ -84,60 +151,10 @@ export const uploadImageBedrooms = async (
       };
     }
   } catch (error) {
-    console.error("Error uploading image:", error);
-
+    console.error("[v0] General Upload Error:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to upload image",
     };
   }
 };
-
-function _generateImageName(
-  bedroomsId: number,
-  imageBase64: string,
-  _originalFileName?: string
-): string {
-  if (_originalFileName) {
-    const cleanName = sanitizeFileName(_originalFileName);
-    const nameWithoutExt = cleanName.replace(/\.[^/.]+$/, "");
-    const extension = getImageExtensionFromBase64(imageBase64);
-
-    return `rm${bedroomsId}_${nameWithoutExt}.${extension}`;
-  }
-
-  const uuid = uuidv4();
-  const extension = getImageExtensionFromBase64(imageBase64);
-
-  return `rm${bedroomsId}_${uuid}.${extension}`;
-}
-
-function sanitizeFileName(fileName: string): string {
-  return fileName
-    .toLowerCase()
-    .replace(/[^a-z0-9.-]/g, "_")
-    .replace(/_+/g, "_")
-    .replace(/^_|_$/g, "")
-    .slice(0, 50);
-}
-
-function getImageExtensionFromBase64(base64: string): string {
-  const mimeMatch = base64.match(/data:image\/([^;]+)/);
-  if (mimeMatch) {
-    const mimeType = mimeMatch[1];
-    switch (mimeType) {
-      case "jpeg":
-      case "jpg":
-        return "jpg";
-      case "png":
-        return "png";
-      case "gif":
-        return "gif";
-      case "webp":
-        return "webp";
-      default:
-        return "jpg";
-    }
-  }
-  return "jpg";
-}
