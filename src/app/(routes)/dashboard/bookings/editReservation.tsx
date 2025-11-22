@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
     Dialog,
     DialogContent,
@@ -9,7 +9,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icons/icons';
 import FormEditReservation from './editReservationForm';
 import { getReservationById } from '@/app/actions/reservation';
@@ -39,27 +38,30 @@ interface EditReservationProps {
 
 export function EditReservation({ reservationId }: EditReservationProps) {
     const [reservation, setReservation] = useState<Reservation | null>(null);
+    const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        async function fetchReservation() {
-            const res = await getReservationById(reservationId);
-            setReservation(res);
-        }
-        fetchReservation();
-    }, [reservationId]);
-
-    if (!reservation) {
-        return <p>Cargando...</p>;
-    }
+    const loadData = async () => {
+        setLoading(true);
+        const res = await getReservationById(reservationId);
+        setReservation(res);
+        setLoading(false);
+    };
 
     return (
-        <Dialog>
+        <Dialog
+            onOpenChange={(open) => {
+                if (open) loadData();
+            }}
+        >
             <DialogTrigger asChild>
-            <Button variant="outline">
-                    <Icon action='edit' className="mr-2" />
-                    Editar Reservación
-                </Button>
+                <button
+                    className="flex items-center gap-2 text-sm px-2 py-1 rounded hover:bg-accent hover:text-accent-foreground transition"
+                >
+                    <Icon action="edit" className="w-4 h-4 opacity-80" />
+                    Editar
+                </button>
             </DialogTrigger>
+
             <DialogContent className="sm:max-w-[600px] p-6">
                 <DialogHeader>
                     <DialogTitle>Editar reservación</DialogTitle>
@@ -67,7 +69,14 @@ export function EditReservation({ reservationId }: EditReservationProps) {
                         Completa la información para editar su reservación.
                     </DialogDescription>
                 </DialogHeader>
-                <FormEditReservation reservation={reservation} />
+
+                {loading && (
+                    <p className="text-sm opacity-70">Cargando datos...</p>
+                )}
+
+                {!loading && reservation && (
+                    <FormEditReservation reservation={reservation} />
+                )}
             </DialogContent>
         </Dialog>
     );
