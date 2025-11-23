@@ -86,7 +86,7 @@ export function ViewReservation({ reservationId }: ViewReservationProps) {
                 </button>
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-md w-full p-5 rounded-2xl shadow-lg bg-white border border-gray-100">
+            <DialogContent className="w-full max-w-[90vw] sm:max-w-md p-5 rounded-2xl shadow-lg bg-white border border-gray-100">
                 <DialogHeader>
                     <DialogTitle className="text-xl font-bold text-gray-900">
                         Detalles de la Reservación
@@ -107,53 +107,53 @@ export function ViewReservation({ reservationId }: ViewReservationProps) {
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            <div className="p-3 bg-gray-50 rounded-lg shadow-sm">
+                            <div className="p-3 bg-gray-50 rounded-lg shadow-sm break-words">
                                 <p className="text-gray-600 text-xs">Nombre</p>
                                 <p className="font-semibold text-gray-900 mt-1 text-sm">
                                     {reservation.name} {reservation.lastName}
                                 </p>
                             </div>
-                            <div className="p-3 bg-gray-50 rounded-lg shadow-sm">
+                            <div className="p-3 bg-gray-50 rounded-lg shadow-sm break-words">
                                 <p className="text-gray-600 text-xs">Email</p>
                                 <p className="font-semibold text-gray-900 mt-1 text-sm">{reservation.email}</p>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            <div className="p-3 bg-gray-50 rounded-lg shadow-sm">
+                            <div className="p-3 bg-gray-50 rounded-lg shadow-sm break-words">
                                 <p className="text-gray-600 text-xs">Huéspedes</p>
                                 <p className="font-semibold text-gray-900 mt-1 text-sm">{reservation.guests}</p>
                             </div>
-                            <div className="p-3 bg-gray-50 rounded-lg shadow-sm">
+                            <div className="p-3 bg-gray-50 rounded-lg shadow-sm break-words">
                                 <p className="text-gray-600 text-xs">Habitaciones</p>
                                 <p className="font-semibold text-gray-900 mt-1 text-sm">{reservation.rooms}</p>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            <div className="p-3 bg-gray-50 rounded-lg shadow-sm">
+                            <div className="p-3 bg-gray-50 rounded-lg shadow-sm break-words">
                                 <p className="text-gray-600 text-xs">Tipo de Habitación</p>
                                 <p className="font-semibold text-gray-900 mt-1 text-sm">{reservation.bedroomsType}</p>
                             </div>
-                            <div className="p-3 bg-gray-50 rounded-lg shadow-sm">
+                            <div className="p-3 bg-gray-50 rounded-lg shadow-sm break-words">
                                 <p className="text-gray-600 text-xs">Noches</p>
                                 <p className="font-semibold text-gray-900 mt-1 text-sm">{nights}</p>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            <div className="p-3 bg-gray-50 rounded-lg shadow-sm">
+                            <div className="p-3 bg-gray-50 rounded-lg shadow-sm break-words">
                                 <p className="text-gray-600 text-xs">Llegada</p>
                                 <p className="font-semibold text-gray-900 mt-1 text-sm">{formatDate(reservation.arrivalDate)}</p>
                             </div>
-                            <div className="p-3 bg-gray-50 rounded-lg shadow-sm">
+                            <div className="p-3 bg-gray-50 rounded-lg shadow-sm break-words">
                                 <p className="text-gray-600 text-xs">Salida</p>
                                 <p className="font-semibold text-gray-900 mt-1 text-sm">{formatDate(reservation.departureDate)}</p>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            <div className="p-3 bg-gray-50 rounded-lg shadow-sm">
+                            <div className="p-3 bg-gray-50 rounded-lg shadow-sm break-words">
                                 <p className="text-gray-600 text-xs">Ofertas</p>
                                 <p className="font-semibold text-gray-900 mt-1 text-sm">{reservation.offerts || "N/A"}</p>
                             </div>
