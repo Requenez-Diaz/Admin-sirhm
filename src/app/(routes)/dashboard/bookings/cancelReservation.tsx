@@ -40,10 +40,12 @@ export function CancellReservation({ reservationId }: { reservationId: number })
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="outline">
-                    <Icon action='cancell' className="mr-2" />
-                    Cancelar Reservación
-                </Button>
+                <button
+                    className="flex items-center gap-2 text-sm px-2 py-1 rounded hover:bg-accent hover:text-accent-foreground transition"
+                >
+                    <Icon action="cancell" className="w-4 h-4 opacity-80" />
+                    Cancelar
+                </button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>

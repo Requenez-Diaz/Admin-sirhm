@@ -1,6 +1,6 @@
 import React from "react";
 
-import { SaveAll, Undo2, Plus, Pencil, Trash2, Check, X } from "lucide-react";
+import { SaveAll, Undo2, Plus, Pencil, Trash2, Check, X, Eye } from "lucide-react";
 
 const iconMap = {
   save: SaveAll,
@@ -10,6 +10,7 @@ const iconMap = {
   delete: Trash2,
   accept: Check,
   cancell: X,
+  view: Eye,
   loading: () => (
     <svg className='animate-spin' viewBox='0 0 24 24'>
       <circle cx='12' cy='12' r='10' strokeWidth='4' fill='none' />

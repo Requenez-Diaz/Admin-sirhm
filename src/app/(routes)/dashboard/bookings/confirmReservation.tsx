@@ -40,10 +40,12 @@ export function ConfirmReservation({ reservationId }: { reservationId: number })
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="outline">
-                    <Icon action='accept' className="mr-2" />
-                    Confirmar Reservación
-                </Button>
+                <button
+                    className="flex items-center gap-2 text-sm px-2 py-1 rounded hover:bg-accent hover:text-accent-foreground transition"
+                >
+                    <Icon action="accept" className="w-4 h-4 opacity-80" />
+                    Confirmar
+                </button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>

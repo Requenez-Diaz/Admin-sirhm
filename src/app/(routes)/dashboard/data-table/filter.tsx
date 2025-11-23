@@ -25,7 +25,7 @@ export function Filter({ searchTerm, setSearchTerm, selectedFilter, setSelectedF
 
     const handleFilterSelect = (filter: string) => {
         if (selectedFilter === filter) {
-            setSelectedFilter("Columns");
+            setSelectedFilter("Todo");
         } else {
             setSelectedFilter(filter);
         }
@@ -34,7 +34,7 @@ export function Filter({ searchTerm, setSearchTerm, selectedFilter, setSelectedF
 
     const handleClear = () => {
         setSearchTerm("");
-        setSelectedFilter("Columns");
+        setSelectedFilter("Todo");
     };
 
     useEffect(() => {

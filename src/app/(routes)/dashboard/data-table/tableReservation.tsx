@@ -22,11 +22,11 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Pagination from "./pagination";
+import { ViewReservation } from "../bookings/viewReservation";
 
 interface TableReservationProps {
   reservations: Array<{
@@ -50,7 +50,7 @@ const TableReservation: React.FC<TableReservationProps> = ({
   const totalReservation = reservations.length;
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedFilter, setSelectedFilter] = useState("Columns");
+  const [selectedFilter, setSelectedFilter] = useState("Todo");
   const [currentPage, setCurrentPage] = useState(1);
   const reservationsPerPage = 10;
 
@@ -77,7 +77,7 @@ const TableReservation: React.FC<TableReservationProps> = ({
   };
 
   const filteredReservations = reservations.filter((res) => {
-    if (selectedFilter === "Columns") {
+    if (selectedFilter === "Todo") {
       return true;
     }
     if (selectedFilter === "Nombre") {
@@ -241,15 +241,32 @@ const TableReservation: React.FC<TableReservationProps> = ({
                         className='flex flex-col'
                       >
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem asChild>
+                        <DropdownMenuItem
+                          onSelect={(e) => e.preventDefault()}
+                          asChild
+                        >
                           <ConfirmReservation reservationId={reservation.id} />
                         </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
+
+                        <DropdownMenuItem
+                          onSelect={(e) => e.preventDefault()}
+                          asChild
+                        >
                           <CancellReservation reservationId={reservation.id} />
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
+
+                        <DropdownMenuItem
+                          onSelect={(e) => e.preventDefault()}
+                          asChild
+                        >
                           <EditReservation reservationId={reservation.id} />
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem
+                          onSelect={(e) => e.preventDefault()}
+                          asChild
+                        >
+                          <ViewReservation reservationId={reservation.id} />
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
