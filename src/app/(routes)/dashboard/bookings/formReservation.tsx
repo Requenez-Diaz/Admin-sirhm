@@ -63,8 +63,8 @@ export function FormReservation({ onSubmitSuccess }: FormReservationProps) {
       name: "",
       lastName: "",
       email: "",
-      guests: undefined,
-      rooms: undefined,
+      guests: 1,
+      rooms: 1,
       bedroomsType: "",
       arrivalDate: "",
       departureDate: "",
@@ -207,9 +207,9 @@ export function FormReservation({ onSubmitSuccess }: FormReservationProps) {
                     <option value='' disabled>
                       Selecciona el tipo
                     </option>
-                    {bedrooms.map((type: any, index: number) => (
-                      <option key={index} value={type.name}>
-                        {type.name}
+                    {bedrooms.map((room) => (
+                      <option key={room.id} value={room.typeBedroom}>
+                        {room.typeBedroom}
                       </option>
                     ))}
                   </select>
