@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 import {
   ClipboardMinus,
   HandPlatter,
@@ -15,6 +16,8 @@ import {
   Menu,
   User,
   Bell,
+  Moon,
+  Sun,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -45,6 +48,8 @@ interface SidebarProps {
 
 export default function MainSidebar({ onStateChange }: SidebarProps) {
   const router = useRouter();
+  const { setTheme, theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
@@ -69,6 +74,7 @@ export default function MainSidebar({ onStateChange }: SidebarProps) {
 
   useEffect(() => {
     fetchUnreadNotifications();
+    setMounted(true);
   }, []);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -96,6 +102,20 @@ export default function MainSidebar({ onStateChange }: SidebarProps) {
         </div>
 
         <div className='flex items-center gap-4'>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="mr-2"
+          >
+            {mounted && theme === "dark" ? (
+              <Sun className="h-5 w-5" />
+            ) : (
+              <Moon className="h-5 w-5" />
+            )}
+            <span className="sr-only">Toggle theme</span>
+          </Button>
+
           <div
             className='relative cursor-pointer'
             onClick={() => router.push("/dashboard/notifications")}

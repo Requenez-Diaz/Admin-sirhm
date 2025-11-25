@@ -20,12 +20,12 @@ export default function ReportFilters({
 
     return (
         <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex items-center justify-between flex-1 px-5 py-2 bg-white rounded-xl shadow-md border border-gray-100">
-                <label className="text-sm font-medium text-gray-700">Mes</label>
+            <div className="flex items-center justify-between flex-1 px-5 py-2 bg-card rounded-xl shadow-md border border-border">
+                <label className="text-sm font-medium text-foreground">Mes</label>
                 <select
                     value={month}
                     onChange={(e) => onMonthChange(Number(e.target.value))}
-                    className="border rounded-lg px-3 py-1 text-sm ml-4"
+                    className="border rounded-lg px-3 py-1 text-sm ml-4 bg-background text-foreground"
                 >
                     {Array.from({ length: 12 }, (_, i) => (
                         <option key={i + 1} value={i + 1}>
@@ -35,12 +35,12 @@ export default function ReportFilters({
                 </select>
             </div>
 
-            <div className="flex items-center justify-between flex-1 px-5 py-2 bg-white rounded-xl shadow-md border border-gray-100">
-                <label className="text-sm font-medium text-gray-700">Año</label>
+            <div className="flex items-center justify-between flex-1 px-5 py-2 bg-card rounded-xl shadow-md border border-border">
+                <label className="text-sm font-medium text-foreground">Año</label>
                 <select
                     value={year}
                     onChange={(e) => onYearChange(Number(e.target.value))}
-                    className="border rounded-lg px-3 py-1 text-sm ml-4"
+                    className="border rounded-lg px-3 py-1 text-sm ml-4 bg-background text-foreground"
                 >
                     {Array.from({ length: 5 }, (_, i) => {
                         const y = currentYear - i;
@@ -53,13 +53,13 @@ export default function ReportFilters({
                 </select>
             </div>
 
-            <div className="flex items-center justify-between flex-1 px-5 py-2 bg-white rounded-xl shadow-md border border-gray-100">
-                <span className="text-sm font-medium text-gray-700">
+            <div className="flex items-center justify-between flex-1 px-5 py-2 bg-card rounded-xl shadow-md border border-border">
+                <span className="text-sm font-medium text-foreground">
                     Restablecer Filtros
                 </span>
                 <button
                     onClick={onReset}
-                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-3 py-1 rounded-lg text-sm ml-4"
+                    className="bg-secondary hover:bg-secondary/80 text-foreground font-medium px-3 py-1 rounded-lg text-sm ml-4"
                 >
                     ↺ Restablecer
                 </button>

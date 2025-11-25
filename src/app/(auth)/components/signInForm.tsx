@@ -59,7 +59,7 @@ const SignInForm = () => {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className='max-w-md w-full p-4 border border-gray-300 rounded-md'
+          className='max-w-md w-full p-4 border border-border rounded-md bg-card'
         >
           <FormField
             control={form.control}
@@ -75,7 +75,7 @@ const SignInForm = () => {
                       {...field}
                       className='pr-10'
                     />
-                    <Mail className='absolute right-3 text-gray-400' />
+                    <Mail className='absolute right-3 text-muted-foreground' />
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -98,7 +98,7 @@ const SignInForm = () => {
                       {...field}
                       className='pr-10'
                     />
-                    <LockKeyhole className='absolute right-3 text-gray-400 ' />{" "}
+                    <LockKeyhole className='absolute right-3 text-muted-foreground ' />{" "}
                   </div>
                 </FormControl>
                 <FormMessage />
