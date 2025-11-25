@@ -40,7 +40,7 @@ export function SecurityTab({ onPasswordSubmit }: SecurityTabProps) {
     }
   });
 
-  const accentText = 'text-blue-600';
+  const accentText = 'text-primary';
   const inputFocusRing =
     'focus-visible:ring-blue-500 focus-visible:ring-2 focus-visible:ring-offset-2';
   const saveButtonClass =
@@ -54,24 +54,24 @@ export function SecurityTab({ onPasswordSubmit }: SecurityTabProps) {
   };
 
   return (
-    <Card className="bg-white shadow-md rounded-xl">
+    <Card className="bg-card shadow-md rounded-xl">
       <CardHeader>
         <CardTitle className={`text-2xl ${accentText}`}>
           Seguridad de la Cuenta
         </CardTitle>
-        <CardDescription className="text-gray-600">
+        <CardDescription className="text-muted-foreground">
           Configura tu contraseña y autenticación de dos factores.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className={`p-4 rounded-xl bg-gray-50`}>
+        <div className={`p-4 rounded-xl bg-muted/50`}>
           <div className="flex justify-between items-center mb-4">
             <div>
               <p className={`font-medium flex items-center gap-2 ${accentText}`}>
                 <Lock className={`w-4 h-4 ${accentText}`} />
                 Cambiar Contraseña
               </p>
-              <p className="text-sm text-blue-700/80">
+              <p className="text-sm text-primary/80">
                 Actualiza tu contraseña para mantener tu cuenta segura.
               </p>
             </div>
@@ -164,12 +164,12 @@ export function SecurityTab({ onPasswordSubmit }: SecurityTabProps) {
           )}
         </div>
 
-        <div className="flex justify-between items-center p-4 rounded-xl bg-gray-50">
+        <div className="flex justify-between items-center p-4 rounded-xl bg-muted/50">
           <div>
             <p className={`font-medium ${accentText}`}>
               Autenticación de Dos Factores (2FA)
             </p>
-            <p className="text-sm text-blue-700/80">
+            <p className="text-sm text-primary/80">
               Añade una capa extra de seguridad a tu cuenta.
             </p>
           </div>

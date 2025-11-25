@@ -81,7 +81,7 @@ export default function MainSidebar({ onStateChange }: SidebarProps) {
 
   return (
     <>
-      <header className='fixed top-0 left-0 right-0 h-16 border-b bg-white z-40 flex items-center justify-between px-4'>
+      <header className='fixed top-0 left-0 right-0 h-16 border-b bg-background z-40 flex items-center justify-between px-4'>
         <div className='flex items-center'>
           <Button
             variant='ghost'
@@ -100,7 +100,7 @@ export default function MainSidebar({ onStateChange }: SidebarProps) {
             className='relative cursor-pointer'
             onClick={() => router.push("/dashboard/notifications")}
           >
-            <Bell className='h-6 w-6 text-gray-700' />
+            <Bell className='h-6 w-6 text-foreground' />
             {notificationsCount > 0 && (
               <span className='absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-500 rounded-full'>
                 {notificationsCount}
@@ -114,7 +114,7 @@ export default function MainSidebar({ onStateChange }: SidebarProps) {
 
       <aside
         className={cn(
-          "fixed z-30 h-[calc(100vh-4rem)] top-16 left-0 flex flex-col transition-all duration-300 ease-in-out bg-white border-r",
+          "fixed z-30 h-[calc(100vh-4rem)] top-16 left-0 flex flex-col transition-all duration-300 ease-in-out bg-background border-r",
           isMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
           isExpanded || isPinned ? "w-64" : "w-16"
         )}
@@ -128,7 +128,7 @@ export default function MainSidebar({ onStateChange }: SidebarProps) {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "flex items-center rounded-md py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 transition-colors",
+                  "flex items-center rounded-md py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors",
                   isExpanded || isPinned
                     ? "px-3 justify-start"
                     : "px-0 justify-center"
@@ -155,7 +155,7 @@ export default function MainSidebar({ onStateChange }: SidebarProps) {
             variant='ghost'
             onClick={togglePin}
             className={cn(
-              "w-full flex items-center rounded-md py-2 text-sm font-medium text-gray-900 hover:bg-gray-100",
+              "w-full flex items-center rounded-md py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground",
               isExpanded || isPinned
                 ? "px-3 justify-start"
                 : "px-0 justify-center"

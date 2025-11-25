@@ -30,12 +30,12 @@ export function AvatarCard({
   fileInputRef,
   onFileChange
 }: AvatarCardProps) {
-  const accentText = 'text-blue-600';
+  const accentText = 'text-primary';
   const accentBg = 'bg-blue-600';
 
   return (
     <Card
-      className={`bg-white transition-all duration-300 rounded-xl ${isEditing ? 'shadow-lg shadow-blue-200' : 'shadow-md'
+      className={`bg-card transition-all duration-300 rounded-xl ${isEditing ? 'shadow-lg shadow-blue-200' : 'shadow-md'
         }`}
     >
       <CardHeader>
@@ -45,7 +45,7 @@ export function AvatarCard({
           <ImageIcon className={`w-5 h-5 ${accentText}`} />
           Foto de Perfil
         </CardTitle>
-        <CardDescription className="text-gray-600">
+        <CardDescription className="text-muted-foreground">
           Tu avatar ayuda a identificar tu cuenta en toda la aplicación.
         </CardDescription>
       </CardHeader>
@@ -53,8 +53,8 @@ export function AvatarCard({
         <div className="relative group">
           <Avatar
             className={`w-36 h-36 relative transition-all duration-300 ${isEditing
-                ? 'cursor-pointer ring-4 ring-blue-300 ring-offset-4 ring-offset-white hover:ring-blue-400 hover:scale-105'
-                : 'ring-2 ring-gray-200'
+              ? 'cursor-pointer ring-4 ring-blue-300 ring-offset-4 ring-offset-white hover:ring-blue-400 hover:scale-105'
+              : 'ring-2 ring-border'
               }`}
             onClick={onAvatarClick}
           >
@@ -101,7 +101,7 @@ export function AvatarCard({
         </div>
 
         <div className="text-center space-y-1 max-w-xs">
-          <p className="text-sm text-blue-700 leading-relaxed font-medium">
+          <p className="text-sm text-primary leading-relaxed font-medium">
             {isEditing
               ? 'Haz clic en la imagen para cambiarla'
               : 'Presiona "Editar Perfil" para cambiar'}
