@@ -1,21 +1,25 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+    Select,
+    SelectTrigger,
+    SelectContent,
+    SelectItem,
+    SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 export function PreferencesTab() {
-    const [darkMode, setDarkMode] = useState<boolean>(false);
+    const { setTheme, theme } = useTheme();
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        if (darkMode) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    }, [darkMode]);
+        setMounted(true);
+    }, []);
 
     return (
         <Card className="shadow-md border-blue-100">
@@ -43,8 +47,8 @@ export function PreferencesTab() {
                     <Label htmlFor="dark-mode">Modo oscuro</Label>
                     <Switch
                         id="dark-mode"
-                        checked={darkMode}
-                        onCheckedChange={(checked) => setDarkMode(checked)}
+                        checked={mounted && theme === "dark"}
+                        onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
                     />
                 </div>
 

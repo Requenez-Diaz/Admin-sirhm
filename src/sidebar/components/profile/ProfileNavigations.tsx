@@ -25,11 +25,11 @@ interface ProfileNavigationProps {
 }
 
 export function ProfileNavigation({ activeTab, onTabChange }: ProfileNavigationProps) {
-  const accentText = 'text-blue-700';
-  const activeBg = 'bg-blue-50';
-  const hoverBg = 'hover:bg-blue-100';
-  const textMuted = 'text-gray-600';
-  const textActive = 'text-blue-800';
+  const accentText = 'text-primary';
+  const activeBg = 'bg-accent';
+  const hoverBg = 'hover:bg-accent hover:text-accent-foreground';
+  const textMuted = 'text-muted-foreground';
+  const textActive = 'text-accent-foreground';
 
   const NavLink = ({ tab, icon, label }: { tab: SettingsTab; icon: React.ReactNode; label: string }) => (
     <button
@@ -48,11 +48,11 @@ export function ProfileNavigation({ activeTab, onTabChange }: ProfileNavigationP
       <h2 className={`text-3xl font-bold mb-2 tracking-tight ${accentText}`}>
         Configuración
       </h2>
-      <p className="text-sm text-gray-700 mb-6">
+      <p className="text-sm text-muted-foreground mb-6">
         Ajusta tu cuenta y preferencias.
       </p>
 
-      <nav className="flex flex-col gap-1 p-3 rounded-xl bg-white shadow-md">
+      <nav className="flex flex-col gap-1 p-3 rounded-xl bg-card shadow-md">
         <NavLink tab="general" icon={<User className="h-5 w-5" />} label="General" />
         <NavLink tab="avatar" icon={<ImageIcon className="h-5 w-5" />} label="Foto de Perfil" />
         <NavLink tab="security" icon={<KeyRound className="h-5 w-5" />} label="Seguridad" />
@@ -61,11 +61,11 @@ export function ProfileNavigation({ activeTab, onTabChange }: ProfileNavigationP
         <NavLink tab="activity" icon={<Clock className="h-5 w-5" />} label="Actividad" />
         <NavLink tab="support" icon={<HelpCircle className="h-5 w-5" />} label="Soporte" />
 
-        <Separator className="my-2 bg-gray-200" />
+        <Separator className="my-2 bg-border" />
 
         <Button
           variant="ghost"
-          className="justify-start text-gray-600 hover:text-white hover:bg-red-500/90 rounded-lg transition-colors duration-200"
+          className="justify-start text-muted-foreground hover:text-white hover:bg-red-500/90 rounded-lg transition-colors duration-200"
           onClick={() => signOut()}
         >
           <LogOut className="h-5 w-5 mr-3" />

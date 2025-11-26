@@ -17,12 +17,12 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+      <h1 className="text-2xl font-bold text-foreground tracking-tight">
         Reportes de Reservas
       </h1>
 
-      <div className="flex flex-col md:flex-row items-center justify-between w-full px-5 py-2 bg-white rounded-xl shadow-md border border-gray-100">
-        <h2 className="text-base font-medium text-gray-800">
+      <div className="flex flex-col md:flex-row items-center justify-between w-full px-5 py-2 bg-card rounded-xl shadow-md border border-border">
+        <h2 className="text-base font-medium text-foreground">
           Opciones de Exportación
         </h2>
         <div className="flex items-center gap-3 mt-2 md:mt-0">

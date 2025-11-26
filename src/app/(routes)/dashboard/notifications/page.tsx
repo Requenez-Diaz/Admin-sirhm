@@ -46,14 +46,14 @@ export default function NotificationsPage() {
 
   return (
     <div className="p-6">
-      <h1 className="text-xl font-semibold mb-6 flex items-center gap-2 text-gray-800">
-        <Bell className="h-5 w-5 text-blue-600" />
+      <h1 className="text-xl font-semibold mb-6 flex items-center gap-2 text-foreground">
+        <Bell className="h-5 w-5 text-primary" />
         Notificaciones
       </h1>
 
       {items.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-10 text-gray-500">
-          <Bell className="h-12 w-12 mb-3 text-gray-400" />
+        <div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
+          <Bell className="h-12 w-12 mb-3 text-muted-foreground/50" />
           <p className="text-lg">No tienes notificaciones 🎉</p>
         </div>
       ) : (
@@ -68,11 +68,11 @@ export default function NotificationsPage() {
                     user: item.user,
                   })
                 }
-                className="cursor-pointer p-4 border rounded-lg bg-white hover:shadow-md transition-shadow flex items-center justify-between"
+                className="cursor-pointer p-4 border rounded-lg bg-card hover:shadow-md transition-shadow flex items-center justify-between"
               >
                 <div className="flex items-center gap-3">
                   {item.user?.image ? (
-                    <div className="relative w-10 aspect-square rounded-full overflow-hidden border border-gray-300">
+                    <div className="relative w-10 aspect-square rounded-full overflow-hidden border border-border">
                       <Image
                         src={item.user.image}
                         alt={item.user.username}
@@ -81,22 +81,22 @@ export default function NotificationsPage() {
                       />
                     </div>
                   ) : (
-                    <div className="w-10 aspect-square rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
+                    <div className="w-10 aspect-square rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
                       {item.user?.username?.[0]?.toUpperCase() ?? "U"}
                     </div>
                   )}
 
                   <div className="flex flex-col">
-                    <p className="text-sm text-gray-700">
-                      <span className="font-semibold text-gray-900">
+                    <p className="text-sm text-foreground">
+                      <span className="font-semibold text-foreground">
                         {item.user?.username ?? "Usuario"}
                       </span>{" "}
                       ha reservado una{" "}
-                      <span className="text-blue-600 font-medium">
+                      <span className="text-primary font-medium">
                         {item.reservation?.bedroomsType || "habitación"}
                       </span>.
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       {new Date(item.createdAt).toLocaleString("es-ES", {
                         day: "2-digit",
                         month: "long",

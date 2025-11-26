@@ -52,12 +52,12 @@ export function GeneralTab({
     'bg-red-500 hover:bg-red-600 text-white shadow-md shadow-red-500/50';
 
   return (
-    <Card className="bg-white shadow-md rounded-xl">
+    <Card className="bg-card shadow-md rounded-xl">
       <CardHeader>
-        <CardTitle className="text-2xl text-blue-700">
+        <CardTitle className="text-2xl text-primary">
           Información de la Cuenta
         </CardTitle>
-        <CardDescription className="text-gray-600">
+        <CardDescription className="text-muted-foreground">
           Actualiza tu nombre, correo electrónico y teléfono.
         </CardDescription>
       </CardHeader>
@@ -65,7 +65,7 @@ export function GeneralTab({
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 gap-6">
             <div className="grid gap-2">
-              <Label htmlFor="username" className="text-blue-700">
+              <Label htmlFor="username" className="text-primary">
                 Nombre de Usuario
               </Label>
               <Input
@@ -81,7 +81,7 @@ export function GeneralTab({
               )}
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="email" className="text-blue-700">
+              <Label htmlFor="email" className="text-primary">
                 Correo Electrónico
               </Label>
               <Input
