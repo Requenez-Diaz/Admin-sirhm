@@ -18,6 +18,7 @@ import {
   Bell,
   Moon,
   Sun,
+  History,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -35,11 +36,8 @@ const links = [
   { name: "roles", href: "/dashboard/roles", icon: User },
   { name: "Ofertas", href: "/dashboard/offerts", icon: ShoppingCart },
   { name: "notificaciones", href: "/dashboard/notifications", icon: Bell },
-  {
-    name: "Testimoniales",
-    href: "/dashboard/testimonials",
-    icon: ClipboardMinus,
-  },
+  { name: "Testimoniales", href: "/dashboard/testimonials", icon: ClipboardMinus },
+  { name: "Historial", href: "/dashboard/historic", icon: History },
 ];
 
 interface SidebarProps {
