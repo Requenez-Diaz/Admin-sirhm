@@ -4,7 +4,15 @@ import prisma from "@/lib/db";
 
 export const getReservations = async () => {
   try {
+    const today = new Date();
+
     const reservations = await prisma.reservation.findMany({
+      where: {
+        status: { in: ["PENDING", "CONFIRMED"] },
+        departureDate: {
+          gte: today, // Filtra reservaciones NO caducadas
+        },
+      },
       orderBy: { createdAt: "desc" },
       include: {
         Promotions: { select: { codePromotions: true } },
