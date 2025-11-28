@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { jsPDF } from "jspdf";
 import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
-import { getReservations } from "@/app/actions/reservation";
+import { getHistoricReservations } from "@/app/actions/reservation/getHistoricReservations";
 import { getBedrooms } from "@/app/actions/bedrooms";
 import PDFReportHeader from "./PdfReportHeader";
 import PDFReservationSummary from "./PDFReservationSummary";
@@ -27,7 +27,7 @@ interface PDFReportGenerateProps {
 }
 
 const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) => {
-  const [reservations, setReservations] = useState<Awaited<ReturnType<typeof getReservations>>>([]);
+  const [reservations, setReservations] = useState<any[]>([]);
   const [showDialog, setShowDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState("");
   const [dialogType, setDialogType] = useState<"info" | "warning" | "success">("info");
@@ -42,10 +42,10 @@ const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) =>
   useEffect(() => {
     (async () => {
       try {
-        const data = await getReservations();
+        const data = await getHistoricReservations();
         setReservations(data);
       } catch (error) {
-        console.error("Error cargando reservas:", error);
+        console.error("Error cargando historial:", error);
       }
     })();
   }, []);
@@ -62,19 +62,26 @@ const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) =>
       return;
     }
 
-    const filteredReservations = reservations.filter((r) => {
+    // Filtrar por mes/año del arrivalDate
+    const filteredByDate = reservations.filter((r) => {
       const d = new Date(r.arrivalDate);
       return d.getMonth() + 1 === month && d.getFullYear() === year;
     });
 
-    if (filteredReservations.length === 0) {
-      openDialog("No hay datos de reservas para el mes o año seleccionado.", "info");
+    if (filteredByDate.length === 0) {
+      openDialog("No hay datos para el mes o año seleccionado.", "info");
       return;
     }
 
-    const confirmedReservations = filteredReservations.filter(
-      (r) => r.status === "CONFIRMED"
+    // SOLO COMPLETED
+    const completedReservations = filteredByDate.filter(
+      (r) => r.finalStatus === "COMPLETED"
     );
+
+    if (completedReservations.length === 0) {
+      openDialog("No hay reservaciones COMPLETADAS en este mes.", "info");
+      return;
+    }
 
     const doc = new jsPDF();
     const now = new Date();
@@ -88,7 +95,7 @@ const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) =>
       minute: "2-digit",
     });
 
-    const validDates = filteredReservations
+    const validDates = completedReservations
       .map((r) => new Date(r.arrivalDate))
       .filter((date) => !isNaN(date.getTime()));
 
@@ -108,18 +115,18 @@ const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) =>
 
     _y = PDFReservationSummary({
       doc,
-      total: confirmedReservations.length,
+      total: completedReservations.length,
       startY: _y,
     });
 
     _y = PDFTotalGuests({
       doc,
-      guestsCounts: confirmedReservations.map((r) => r.guests),
+      guestsCounts: completedReservations.map((r) => r.guests),
       startY: _y,
     });
 
     const roomTypesData: Record<string, { reservations: number; guests: number }> = {};
-    confirmedReservations.forEach((r) => {
+    completedReservations.forEach((r) => {
       const type = r.bedroomsType || "Desconocido";
       if (!roomTypesData[type]) roomTypesData[type] = { reservations: 0, guests: 0 };
       roomTypesData[type].reservations += 1;
@@ -130,7 +137,7 @@ const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) =>
 
     _y = PDFHighDemandDays({
       doc,
-      arrivalDates: filteredReservations.map((r) => r.arrivalDate),
+      arrivalDates: filteredByDate.map((r) => r.arrivalDate),
       startY: _y,
     });
 
@@ -150,7 +157,7 @@ const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) =>
 
     _y = PDFEstimatedIncome({
       doc,
-      reservations: filteredReservations,
+      reservations: completedReservations,
       bedrooms: mappedBedrooms,
       startY: _y,
     });
