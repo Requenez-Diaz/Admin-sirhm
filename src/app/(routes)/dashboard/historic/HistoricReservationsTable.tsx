@@ -10,6 +10,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import { calculateDuration } from "@/app/actions/reservation/calculateDuration";
 
 export interface Reservation {
     id: number;
@@ -19,6 +20,8 @@ export interface Reservation {
     arrivalDate: Date;
     departureDate: Date;
     finalStatus: string;
+    guests: number;
+    rooms: number;
     offerts?: string | null;
     createdAt: Date;
     userImage?: string | null;
@@ -42,7 +45,10 @@ const TableHeaders = () => (
         <TableRow>
             <TableHead>Cliente</TableHead>
             <TableHead>Correo</TableHead>
-            <TableHead>Habitación</TableHead>
+            <TableHead>Huéspedes</TableHead>
+            <TableHead>Habitaciones</TableHead>
+            <TableHead>Tipo de Habitación</TableHead>
+            <TableHead>Estancia (días)</TableHead>
             <TableHead>Llegada</TableHead>
             <TableHead>Salida</TableHead>
             <TableHead>Estado</TableHead>
@@ -60,7 +66,7 @@ export default function HistoricReservationsTable({ data }: Props) {
                 <TableBody>
                     {(!data || data.length === 0) ? (
                         <TableRow>
-                            <TableCell colSpan={8} className="text-center text-gray-500">
+                            <TableCell colSpan={11} className="text-center text-gray-500">
                                 No hay reservaciones en el historial.
                             </TableCell>
                         </TableRow>
@@ -69,7 +75,10 @@ export default function HistoricReservationsTable({ data }: Props) {
                             <TableRow key={r.id}>
                                 <TableCell>{r.userName}</TableCell>
                                 <TableCell>{r.userEmail}</TableCell>
+                                <TableCell>{r.guests}</TableCell>
+                                <TableCell>{r.rooms}</TableCell>
                                 <TableCell>{r.bedroomsType}</TableCell>
+                                <TableCell>{calculateDuration(r.arrivalDate.toString(), r.departureDate.toString())}</TableCell>
                                 <TableCell>{r.arrivalDate.toLocaleDateString()}</TableCell>
                                 <TableCell>{r.departureDate.toLocaleDateString()}</TableCell>
                                 <TableCell>

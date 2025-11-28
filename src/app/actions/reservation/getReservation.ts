@@ -8,10 +8,16 @@ export const getReservations = async () => {
 
     const reservations = await prisma.reservation.findMany({
       where: {
-        status: { in: ["PENDING", "CONFIRMED"] },
-        departureDate: {
-          gte: today, // Filtra reservaciones NO caducadas
-        },
+        OR: [
+          {
+            status: { in: ["PENDING", "CONFIRMED"] },
+            departureDate: { gte: today },
+          },
+          {
+            status: "CANCELLED",
+            departureDate: { gte: today },
+          },
+        ],
       },
       orderBy: { createdAt: "desc" },
       include: {
