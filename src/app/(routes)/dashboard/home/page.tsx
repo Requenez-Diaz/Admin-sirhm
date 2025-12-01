@@ -1,7 +1,6 @@
-import { UsersRound, Hotel, Calendar, ShoppingCart, BedDouble } from "lucide-react";
+import { UsersRound, Hotel, Calendar, BedDouble } from "lucide-react";
 import { DashboardCard } from "./DashboardCard";
 import { getReservations } from "@/app/actions/reservation";
-import { getServices } from "@/app/actions/services";
 import { getBedrooms } from "@/app/actions/bedrooms";
 import { findManyUsers } from "@/app/actions/users";
 import RoomTypeTable from "./dashboard-charts/RoomTypeTable";
@@ -9,19 +8,15 @@ import ReportDashboard from "./dashboard-charts/ReportDashboard";
 
 export default async function DashboardPage() {
   const reservations = await getReservations();
-  const services = await getServices();
   const bedrooms = await getBedrooms();
   const users = await findManyUsers();
 
-  // Contar reservaciones por estado
   const confirmed = reservations.filter(r => r.status === "CONFIRMED").length;
   const pending = reservations.filter(r => r.status === "PENDING").length;
   const canceled = reservations.filter(r => r.status === "CANCELLED").length;
 
-  // Total de huéspedes sumando las reservaciones
   const totalGuests = reservations.reduce((acc, r) => acc + r.guests, 0);
 
-  // Habitaciones ocupadas sumando 'rooms' de reservas confirmadas
   const occupiedRooms = reservations
     .filter(r => r.status === "CONFIRMED")
     .reduce((acc, r) => acc + r.rooms, 0);
@@ -30,7 +25,8 @@ export default async function DashboardPage() {
     <div>
       <h1 className="text-2xl font-bold mb-6">Panel de Control</h1>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+      {/* Grid actualizado: se adapta automáticamente */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <DashboardCard
           title="Total Usuarios"
           value={users.length}
@@ -74,15 +70,6 @@ export default async function DashboardPage() {
               <span>Canceladas: {canceled}</span>
             </div>
           }
-        />
-
-        <DashboardCard
-          title="Servicios"
-          value={services.length}
-          description="+0% desde el último mes"
-          icon={<ShoppingCart className="h-6 w-6" />}
-          href="/dashboard/services"
-          type="services"
         />
       </div>
 
