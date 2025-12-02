@@ -35,6 +35,7 @@ interface FormBedroomsProps {
 
 export function FormBedrooms({ saveAction }: FormBedroomsProps) {
   const [statusValue, setStatusValue] = useState("1");
+  const [seasonType, setSeasonType] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [mimeType, setMimeType] = useState("");
   const [fileName, setFileName] = useState("");
@@ -55,6 +56,7 @@ export function FormBedrooms({ saveAction }: FormBedroomsProps) {
     });
     if (state.success) {
       setStatusValue("1");
+      setSeasonType("");
       setImageUrl("");
       setMimeType("");
       setFileName("");
@@ -150,6 +152,32 @@ export function FormBedrooms({ saveAction }: FormBedroomsProps) {
                 className='h-11'
               />
             </div>
+          </div>
+
+          <div className='space-y-2'>
+            <Label className='text-base'>Temporada *</Label>
+            <Select value={seasonType} onValueChange={setSeasonType}>
+              <SelectTrigger className='h-11'>
+                <SelectValue placeholder='Selecciona una temporada' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='low'>Temporada Baja</SelectItem>
+                <SelectItem value='high'>Temporada Alta</SelectItem>
+              </SelectContent>
+            </Select>
+            {!seasonType && (
+              <p className='text-sm text-destructive'>
+                Debes seleccionar una temporada para continuar
+              </p>
+            )}
+            {seasonType && (
+              <p className='text-sm text-muted-foreground'>
+                {seasonType === 'high'
+                  ? 'Se guardará con precio de temporada alta'
+                  : 'Se guardará con precio de temporada baja'}
+              </p>
+            )}
+            <input type='hidden' name='seasonType' value={seasonType} />
           </div>
         </div>
 
