@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { jsPDF } from "jspdf";
 import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
-import { getHistoricReservations } from "@/app/actions/reservation/getHistoricReservations";
 import { getBedrooms } from "@/app/actions/bedrooms";
 import PDFReportHeader from "./PdfReportHeader";
 import PDFReservationSummary from "./PDFReservationSummary";
@@ -15,10 +14,12 @@ import PDFReservationComparisonRender from "./PDFReservationComparison";
 import PDFEstimatedIncome from "./PDFEstimatedIncome";
 import { useSession } from "next-auth/react";
 import { InfoDialog } from "./InfoDialog";
+import { getReservations } from "@/app/actions/reservation";
 
 interface Bedroom {
   typeBedroom: string;
-  price: number;
+  lowSeasonPrice: number;
+  highSeasonPrice: number;
 }
 
 interface PDFReportGenerateProps {
@@ -42,7 +43,7 @@ const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) =>
   useEffect(() => {
     (async () => {
       try {
-        const data = await getHistoricReservations();
+        const data = await getReservations();
         setReservations(data);
       } catch (error) {
         console.error("Error cargando historial:", error);
@@ -152,7 +153,8 @@ const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) =>
     const bedroomsData = await getBedrooms();
     const mappedBedrooms: Bedroom[] = bedroomsData.map((b) => ({
       typeBedroom: b.typeBedroom,
-      price: b.lowSeasonPrice,
+      lowSeasonPrice: b.lowSeasonPrice,
+      highSeasonPrice: b.highSeasonPrice,
     }));
 
     _y = PDFEstimatedIncome({

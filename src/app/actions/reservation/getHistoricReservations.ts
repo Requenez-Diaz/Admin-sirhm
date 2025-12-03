@@ -2,12 +2,31 @@
 
 import prisma from "@/lib/db";
 
-export const getHistoricReservations = async () => {
+export interface HistoricReservation {
+    id: number;
+    userName: string;
+    userEmail: string;
+    userImage: string | null;
+    bedroomsType: string;
+    rooms: number;
+    guests: number;
+    arrivalDate: Date | null;
+    departureDate: Date | null;
+    finalStatus: "COMPLETED" | "EXPIRED" | "CANCELLED";
+    offerts: string | null;
+    createdAt: Date;
+}
+
+export const getHistoricReservations = async (): Promise<HistoricReservation[]> => {
     try {
         const today = new Date();
+        today.setHours(0, 0, 0, 0); // Aseguramos que la comparación sea solo por fecha
 
         const reservations = await prisma.reservation.findMany({
             where: {
+                ReservationDetails: {
+                    some: { dateEnd: { lt: today } }, // Solo detalles que ya terminaron
+                },
                 OR: [
                     { status: "CONFIRMED" },
                     { status: "PENDING" },
@@ -17,58 +36,48 @@ export const getHistoricReservations = async () => {
             orderBy: { createdAt: "desc" },
             include: {
                 User: {
-                    select: {
-                        username: true,
-                        image: true,
-                        email: true
-                    }
+                    select: { username: true, email: true, image: true },
                 },
                 ReservationDetails: {
                     include: {
-                        Bedrooms: {
-                            select: {
-                                typeBedroom: true,
-                            },
-                        },
-                        Promotions: {
-                            select: {
-                                codePromotions: true,
-                            },
-                        },
+                        Bedrooms: { select: { typeBedroom: true } },
+                        Promotions: { select: { codePromotions: true } },
                     },
                 },
             },
         });
 
-        const formattedReservations = reservations.map((r) => {
-            const details = r.ReservationDetails[0];
+        const historic: HistoricReservation[] = [];
 
-            let finalStatus: string = r.status;
+        reservations.forEach((r) => {
+            // Filtramos solo los detalles que ya caducaron
+            const expiredDetails = r.ReservationDetails.filter(d => d.dateEnd < today);
 
-            // Determinar estado final basado en fecha de salida
-            if (details && details.dateEnd < today) {
+            expiredDetails.forEach((details) => {
+                let finalStatus: HistoricReservation["finalStatus"];
+
                 if (r.status === "CONFIRMED") finalStatus = "COMPLETED";
-                if (r.status === "PENDING") finalStatus = "EXPIRED";
-                if (r.status === "CANCELLED") finalStatus = "CANCELLED";
-            }
+                else if (r.status === "PENDING") finalStatus = "EXPIRED";
+                else finalStatus = "CANCELLED";
 
-            return {
-                id: r.id,
-                userName: r.User?.username || "Sin nombre",
-                userEmail: r.User?.email || "Sin email",
-                userImage: r.User?.image || null,
-                bedroomsType: details?.Bedrooms?.typeBedroom || "-",
-                rooms: 1, // Una habitación por detalle de reservación
-                guests: details?.guestQuantity || 0,
-                arrivalDate: details?.dateStart || new Date(),
-                departureDate: details?.dateEnd || new Date(),
-                finalStatus,
-                offerts: details?.Promotions?.codePromotions || null,
-                createdAt: r.createdAt,
-            };
+                historic.push({
+                    id: r.id,
+                    userName: r.User?.username || "Sin nombre",
+                    userEmail: r.User?.email || "Sin email",
+                    userImage: r.User?.image || null,
+                    bedroomsType: details.Bedrooms?.typeBedroom || "-",
+                    rooms: 1, // una por detalle
+                    guests: details.guestQuantity || 0,
+                    arrivalDate: details.dateStart,
+                    departureDate: details.dateEnd,
+                    finalStatus,
+                    offerts: details.Promotions?.codePromotions || null,
+                    createdAt: r.createdAt,
+                });
+            });
         });
 
-        return formattedReservations;
+        return historic;
     } catch (error) {
         console.error("Error cargando historial:", error);
         return [];

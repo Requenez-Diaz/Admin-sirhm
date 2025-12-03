@@ -10,8 +10,8 @@ export interface ReservationFormatted {
   userImage: string | null;
   totalGuests: number;
   totalRooms: number;
-  guests: number; // Alias para totalGuests (compatibilidad)
-  rooms: number; // Alias para totalRooms (compatibilidad)
+  guests: number;
+  rooms: number;
   arrivalDate: Date | null;
   departureDate: Date | null;
   bedroomsType: string;
@@ -20,16 +20,22 @@ export interface ReservationFormatted {
 
 export const getReservations = async (): Promise<ReservationFormatted[]> => {
   try {
+    const today = new Date();
+
     const reservations = await prisma.reservation.findMany({
-      orderBy: { createdAt: "desc" },
-      include: {
-        User: {
-          select: {
-            username: true,
-            email: true,
-            image: true,
+      where: {
+        ReservationDetails: {
+          some: {
+            dateEnd: { gte: today }, // solo detalles que aún no caducaron
           },
         },
+        status: {
+          in: ["PENDING", "CONFIRMED", "CANCELLED"], // mostrar solo estos estados
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      include: {
+        User: { select: { username: true, email: true, image: true } },
         ReservationDetails: {
           select: {
             guestQuantity: true,
@@ -45,7 +51,7 @@ export const getReservations = async (): Promise<ReservationFormatted[]> => {
     const formattedReservations: ReservationFormatted[] = reservations.map((res) => {
       const details = res.ReservationDetails[0]; // asumimos 1 detalle por reserva
       const totalGuests = details?.guestQuantity || 0;
-      const totalRooms = 1; // si manejas más habitaciones, ajusta aquí
+      const totalRooms = res.ReservationDetails.length || 1;
 
       return {
         id: res.id,
@@ -55,8 +61,8 @@ export const getReservations = async (): Promise<ReservationFormatted[]> => {
         userImage: res.User?.image || null,
         totalGuests,
         totalRooms,
-        guests: totalGuests, // Alias para compatibilidad
-        rooms: totalRooms, // Alias para compatibilidad
+        guests: totalGuests,
+        rooms: totalRooms,
         arrivalDate: details?.dateStart || null,
         departureDate: details?.dateEnd || null,
         bedroomsType: details?.Bedrooms?.typeBedroom || "-",
