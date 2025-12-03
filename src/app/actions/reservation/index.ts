@@ -5,4 +5,5 @@ export { updateReservation } from "./updateReservation";
 export { deleteReservation } from "./deleteReservation";
 export { confirmReservation } from "./confirmReservation";
 export { cancelReservation } from "./cancelReservation";
+export { getHistoricReservations } from "./getHistoricReservations";
 export { calculateDuration } from "./calculateDuration";

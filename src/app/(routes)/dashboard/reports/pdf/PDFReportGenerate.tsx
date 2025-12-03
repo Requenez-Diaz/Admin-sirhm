@@ -14,7 +14,7 @@ import PDFReservationComparisonRender from "./PDFReservationComparison";
 import PDFEstimatedIncome from "./PDFEstimatedIncome";
 import { useSession } from "next-auth/react";
 import { InfoDialog } from "./InfoDialog";
-import { getReservations } from "@/app/actions/reservation";
+import { getHistoricReservations } from "@/app/actions/reservation";
 
 interface Bedroom {
   typeBedroom: string;
@@ -43,7 +43,7 @@ const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) =>
   useEffect(() => {
     (async () => {
       try {
-        const data = await getReservations();
+        const data = await getHistoricReservations();
         setReservations(data);
       } catch (error) {
         console.error("Error cargando historial:", error);
