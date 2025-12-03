@@ -16,20 +16,40 @@ import { Status } from "@prisma/client";
 
 interface Reservation {
     id: number;
-    name: string;
-    lastName: string;
-    email: string;
-    bedroomsType: string;
-    guests: number;
-    rooms: number;
-    arrivalDate: Date;
-    departureDate: Date;
     createdAt: Date;
-    updatedAt: Date;
-    status: Status;
-    userId: number;
-    promotionId: number | null;
     isRead: boolean;
+    user_id: number;
+    status: Status;
+    User: {
+        id: number;
+        email: string;
+        username: string;
+        image: string | null;
+    };
+    ReservationDetails: Array<{
+        id: number;
+        reservation_id: number;
+        price: number;
+        dateStart: Date;
+        dateEnd: Date;
+        promotion_id: number | null;
+        status: Status;
+        created_at: Date;
+        bedrooms_id: number;
+        guestQuantity: number;
+        Bedrooms: {
+            id: number;
+            typeBedroom: string;
+            capacity: number;
+            lowSeasonPrice: number;
+            highSeasonPrice: number;
+        };
+        Promotions: {
+            id: number;
+            codePromotions: string;
+            porcentageDescuent: number;
+        } | null;
+    }>;
 }
 
 interface EditReservationProps {

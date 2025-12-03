@@ -1,14 +1,28 @@
 import { jsPDF } from "jspdf";
-import { Reservation } from "@prisma/client";
+
+interface ReservationWithDetails {
+    id: number;
+    userName: string;
+    userEmail: string;
+    bedroomsType: string;
+    rooms: number;
+    guests: number;
+    arrivalDate: Date;
+    departureDate: Date;
+    finalStatus: string;
+    offerts?: string | null;
+    createdAt: Date;
+}
 
 interface Bedroom {
     typeBedroom: string;
-    price: number;
+    lowSeasonPrice: number;
+    highSeasonPrice: number;
 }
 
 interface PDFEstimatedIncomeProps {
     doc: jsPDF;
-    reservations: Reservation[];
+    reservations: ReservationWithDetails[];
     bedrooms: Bedroom[];
     startY: number;
 }
@@ -31,7 +45,8 @@ export default function PDFEstimatedIncome({
 
     const totalIncome = reservations.reduce((sum, r) => {
         const bedroom = bedrooms.find((b) => b.typeBedroom === r.bedroomsType);
-        const price = bedroom?.price || 0;
+        // Usar precio de temporada baja por defecto
+        const price = bedroom?.lowSeasonPrice || 0;
         return sum + price * r.rooms;
     }, 0);
 

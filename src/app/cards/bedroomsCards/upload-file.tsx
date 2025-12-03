@@ -13,11 +13,13 @@ interface ImageUploadProps {
     fileName: string;
   }) => void;
   onImageRemove: () => void;
+  onLoadingChange?: (isLoading: boolean) => void;
 }
 
 export default function ImageUpload({
   onImageUpload,
   onImageRemove,
+  onLoadingChange,
 }: ImageUploadProps) {
   const [preview, setPreview] = useState<string>("");
   const [uploading, setUploading] = useState(false);
@@ -30,6 +32,7 @@ export default function ImageUpload({
 
     setError("");
     setUploading(true);
+    onLoadingChange?.(true);
 
     try {
       // Crear preview local
@@ -68,6 +71,7 @@ export default function ImageUpload({
       }
     } finally {
       setUploading(false);
+      onLoadingChange?.(false);
     }
   };
 

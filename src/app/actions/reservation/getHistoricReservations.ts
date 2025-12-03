@@ -9,37 +9,61 @@ export const getHistoricReservations = async () => {
         const reservations = await prisma.reservation.findMany({
             where: {
                 OR: [
-                    { status: "CONFIRMED", departureDate: { lt: today } },
-                    { status: "PENDING", departureDate: { lt: today } },
-                    { status: "CANCELLED", departureDate: { lt: today } },
+                    { status: "CONFIRMED" },
+                    { status: "PENDING" },
+                    { status: "CANCELLED" },
                 ],
             },
             orderBy: { createdAt: "desc" },
             include: {
-                Promotions: { select: { codePromotions: true } },
-                user: { select: { username: true, image: true, email: true } },
+                User: {
+                    select: {
+                        username: true,
+                        image: true,
+                        email: true
+                    }
+                },
+                ReservationDetails: {
+                    include: {
+                        Bedrooms: {
+                            select: {
+                                typeBedroom: true,
+                            },
+                        },
+                        Promotions: {
+                            select: {
+                                codePromotions: true,
+                            },
+                        },
+                    },
+                },
             },
         });
 
         const formattedReservations = reservations.map((r) => {
+            const details = r.ReservationDetails[0];
+
             let finalStatus: string = r.status;
 
-            if (r.status === "CONFIRMED" && r.departureDate < today) finalStatus = "COMPLETED";
-            if (r.status === "PENDING" && r.departureDate < today) finalStatus = "EXPIRED";
-            if (r.status === "CANCELLED" && r.departureDate < today) finalStatus = "CANCELLED";
+            // Determinar estado final basado en fecha de salida
+            if (details && details.dateEnd < today) {
+                if (r.status === "CONFIRMED") finalStatus = "COMPLETED";
+                if (r.status === "PENDING") finalStatus = "EXPIRED";
+                if (r.status === "CANCELLED") finalStatus = "CANCELLED";
+            }
 
             return {
                 id: r.id,
-                userName: r.user?.username || `${r.name} ${r.lastName}`,
-                userEmail: r.user?.email || r.email,
-                userImage: r.user?.image || null,
-                bedroomsType: r.bedroomsType,
-                rooms: r.rooms,
-                guests: r.guests,
-                arrivalDate: r.arrivalDate,
-                departureDate: r.departureDate,
+                userName: r.User?.username || "Sin nombre",
+                userEmail: r.User?.email || "Sin email",
+                userImage: r.User?.image || null,
+                bedroomsType: details?.Bedrooms?.typeBedroom || "-",
+                rooms: 1, // Una habitación por detalle de reservación
+                guests: details?.guestQuantity || 0,
+                arrivalDate: details?.dateStart || new Date(),
+                departureDate: details?.dateEnd || new Date(),
                 finalStatus,
-                offerts: r.Promotions?.codePromotions || null,
+                offerts: details?.Promotions?.codePromotions || null,
                 createdAt: r.createdAt,
             };
         });

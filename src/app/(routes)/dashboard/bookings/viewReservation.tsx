@@ -14,23 +14,45 @@ import { Button } from "@/components/ui/button";
 import Icon from "@/components/ui/icons/icons";
 import { getReservationById } from "@/app/actions/reservation";
 import { Badge } from "@/components/ui/badge";
-import { Status } from "@prisma/client";
+import { Status, BookingsStatus } from "@prisma/client";
 import { calculateDuration } from "@/app/actions/reservation/calculateDuration";
 
 interface Reservation {
     id: number;
-    name: string;
-    lastName: string;
-    email: string;
-    bedroomsType: string;
-    guests: number;
-    rooms: number;
-    arrivalDate: string | Date;
-    departureDate: string | Date;
-    offerts?: string | null;
-    status: Status;
-    promotionId: number | null;
+    createdAt: Date;
     isRead: boolean;
+    user_id: number;
+    status: BookingsStatus;
+    User: {
+        id: number;
+        email: string;
+        username: string;
+        image: string | null;
+    };
+    ReservationDetails: Array<{
+        id: number;
+        reservation_id: number;
+        price: number;
+        dateStart: Date;
+        dateEnd: Date;
+        promotion_id: number | null;
+        status: Status;
+        created_at: Date;
+        bedrooms_id: number;
+        guestQuantity: number;
+        Bedrooms: {
+            id: number;
+            typeBedroom: string;
+            capacity: number;
+            lowSeasonPrice: number;
+            highSeasonPrice: number;
+        };
+        Promotions: {
+            id: number;
+            codePromotions: string;
+            porcentageDescuent: number;
+        } | null;
+    }>;
 }
 
 interface ViewReservationProps {
@@ -62,16 +84,18 @@ export function ViewReservation({ reservationId }: ViewReservationProps) {
             year: "numeric",
         });
 
+    const details = reservation?.ReservationDetails?.[0];
+
     const statusVariant = reservation?.status === "CONFIRMED"
         ? "success"
         : reservation?.status === "CANCELLED"
             ? "destructive"
             : "info";
 
-    const nights = reservation
+    const nights = details
         ? calculateDuration(
-            reservation.arrivalDate.toString(),
-            reservation.departureDate.toString()
+            details.dateStart.toString(),
+            details.dateEnd.toString()
         )
         : 0;
 
@@ -96,7 +120,7 @@ export function ViewReservation({ reservationId }: ViewReservationProps) {
                     </DialogDescription>
                 </DialogHeader>
 
-                {loading || !reservation ? (
+                {loading || !reservation || !details ? (
                     <div className="py-10 text-center text-gray-400">Cargando datos...</div>
                 ) : (
                     <div className="mt-4 grid gap-3">
@@ -108,32 +132,32 @@ export function ViewReservation({ reservationId }: ViewReservationProps) {
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             <div className="p-3 bg-gray-50 rounded-lg shadow-sm break-words">
-                                <p className="text-gray-600 text-xs">Nombre</p>
+                                <p className="text-gray-600 text-xs">Usuario</p>
                                 <p className="font-semibold text-gray-900 mt-1 text-sm">
-                                    {reservation.name} {reservation.lastName}
+                                    {reservation.User.username}
                                 </p>
                             </div>
                             <div className="p-3 bg-gray-50 rounded-lg shadow-sm break-words">
                                 <p className="text-gray-600 text-xs">Email</p>
-                                <p className="font-semibold text-gray-900 mt-1 text-sm">{reservation.email}</p>
+                                <p className="font-semibold text-gray-900 mt-1 text-sm">{reservation.User.email}</p>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             <div className="p-3 bg-gray-50 rounded-lg shadow-sm break-words">
                                 <p className="text-gray-600 text-xs">Huéspedes</p>
-                                <p className="font-semibold text-gray-900 mt-1 text-sm">{reservation.guests}</p>
+                                <p className="font-semibold text-gray-900 mt-1 text-sm">{details.guestQuantity}</p>
                             </div>
                             <div className="p-3 bg-gray-50 rounded-lg shadow-sm break-words">
-                                <p className="text-gray-600 text-xs">Habitaciones</p>
-                                <p className="font-semibold text-gray-900 mt-1 text-sm">{reservation.rooms}</p>
+                                <p className="text-gray-600 text-xs">Tipo de Habitación</p>
+                                <p className="font-semibold text-gray-900 mt-1 text-sm">{details.Bedrooms.typeBedroom}</p>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             <div className="p-3 bg-gray-50 rounded-lg shadow-sm break-words">
-                                <p className="text-gray-600 text-xs">Tipo de Habitación</p>
-                                <p className="font-semibold text-gray-900 mt-1 text-sm">{reservation.bedroomsType}</p>
+                                <p className="text-gray-600 text-xs">Capacidad</p>
+                                <p className="font-semibold text-gray-900 mt-1 text-sm">{details.Bedrooms.capacity} personas</p>
                             </div>
                             <div className="p-3 bg-gray-50 rounded-lg shadow-sm break-words">
                                 <p className="text-gray-600 text-xs">Noches</p>
@@ -144,18 +168,24 @@ export function ViewReservation({ reservationId }: ViewReservationProps) {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             <div className="p-3 bg-gray-50 rounded-lg shadow-sm break-words">
                                 <p className="text-gray-600 text-xs">Llegada</p>
-                                <p className="font-semibold text-gray-900 mt-1 text-sm">{formatDate(reservation.arrivalDate)}</p>
+                                <p className="font-semibold text-gray-900 mt-1 text-sm">{formatDate(details.dateStart)}</p>
                             </div>
                             <div className="p-3 bg-gray-50 rounded-lg shadow-sm break-words">
                                 <p className="text-gray-600 text-xs">Salida</p>
-                                <p className="font-semibold text-gray-900 mt-1 text-sm">{formatDate(reservation.departureDate)}</p>
+                                <p className="font-semibold text-gray-900 mt-1 text-sm">{formatDate(details.dateEnd)}</p>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             <div className="p-3 bg-gray-50 rounded-lg shadow-sm break-words">
-                                <p className="text-gray-600 text-xs">Ofertas</p>
-                                <p className="font-semibold text-gray-900 mt-1 text-sm">{reservation.offerts || "N/A"}</p>
+                                <p className="text-gray-600 text-xs">Precio</p>
+                                <p className="font-semibold text-gray-900 mt-1 text-sm">${details.price.toLocaleString()}</p>
+                            </div>
+                            <div className="p-3 bg-gray-50 rounded-lg shadow-sm break-words">
+                                <p className="text-gray-600 text-xs">Promoción</p>
+                                <p className="font-semibold text-gray-900 mt-1 text-sm">
+                                    {details.Promotions?.codePromotions || "N/A"}
+                                </p>
                             </div>
                         </div>
                     </div>

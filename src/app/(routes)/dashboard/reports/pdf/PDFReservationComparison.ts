@@ -1,9 +1,22 @@
-import { Reservation } from "@prisma/client";
 import { jsPDF } from "jspdf";
+
+interface ReservationWithDetails {
+    id: number;
+    userName: string;
+    userEmail: string;
+    bedroomsType: string;
+    rooms: number;
+    guests: number;
+    arrivalDate: Date;
+    departureDate: Date;
+    finalStatus: string;
+    offerts?: string | null;
+    createdAt: Date;
+}
 
 interface PDFReservationComparisonRenderProps {
     doc: jsPDF;
-    reservations: Reservation[];
+    reservations: ReservationWithDetails[];
     month: number;
     year: number;
     startY: number;
@@ -22,7 +35,7 @@ function getReservationComparison({
     month,
     year,
 }: {
-    reservations: Reservation[];
+    reservations: ReservationWithDetails[];
     month: number;
     year: number;
 }): ComparisonResult {

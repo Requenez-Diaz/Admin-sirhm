@@ -8,15 +8,14 @@ import { ReservationStatusChart } from './ReservationStatusChart';
 
 interface Reservation {
     id: number;
-    name: string;
-    lastName: string;
-    email: string;
+    userName: string;
+    userEmail: string;
     status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
     guests: number;
     rooms: number;
     bedroomsType: string;
     arrivalDate: string | Date;
-    departureDate: string | Date;
+    departureDate: Date | null;
 }
 
 interface Stats {
@@ -38,7 +37,7 @@ export function ReportDashboard() {
         const loadData = async () => {
             try {
                 const data = await getReservations();
-                setReservations(data);
+                setReservations(data as any);
             } catch (error) {
                 console.error('Error loading reservations:', error);
             } finally {

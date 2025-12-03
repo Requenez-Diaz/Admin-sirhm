@@ -2,46 +2,67 @@
 
 import prisma from "@/lib/db";
 
-export const getReservations = async () => {
-  try {
-    const today = new Date();
+export interface ReservationFormatted {
+  id: number;
+  status: string;
+  userName: string;
+  userEmail: string;
+  userImage: string | null;
+  totalGuests: number;
+  totalRooms: number;
+  guests: number; // Alias para totalGuests (compatibilidad)
+  rooms: number; // Alias para totalRooms (compatibilidad)
+  arrivalDate: Date | null;
+  departureDate: Date | null;
+  bedroomsType: string;
+  offerts: string | null;
+}
 
+export const getReservations = async (): Promise<ReservationFormatted[]> => {
+  try {
     const reservations = await prisma.reservation.findMany({
-      where: {
-        OR: [
-          {
-            status: { in: ["PENDING", "CONFIRMED"] },
-            departureDate: { gte: today },
-          },
-          {
-            status: "CANCELLED",
-            departureDate: { gte: today },
-          },
-        ],
-      },
       orderBy: { createdAt: "desc" },
       include: {
-        Promotions: { select: { codePromotions: true } },
-        user: {
+        User: {
           select: {
             username: true,
-            image: true,
             email: true,
+            image: true,
+          },
+        },
+        ReservationDetails: {
+          select: {
+            guestQuantity: true,
+            Bedrooms: { select: { typeBedroom: true } },
+            Promotions: { select: { codePromotions: true } },
+            dateStart: true,
+            dateEnd: true,
           },
         },
       },
     });
 
-    const formattedReservations = reservations.map((reservation) => ({
-      ...reservation,
-      offerts: reservation.Promotions?.codePromotions || null,
-      userName:
-        reservation.user?.username ||
-        `${reservation.name} ${reservation.lastName}`,
-      userEmail: reservation.user?.email || reservation.email,
-      userImage: reservation.user?.image || null,
-      kind: "reservation",
-    }));
+    const formattedReservations: ReservationFormatted[] = reservations.map((res) => {
+      const details = res.ReservationDetails[0]; // asumimos 1 detalle por reserva
+      const totalGuests = details?.guestQuantity || 0;
+      const totalRooms = 1; // si manejas más habitaciones, ajusta aquí
+
+      return {
+        id: res.id,
+        status: res.status,
+        userName: res.User?.username || "Sin nombre",
+        userEmail: res.User?.email || "Sin email",
+        userImage: res.User?.image || null,
+        totalGuests,
+        totalRooms,
+        guests: totalGuests, // Alias para compatibilidad
+        rooms: totalRooms, // Alias para compatibilidad
+        arrivalDate: details?.dateStart || null,
+        departureDate: details?.dateEnd || null,
+        bedroomsType: details?.Bedrooms?.typeBedroom || "-",
+        offerts: details?.Promotions?.codePromotions || null,
+      };
+    });
 
     return formattedReservations;
   } catch (error) {

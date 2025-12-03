@@ -17,11 +17,15 @@ import ImageUpload from "./upload-file";
 
 type ActionState = { success: boolean; message: string };
 
-function SubmitButton() {
+function SubmitButton({ isUploading }: { isUploading: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <Button type='submit' disabled={pending} className='w-full'>
-      {pending ? "Guardando..." : "Guardar Habitación"}
+    <Button type='submit' disabled={pending || isUploading} className='w-full'>
+      {pending
+        ? "Guardando..."
+        : isUploading
+          ? "Subiendo imagen..."
+          : "Guardar Habitación"}
     </Button>
   );
 }
@@ -39,6 +43,7 @@ export function FormBedrooms({ saveAction }: FormBedroomsProps) {
   const [imageUrl, setImageUrl] = useState("");
   const [mimeType, setMimeType] = useState("");
   const [fileName, setFileName] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
 
   const initialState: ActionState = { success: false, message: "" };
@@ -266,6 +271,7 @@ export function FormBedrooms({ saveAction }: FormBedroomsProps) {
                 setMimeType("");
                 setFileName("");
               }}
+              onLoadingChange={setIsUploading}
             />
             <input type='hidden' name='imageUrl' value={imageUrl} />
             <input type='hidden' name='mimeType' value={mimeType} />
@@ -274,7 +280,7 @@ export function FormBedrooms({ saveAction }: FormBedroomsProps) {
         </div>
 
         <div className='pt-4 pb-2'>
-          <SubmitButton />
+          <SubmitButton isUploading={isUploading} />
         </div>
       </form>
     </div>

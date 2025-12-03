@@ -1,13 +1,12 @@
 "use client";
 
 import { updateReservation } from "@/app/actions/reservation";
-import { getBedrooms } from "@/app/actions/bedrooms"; // Asegúrate de que esta sea la ruta correcta
+import { getBedrooms } from "@/app/actions/bedrooms";
 import { Button } from "@/components/ui/button";
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
 import Icon from "@/components/ui/icons/icons";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { Reservation } from "@prisma/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -22,52 +21,43 @@ import {
 import { useEffect, useState } from "react";
 
 const FormSchema = z.object({
-  name: z.string().trim().min(1, "El nombre es obligatorio."),
-  lastName: z.string().trim().min(1, "El apellido es obligatorio."),
   email: z.string().trim().email("Introduce un correo electrónico válido."),
   guests: z.coerce.number().min(1, "Debe haber al menos 1 huésped."),
-  rooms: z.coerce.number().min(1, "Debe seleccionar al menos una habitación."),
-  bedroomsType: z.string().min(1, "El tipo de habitación es requerido."),
+  bedroomsId: z.string().min(1, "El tipo de habitación es requerido."),
   arrivalDate: z.string().min(1, "La fecha de llegada es requerida."),
   departureDate: z.string().min(1, "La fecha de salida es requerida."),
+}).refine((data) => {
+  const arrival = new Date(data.arrivalDate);
+  const departure = new Date(data.departureDate);
+  return departure > arrival;
+}, {
+  message: "La fecha de salida debe ser posterior a la fecha de llegada.",
+  path: ["departureDate"],
 });
 
 export function FormEditReservation({
   reservation,
 }: {
-  reservation: Reservation | null;
+  reservation: any;
 }) {
   const { toast } = useToast();
-  const [bedrooms, setBedrooms] = useState<
-    {
-      status: boolean;
-      id: number;
-      createdAt: Date;
-      updatedAt: Date;
-      image: string;
-      typeBedroom: string;
-      description: string;
-      lowSeasonPrice: number;
-      highSeasonPrice: number;
-      numberBedroom: number;
-      seasonsId: number;
-      amenities: string[];
-      capacity: number;
-      slug: string;
-    }[]
-  >([]);
+  const [bedrooms, setBedrooms] = useState<any[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const details = reservation?.ReservationDetails?.[0];
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      name: reservation?.name,
-      lastName: reservation?.lastName,
-      email: reservation?.email,
-      guests: reservation?.guests,
-      rooms: reservation?.rooms,
-      bedroomsType: reservation?.bedroomsType,
-      arrivalDate: reservation?.arrivalDate.toISOString().split("T")[0],
-      departureDate: reservation?.departureDate.toISOString().split("T")[0],
+      email: reservation?.User?.email || "",
+      guests: details?.guestQuantity || 1,
+      bedroomsId: details?.bedrooms_id?.toString() || "",
+      arrivalDate: details?.dateStart
+        ? new Date(details.dateStart).toISOString().split("T")[0]
+        : "",
+      departureDate: details?.dateEnd
+        ? new Date(details.dateEnd).toISOString().split("T")[0]
+        : "",
     },
   });
 
@@ -84,85 +74,70 @@ export function FormEditReservation({
       return toast({
         title: "Error",
         description: "No se encontró la reservación",
+        variant: "destructive",
       });
     }
 
-    const formData = {
-      reservationId: reservation?.id.toString() || "",
-      name: data.name,
-      lastName: data.lastName,
-      email: data.email,
-      guests: data.guests.toString(),
-      rooms: data.rooms.toString(),
-      bedroomsType: data.bedroomsType,
-      arrivalDate: data.arrivalDate,
-      departureDate: data.departureDate,
-    };
+    setIsSubmitting(true);
 
-    const response = await updateReservation(formData);
-    if (response?.success) {
-      toast({
-        title: "Reservación actualizada.",
-        description: "La reservación se actualizó correctamente.",
+    try {
+      const response = await updateReservation({
+        reservationId: reservation.id.toString(),
+        email: data.email,
+        guests: data.guests.toString(),
+        bedroomsId: data.bedroomsId,
+        arrivalDate: data.arrivalDate,
+        departureDate: data.departureDate,
       });
-    } else {
+
+      if (response?.success) {
+        toast({
+          title: "✓ Reservación actualizada",
+          description: "La reservación se actualizó correctamente.",
+        });
+        // Opcional: cerrar el diálogo después de actualizar
+        setTimeout(() => {
+          const closeButton = document.querySelector('[data-dialog-close]') as HTMLButtonElement;
+          closeButton?.click();
+        }, 1000);
+      } else {
+        toast({
+          title: "Error al actualizar",
+          description: response?.message || "Error al actualizar la reservación.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
       toast({
-        title: "Error",
-        description: response?.message || "Error al actualizar la reservación.",
+        title: "Error inesperado",
+        description: "Ocurrió un error al procesar la solicitud.",
+        variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4'>
-        <div className='grid grid-cols-2 gap-4'>
-          <FormField
-            control={form.control}
-            name='name'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder='Nombre' />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name='lastName'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Apellido</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder='Apellido' />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+        {/* Email */}
+        <FormField
+          control={form.control}
+          name='email'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Correo</FormLabel>
+              <FormControl>
+                <Input {...field} type='email' placeholder='Correo electrónico' />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
+        {/* Guests + Bedrooms */}
         <div className='grid grid-cols-2 gap-4'>
-          <FormField
-            control={form.control}
-            name='email'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Correo</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    type='email'
-                    placeholder='Correo electrónico'
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
           <FormField
             control={form.control}
             name='guests'
@@ -170,55 +145,27 @@ export function FormEditReservation({
               <FormItem>
                 <FormLabel>Huéspedes</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    type='number'
-                    min='1'
-                    placeholder='Número de personas'
-                  />
+                  <Input {...field} type='number' min='1' />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-        </div>
 
-        <div className='grid grid-cols-2 gap-4'>
           <FormField
             control={form.control}
-            name='rooms'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Habitaciones</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    type='number'
-                    min='1'
-                    placeholder='Cantidad de habitaciones'
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name='bedroomsType'
+            name='bedroomsId'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Tipo de habitación</FormLabel>
                 <FormControl>
-                  <select
-                    {...field}
-                    className='border border-gray-300 rounded-lg p-2'
-                  >
+                  <select {...field} className='border rounded-lg p-2'>
                     <option value='' disabled>
-                      Selecciona el tipo de habitación
+                      Selecciona habitación
                     </option>
-                    {bedrooms.map((type: any, index: number) => (
-                      <option key={index} value={type.typeBedroom}>
-                        {type.typeBedroom}{" "}
+                    {bedrooms.map((b) => (
+                      <option key={b.id} value={b.id.toString()}>
+                        {b.typeBedroom}
                       </option>
                     ))}
                   </select>
@@ -229,6 +176,7 @@ export function FormEditReservation({
           />
         </div>
 
+        {/* Arrival / Departure */}
         <div className='grid grid-cols-2 gap-4'>
           <FormField
             control={form.control}
@@ -243,6 +191,7 @@ export function FormEditReservation({
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name='departureDate'
@@ -258,17 +207,17 @@ export function FormEditReservation({
           />
         </div>
 
-        <DialogFooter className='flex flex-wrap justify-between pt-4 gap-4'>
+        <DialogFooter className='flex justify-between pt-4'>
           <DialogClose asChild>
-            <Button type='button' variant='success'>
+            <Button type='button' variant='secondary'>
               <Icon action='undo' className='mr-2' />
               Cancelar
             </Button>
           </DialogClose>
 
-          <Button type='submit' variant='success'>
+          <Button type='submit' variant='success' disabled={isSubmitting}>
             <Icon action='save' className='mr-2' />
-            Actualizar
+            {isSubmitting ? "Actualizando..." : "Actualizar"}
           </Button>
         </DialogFooter>
       </form>
