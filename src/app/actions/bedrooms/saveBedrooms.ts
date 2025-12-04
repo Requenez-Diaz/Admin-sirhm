@@ -27,14 +27,13 @@ export async function saveBedroomsWithUpload(
     const numberBedroom = Number(formData.get("numberBedroom"));
     const capacity = Number(formData.get("capacity"));
     const statusStr = String(formData.get("status") ?? "1");
-    const seasonType = String(formData.get("seasonType") || "").trim();
-    const isHighSeason = seasonType === "high";
+    const seasonType = String(formData.get("seasonType") || "").trim(); // "high" o "low"
 
     const imageUrl = String(formData.get("imageUrl") || "");
     const mimeType = String(formData.get("mimeType") || "");
     const fileName = String(formData.get("fileName") || "");
 
-    // 3. Validaciones
+    // Validaciones
     if (!typeBedroom || !numberBedroom) {
       return {
         success: false,
@@ -49,11 +48,7 @@ export async function saveBedroomsWithUpload(
       };
     }
 
-    if (
-      [lowSeasonPrice, highSeasonPrice, numberBedroom, capacity].some((n) =>
-        Number.isNaN(n)
-      )
-    ) {
+    if ([lowSeasonPrice, highSeasonPrice, numberBedroom, capacity].some((n) => Number.isNaN(n))) {
       return { success: false, message: "Hay valores numéricos inválidos." };
     }
 
@@ -77,6 +72,10 @@ export async function saveBedroomsWithUpload(
     const now = new Date();
     const nextYear = new Date(now);
     nextYear.setFullYear(now.getFullYear() + 1);
+
+    // Elegir el precio final según la temporada activa
+    const finalPrice = seasonType === "high" ? highSeasonPrice : lowSeasonPrice;
+    const nameSeason = seasonType === "high" ? "Alta" : "Baja";
 
     const galleryData =
       imageUrl && mimeType && fileName
@@ -102,17 +101,17 @@ export async function saveBedroomsWithUpload(
         status: active,
         image: imageUrl,
         slug,
+        // Relación con la temporada
         Seasons: {
           create: {
-            nameSeason: "",
+            nameSeason,
             dateStart: now,
             dateEnd: nextYear,
-            isHighSeason: isHighSeason,
           },
         },
         galleryImages: galleryData,
       },
-      include: { galleryImages: true },
+      include: { galleryImages: true, Seasons: true },
     });
 
     revalidatePath("/bedrooms");
@@ -120,8 +119,8 @@ export async function saveBedroomsWithUpload(
 
     return {
       success: true,
-      message: "La habitación se registró correctamente.",
-      data: { id: created.id, numberBedroom: created.numberBedroom },
+      message: `La habitación se registró correctamente con precio de temporada ${nameSeason}.`,
+      data: { id: created.id, numberBedroom: created.numberBedroom, finalPrice },
     };
   } catch (error) {
     console.error("Error al guardar la habitación:", error);

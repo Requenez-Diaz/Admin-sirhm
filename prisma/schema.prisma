@@ -92,13 +92,12 @@ model Services {
 }
 
 model Seasons {
-  id           Int          @id @default(autoincrement())
-  nameSeason   String
-  dateStart    DateTime
-  dateEnd      DateTime
-  isHighSeason Boolean      @default(false)
-  Bedrooms     Bedrooms[]
-  Promotions   Promotions[]
+  id         Int          @id @default(autoincrement())
+  nameSeason String
+  dateStart  DateTime
+  dateEnd    DateTime
+  Bedrooms   Bedrooms[]
+  Promotions Promotions[]
 }
 
 model bookingsServices {
