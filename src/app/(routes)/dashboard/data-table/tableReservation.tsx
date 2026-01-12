@@ -1,6 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import { Status } from "@prisma/client";
 import {
   Table,
   TableBody,
@@ -27,21 +26,12 @@ import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Pagination from "./pagination";
 import { ViewReservation } from "../bookings/viewReservation";
+import { ReservationRow } from "@/app/actions/reservation/getReservation";
+
+type BookingStatus = "PENDING" | "CONFIRMED" | "CANCELLED";
 
 interface TableReservationProps {
-  reservations: Array<{
-    id: number;
-    name: string;
-    lastName: string;
-    email: string;
-    status: Status;
-    guests: number;
-    rooms: number;
-    bedroomsType: string;
-    arrivalDate: Date;
-    departureDate: Date;
-    offerts: string | null;
-  }>;
+  reservations: ReservationRow[];
 }
 
 const TableReservation: React.FC<TableReservationProps> = ({
@@ -54,46 +44,49 @@ const TableReservation: React.FC<TableReservationProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const reservationsPerPage = 10;
 
-  const contadoresEstado = {
-    [Status.PENDING]: 0,
-    [Status.CONFIRMED]: 0,
-    [Status.CANCELLED]: 0,
+  const contadoresEstado: Record<BookingStatus, number> = {
+    PENDING: 0,
+    CONFIRMED: 0,
+    CANCELLED: 0,
   };
 
   reservations.forEach((res) => {
     contadoresEstado[res.status]++;
   });
 
-  const statusVariants: Record<string, BadgeProps["variant"]> = {
-    [Status.PENDING]: "info",
-    [Status.CONFIRMED]: "success",
-    [Status.CANCELLED]: "destructive",
+  const statusVariants: Record<BookingStatus, BadgeProps["variant"]> = {
+    PENDING: "info",
+    CONFIRMED: "success",
+    CANCELLED: "destructive",
   };
 
-  const statusLabels: Record<string, string> = {
-    [Status.PENDING]: "Pendiente",
-    [Status.CONFIRMED]: "Confirmado",
-    [Status.CANCELLED]: "Cancelado",
+  const statusLabels: Record<BookingStatus, string> = {
+    PENDING: "Pendiente",
+    CONFIRMED: "Confirmado",
+    CANCELLED: "Cancelado",
   };
 
   const filteredReservations = reservations.filter((res) => {
-    if (selectedFilter === "Todo") {
-      return true;
-    }
+    const term = searchTerm.toLowerCase();
+
+    if (selectedFilter === "Todo") return true;
+
     if (selectedFilter === "Nombre") {
-      return res.name.toLowerCase().includes(searchTerm.toLowerCase());
+      return (res.userName ?? "").toLowerCase().includes(term);
     }
+
     if (selectedFilter === "Apellido") {
-      return res.lastName.toLowerCase().includes(searchTerm.toLowerCase());
+      return (res.userName ?? "").toLowerCase().includes(term);
     }
+
     if (selectedFilter === "Estado") {
-      return statusLabels[res.status]
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
+      return statusLabels[res.status].toLowerCase().includes(term);
     }
+
     if (selectedFilter === "Email") {
-      return res.email.toLowerCase().includes(searchTerm.toLowerCase());
+      return (res.email ?? "").toLowerCase().includes(term);
     }
+
     return true;
   });
 
@@ -122,16 +115,14 @@ const TableReservation: React.FC<TableReservationProps> = ({
         </div>
 
         <div className='grid grid-cols-2 sm:flex sm:items-center gap-2'>
-          <Badge variant={statusVariants[Status.PENDING]}>
-            {statusLabels[Status.PENDING]}: {contadoresEstado[Status.PENDING]}
+          <Badge variant={statusVariants.PENDING}>
+            {statusLabels.PENDING}: {contadoresEstado.PENDING}
           </Badge>
-          <Badge variant={statusVariants[Status.CONFIRMED]}>
-            {statusLabels[Status.CONFIRMED]}:{" "}
-            {contadoresEstado[Status.CONFIRMED]}
+          <Badge variant={statusVariants.CONFIRMED}>
+            {statusLabels.CONFIRMED}: {contadoresEstado.CONFIRMED}
           </Badge>
-          <Badge variant={statusVariants[Status.CANCELLED]}>
-            {statusLabels[Status.CANCELLED]}:{" "}
-            {contadoresEstado[Status.CANCELLED]}
+          <Badge variant={statusVariants.CANCELLED}>
+            {statusLabels.CANCELLED}: {contadoresEstado.CANCELLED}
           </Badge>
         </div>
       </div>
@@ -168,64 +159,91 @@ const TableReservation: React.FC<TableReservationProps> = ({
                 Tipo de Habitación
               </TableHead>
               <TableHead className='text-xs sm:text-sm'>Estancia</TableHead>
-              <TableHead className='text-xs sm:text-sm'>Llegada</TableHead>
+              <TableHead className='text-xs sm:text-sm'>
+                Llegada - Salida
+              </TableHead>
               <TableHead className='text-xs sm:text-sm'>Ofertas</TableHead>
               <TableHead className='text-xs sm:text-sm'>Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {currentReservations.map((reservation, index) => {
-              const duration = calculateDuration(
-                reservation.arrivalDate.toString(),
-                reservation.departureDate.toString()
-              );
+            {currentReservations.map((reservation) => {
+              // Convierte ISO a Date
+              const arrival = reservation.arrivalDate
+                ? new Date(reservation.arrivalDate)
+                : null;
+              const departure = reservation.departureDate
+                ? new Date(reservation.departureDate)
+                : null;
+
+              const duration = calculateDuration(arrival, departure);
               const durationLabel = duration === 1 ? "noche" : "noches";
 
+              const [firstName, ...lastParts] = (
+                reservation.userName ?? ""
+              ).split(" ");
+              const lastName = lastParts.join(" ");
+
               return (
-                <TableRow key={index} className='border-b'>
+                <TableRow key={reservation.id} className='border-b'>
                   <TableCell className='text-xs sm:text-sm'>
-                    {index + 1}
+                    {reservation.id}
                   </TableCell>
+
                   <TableCell className='text-xs sm:text-sm'>
-                    {reservation.name}
+                    {firstName || reservation.userName || "—"}
                   </TableCell>
+
                   <TableCell className='hidden sm:table-cell text-xs sm:text-sm'>
-                    {reservation.lastName}
+                    {lastName || "—"}
                   </TableCell>
+
                   <TableCell className='hidden md:table-cell text-xs sm:text-sm'>
-                    {reservation.email}
+                    {reservation.email ?? "—"}
                   </TableCell>
+
                   <TableCell className='text-xs sm:text-sm'>
                     <Badge variant={statusVariants[reservation.status]}>
                       {statusLabels[reservation.status]}
                     </Badge>
                   </TableCell>
+
                   <TableCell className='hidden sm:table-cell text-xs sm:text-sm'>
                     {reservation.guests}
                   </TableCell>
+
                   <TableCell className='hidden sm:table-cell text-xs sm:text-sm'>
                     {reservation.rooms}
                   </TableCell>
+
                   <TableCell className='text-xs sm:text-sm'>
-                    {reservation.bedroomsType}
-                  </TableCell>
-                  <TableCell className='text-xs sm:text-sm text-right'>
-                    {duration} {durationLabel}
-                  </TableCell>
-                  <TableCell className='text-xs sm:text-sm text-right'>
-                    {new Date(reservation.arrivalDate).toLocaleDateString(
-                      "es-ES",
-                      {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "2-digit",
-                      }
-                    )}{" "}
-                    -{" "}
+                    {reservation.bedroomsType || "—"}
                   </TableCell>
 
                   <TableCell className='text-xs sm:text-sm text-right'>
-                    {reservation.offerts ? reservation.offerts : "N/A"}
+                    {duration} {durationLabel}
+                  </TableCell>
+
+                  <TableCell className='text-xs sm:text-sm text-right'>
+                    {arrival
+                      ? arrival.toLocaleDateString("es-ES", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "2-digit",
+                        })
+                      : "—"}{" "}
+                    -{" "}
+                    {departure
+                      ? departure.toLocaleDateString("es-ES", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "2-digit",
+                        })
+                      : "—"}
+                  </TableCell>
+
+                  <TableCell className='text-xs sm:text-sm text-right'>
+                    {reservation.offerts ?? "N/A"}
                   </TableCell>
 
                   <TableCell className='flex flex-wrap gap-2 text-xs sm:text-sm'>
@@ -241,6 +259,7 @@ const TableReservation: React.FC<TableReservationProps> = ({
                         className='flex flex-col'
                       >
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
                         <DropdownMenuItem
                           onSelect={(e) => e.preventDefault()}
                           asChild

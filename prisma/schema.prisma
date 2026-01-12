@@ -18,12 +18,12 @@ model User {
   roleName           String
   image              String?
   Comments           Comments[]
+  notifications      Notification[]
   PasswordResetToken PasswordResetToken?
-  reservations       Reservation[]
+  Reservation        Reservation[]
   role               Role                @relation(fields: [roleName], references: [roleName])
   UserImage          UserImage?
   testimonials       testimonials[]
-  notifications      Notification[]
 }
 
 model Role {
@@ -34,24 +34,14 @@ model Role {
 }
 
 model Reservation {
-  id            Int            @id @default(autoincrement())
-  name          String
-  lastName      String
-  email         String
-  bedroomsType  String
-  guests        Int
-  rooms         Int
-  arrivalDate   DateTime
-  departureDate DateTime
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  status        Status
-  userId        Int
-  promotionId   Int?
-  isRead        Boolean        @default(false)
-  Promotions    Promotions?    @relation(fields: [promotionId], references: [id])
-  user          User           @relation(fields: [userId], references: [id])
-  notifications Notification[]
+  id                 Int                  @id @default(autoincrement())
+  createdAt          DateTime             @default(now())
+  isRead             Boolean              @default(false)
+  user_id            Int
+  status             BookingsStatus       @default(PENDING)
+  notifications      Notification[]
+  User               User                 @relation(fields: [user_id], references: [id])
+  ReservationDetails ReservationDetails[]
 }
 
 model Notification {
@@ -62,16 +52,11 @@ model Notification {
   isRead        Boolean          @default(false)
   createdAt     DateTime         @default(now())
   userId        Int
-  user          User             @relation(fields: [userId], references: [id])
   reservationId Int?
-  reservation   Reservation?     @relation(fields: [reservationId], references: [id])
   type          NotificationType
-}
-
-enum NotificationType {
-  CREATED
-  CONFIRMED
-  CANCELLED
+  userImage     String?
+  reservation   Reservation?     @relation(fields: [reservationId], references: [id])
+  user          User             @relation(fields: [userId], references: [id])
 }
 
 model testimonials {
@@ -107,13 +92,12 @@ model Services {
 }
 
 model Seasons {
-  id           Int          @id @default(autoincrement())
-  nameSeason   String
-  dateStart    DateTime
-  dateEnd      DateTime
-  Bedrooms     Bedrooms[]
-  Promotions   Promotions[]
-  isHighSeason Boolean      @default(false)
+  id         Int          @id @default(autoincrement())
+  nameSeason String
+  dateStart  DateTime
+  dateEnd    DateTime
+  Bedrooms   Bedrooms[]
+  Promotions Promotions[]
 }
 
 model bookingsServices {
@@ -123,23 +107,6 @@ model bookingsServices {
   price      Int
   servicesId String?
   services   Services? @relation(fields: [servicesId], references: [id])
-}
-
-model BookingsDetails {
-  id           Int        @id @default(autoincrement())
-  bookingId    Int
-  bedroomId    Int
-  price        Int
-  dateStart    DateTime
-  dateEnd      DateTime
-  promotionId  Int
-  status       Status
-  created_at   DateTime   @default(now())
-  bookingsId   Int
-  bedroomsId   Int
-  promotionsId Int
-  bedrooms     Bedrooms   @relation(fields: [bedroomsId], references: [id])
-  Promotions   Promotions @relation(fields: [promotionsId], references: [id])
 }
 
 model Invoce {
@@ -176,8 +143,8 @@ model Bedrooms {
   galleryImages      BedroomImages[]
   Seasons            Seasons              @relation(fields: [seasonsId], references: [id], onDelete: Cascade)
   BedroomsPromotions BedroomsPromotions[]
-  bookingsDetails    BookingsDetails[]
   Comments           Comments[]
+  ReservationDetails ReservationDetails[]
   testimonials       testimonials[]
 }
 
@@ -186,9 +153,9 @@ model BedroomImages {
   bedroomId    Int
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  imageContent String?
-  mimeType     String
   fileName     String
+  mimeType     String
+  imageContent String?
   bedroom      Bedrooms @relation(fields: [bedroomId], references: [id])
 }
 
@@ -236,9 +203,8 @@ model Promotions {
   updatedAt          DateTime             @updatedAt
   seasonId           Int
   BedroomsPromotions BedroomsPromotions[]
-  bookingsDetails    BookingsDetails[]
   seasons            Seasons              @relation(fields: [seasonId], references: [id])
-  Reservation        Reservation[]
+  ReservationDetails ReservationDetails[]
 }
 
 model BedroomsPromotions {
@@ -262,6 +228,28 @@ model PasswordResetToken {
 
   @@index([token])
   @@index([userId])
+}
+
+model ReservationDetails {
+  id             Int         @id @default(autoincrement())
+  reservation_id Int
+  price          Int
+  dateStart      DateTime
+  dateEnd        DateTime
+  promotion_id   Int?
+  status         Status
+  created_at     DateTime    @default(now())
+  bedrooms_id    Int
+  guestQuantity  Int
+  Bedrooms       Bedrooms    @relation(fields: [bedrooms_id], references: [id])
+  Promotions     Promotions? @relation(fields: [promotion_id], references: [id])
+  Reservation    Reservation @relation(fields: [reservation_id], references: [id])
+}
+
+enum NotificationType {
+  CREATED
+  CONFIRMED
+  CANCELLED
 }
 
 enum BookingsStatus {

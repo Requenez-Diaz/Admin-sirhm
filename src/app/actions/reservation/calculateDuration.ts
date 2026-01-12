@@ -1,7 +1,24 @@
+export function calculateDuration(
+  arrival: Date | string | null | undefined,
+  departure: Date | string | null | undefined
+): number {
+  const toDate = (v: Date | string | null | undefined): Date | null => {
+    if (!v) return null;
+    if (v instanceof Date) return isNaN(v.getTime()) ? null : v;
+    const d = new Date(v);
+    return isNaN(d.getTime()) ? null : d;
+  };
 
-export const calculateDuration = (arrivalDate: string, departureDate: string): number => {
-    const arrival = new Date(arrivalDate);
-    const departure = new Date(departureDate);
-    const duration = (departure.getTime() - arrival.getTime()) / (1000 * 60 * 60 * 24); // Convert milliseconds to days
-    return Math.round(duration);
-};
+  const a = toDate(arrival);
+  const d = toDate(departure);
+
+  if (!a || !d) return 0;
+
+  const start = new Date(a.getFullYear(), a.getMonth(), a.getDate());
+  const end = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
+  const msPerDay = 1000 * 60 * 60 * 24;
+  const diff = Math.round((end.getTime() - start.getTime()) / msPerDay);
+
+  return Math.max(diff, 0);
+}
