@@ -1,13 +1,11 @@
 "use client";
 
 import { updateReservation } from "@/app/actions/reservation";
-import { getBedrooms } from "@/app/actions/bedrooms"; // Asegúrate de que esta sea la ruta correcta
+import { getBedrooms } from "@/app/actions/bedrooms";
 import { Button } from "@/components/ui/button";
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
-import Icon from "@/components/ui/icons/icons";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { Reservation } from "@prisma/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -33,62 +31,66 @@ const FormSchema = z.object({
 });
 
 export function FormEditReservation({
-  reservation,
+  reservationDetails,
 }: {
-  reservation: Reservation | null;
+  reservationDetails: any | null;
 }) {
   const { toast } = useToast();
-  const [bedrooms, setBedrooms] = useState<
-    {
-      status: boolean;
-      id: number;
-      createdAt: Date;
-      updatedAt: Date;
-      image: string;
-      typeBedroom: string;
-      description: string;
-      lowSeasonPrice: number;
-      highSeasonPrice: number;
-      numberBedroom: number;
-      seasonsId: number;
-      amenities: string[];
-      capacity: number;
-      slug: string;
-    }[]
-  >([]);
+  const [bedroomsList, setBedroomsList] = useState<any[]>([]);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      name: reservation?.name,
-      lastName: reservation?.lastName,
-      email: reservation?.email,
-      guests: reservation?.guests,
-      rooms: reservation?.rooms,
-      bedroomsType: reservation?.bedroomsType,
-      arrivalDate: reservation?.arrivalDate.toISOString().split("T")[0],
-      departureDate: reservation?.departureDate.toISOString().split("T")[0],
+      name: "",
+      lastName: "",
+      email: "",
+      guests: 1,
+      rooms: 1,
+      bedroomsType: "",
+      arrivalDate: "",
+      departureDate: "",
     },
   });
 
+  // EFECTO 1: Cargar los datos de la reservación en el formulario cuando lleguen
+  useEffect(() => {
+    if (reservationDetails) {
+      form.reset({
+        name: reservationDetails?.Reservation?.User?.username || "",
+        lastName: "", // Sigue vacío porque no existe en tu User schema
+        email: reservationDetails?.Reservation?.User?.email || "",
+        guests: reservationDetails?.guestQuantity || 1,
+        rooms: 1,
+        bedroomsType: reservationDetails?.Bedrooms?.typeBedroom || "",
+        arrivalDate: reservationDetails?.dateStart
+          ? new Date(reservationDetails.dateStart).toISOString().split("T")[0]
+          : "",
+        departureDate: reservationDetails?.dateEnd
+          ? new Date(reservationDetails.dateEnd).toISOString().split("T")[0]
+          : "",
+      });
+    }
+  }, [reservationDetails, form]);
+
+  // EFECTO 2: Cargar lista de habitaciones para el select
   useEffect(() => {
     async function fetchBedrooms() {
       const data = await getBedrooms();
-      setBedrooms(data);
+      setBedroomsList(data);
     }
     fetchBedrooms();
   }, []);
 
   const handleSubmit = async (data: z.infer<typeof FormSchema>) => {
-    if (!reservation) {
+    if (!reservationDetails) {
       return toast({
         title: "Error",
-        description: "No se encontró la reservación",
+        description: "No se encontró el detalle de la reservación",
       });
     }
 
     const formData = {
-      reservationId: reservation?.id.toString() || "",
+      reservationId: reservationDetails.reservation_id.toString(),
       name: data.name,
       lastName: data.lastName,
       email: data.email,
@@ -103,12 +105,12 @@ export function FormEditReservation({
     if (response?.success) {
       toast({
         title: "Reservación actualizada.",
-        description: "La reservación se actualizó correctamente.",
+        description: "Los cambios se guardaron correctamente.",
       });
     } else {
       toast({
         title: "Error",
-        description: response?.message || "Error al actualizar la reservación.",
+        description: response?.message || "Error al actualizar.",
       });
     }
   };
@@ -122,9 +124,9 @@ export function FormEditReservation({
             name='name'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nombre</FormLabel>
+                <FormLabel>Nombre (Username)</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder='Nombre' />
+                  <Input {...field} placeholder="Nombre" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -153,11 +155,7 @@ export function FormEditReservation({
               <FormItem>
                 <FormLabel>Correo</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    type='email'
-                    placeholder='Correo electrónico'
-                  />
+                  <Input {...field} type='email' placeholder="Email" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -170,12 +168,7 @@ export function FormEditReservation({
               <FormItem>
                 <FormLabel>Huéspedes</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    type='number'
-                    min='1'
-                    placeholder='Número de personas'
-                  />
+                  <Input {...field} type='number' />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -191,12 +184,7 @@ export function FormEditReservation({
               <FormItem>
                 <FormLabel>Habitaciones</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    type='number'
-                    min='1'
-                    placeholder='Cantidad de habitaciones'
-                  />
+                  <Input {...field} type='number' />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -211,14 +199,12 @@ export function FormEditReservation({
                 <FormControl>
                   <select
                     {...field}
-                    className='border border-gray-300 rounded-lg p-2'
+                    className='flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
                   >
-                    <option value='' disabled>
-                      Selecciona el tipo de habitación
-                    </option>
-                    {bedrooms.map((type: any, index: number) => (
-                      <option key={index} value={type.typeBedroom}>
-                        {type.typeBedroom}{" "}
+                    <option value='' disabled>Selecciona tipo</option>
+                    {bedroomsList.map((type: any) => (
+                      <option key={type.id} value={type.typeBedroom}>
+                        {type.typeBedroom}
                       </option>
                     ))}
                   </select>
@@ -258,18 +244,11 @@ export function FormEditReservation({
           />
         </div>
 
-        <DialogFooter className='flex flex-wrap justify-between pt-4 gap-4'>
+        <DialogFooter className='pt-4 gap-4'>
           <DialogClose asChild>
-            <Button type='button' variant='success'>
-              <Icon action='undo' className='mr-2' />
-              Cancelar
-            </Button>
+            <Button type='button' variant='outline'>Cancelar</Button>
           </DialogClose>
-
-          <Button type='submit' variant='success'>
-            <Icon action='save' className='mr-2' />
-            Actualizar
-          </Button>
+          <Button type='submit'>Actualizar</Button>
         </DialogFooter>
       </form>
     </Form>

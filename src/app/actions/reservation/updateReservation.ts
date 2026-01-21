@@ -17,36 +17,51 @@ export const updateReservation = async (data: {
   const {
     reservationId,
     name,
-    lastName,
     email,
     bedroomsType,
     guests,
-    rooms,
     arrivalDate,
     departureDate,
   } = data;
 
-  if (!reservationId) {
-    console.error("No se encontró la reservación");
-    return { success: false, message: "No se encontró la reservación." };
-  }
-
   try {
-    await prisma.reservation.update({
-      where: {
-        id: parseInt(reservationId),
-      },
-      data: {
-        name,
-        lastName,
-        email,
-        bedroomsType,
-        guests: parseInt(guests),
-        rooms: parseInt(rooms),
-        arrivalDate: new Date(arrivalDate),
-        departureDate: new Date(departureDate),
-      },
+    const reservation = await prisma.reservation.findUnique({
+      where: { id: parseInt(reservationId) },
+      include: { ReservationDetails: true }
     });
+
+    if (!reservation) {
+      return { success: false, message: "No se encontró la reservación." };
+    }
+
+    const bedroom = await prisma.bedrooms.findFirst({
+      where: { typeBedroom: bedroomsType }
+    });
+
+    if (!bedroom) {
+      return { success: false, message: "El tipo de habitación no es válido." };
+    }
+
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: reservation.user_id },
+        data: {
+          username: name, 
+          email: email,
+        },
+      }),
+
+    
+      prisma.reservationDetails.updateMany({
+        where: { reservation_id: parseInt(reservationId) },
+        data: {
+          guestQuantity: parseInt(guests),
+          dateStart: new Date(arrivalDate),
+          dateEnd: new Date(departureDate),
+          bedrooms_id: bedroom.id, 
+        },
+      }),
+    ]);
 
     revalidatePath("/dashboard/bookings");
     return {
@@ -55,6 +70,6 @@ export const updateReservation = async (data: {
     };
   } catch (error) {
     console.error("Error al actualizar la reservación: ", error);
-    return { success: false, message: "Error al actualizar la reservación." };
+    return { success: false, message: "Error interno al actualizar." };
   }
 };

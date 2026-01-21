@@ -1,41 +1,44 @@
+// app/actions/reservation.ts
 "use server";
 
 import prisma from "@/lib/db";
-import { Status } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
 export async function cancelReservation(reservationId: number) {
-    try {
-        // Obtiene la reservación actual para verificar su estado
-        const reservation = await prisma.reservation.findUnique({
-            where: { id: reservationId },
-        });
+  try {
+    // 1. Verificamos si existe la reservación
+    const reservation = await prisma.reservation.findUnique({
+      where: { id: reservationId },
+    });
 
-        if (!reservation) {
-            return { success: false, message: 'Reservación no encontrada.' };
-        }
-
-        // Actualiza el estado basado en el estado actual
-        let newStatus: Status;
-        if (reservation.status === Status.CONFIRMED) {
-            newStatus = Status.PENDING; // Si está confirmada, vuelve a pendiente
-        } else if (reservation.status === Status.PENDING) {
-            newStatus = Status.CANCELLED; // Si está pendiente, cambia a cancelada
-        } else {
-            return { success: false, message: 'No se puede cancelar esta reservación.' };
-        }
-
-        // Actualiza la reservación con el nuevo estado
-        await prisma.reservation.update({
-            where: { id: reservationId },
-            data: { status: newStatus },
-        });
-
-        revalidatePath('/dashboard/bookings');
-
-        return { success: true, message: `Reservación actualizada a ${newStatus}.` };
-    } catch (error) {
-        console.error('Error al cancelar la reservación:', error);
-        return { success: false, message: 'Error al cancelar la reservación.' };
+    if (!reservation) {
+      return { success: false, message: "Reservación no encontrada." };
     }
+
+    // 2. Usamos una transacción para cambiar el estado en ambas tablas
+    // Esto NO elimina la fila, solo cambia el texto de la columna 'status'
+    await prisma.$transaction([
+      // Actualiza la tabla principal 'Reservation'
+      prisma.reservation.update({
+        where: { id: reservationId },
+        data: { status: "CANCELLED" }, 
+      }),
+      // Actualiza todos los detalles asociados en 'ReservationDetails'
+      prisma.reservationDetails.updateMany({
+        where: { reservation_id: reservationId },
+        data: { status: "CANCELLED" },
+      }),
+    ]);
+
+    // 3. Refrescamos la ruta para que la tabla en el cliente se actualice
+    revalidatePath("/dashboard/bookings");
+
+    return { 
+      success: true, 
+      message: "La reservación ha sido marcada como cancelada." 
+    };
+  } catch (error) {
+    console.error("Error al cancelar:", error);
+    return { success: false, message: "Hubo un error al intentar cancelar la reservación." };
+  }
 }
