@@ -6,9 +6,7 @@ import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import {
   ClipboardMinus,
-  HandPlatter,
   LayoutDashboard,
-  Settings,
   ShoppingCart,
   UsersRound,
   Pin,
@@ -30,13 +28,17 @@ const links = [
   { name: "usuarios", href: "/dashboard/users", icon: UsersRound },
   { name: "habitaciones", href: "/dashboard/bedrooms", icon: LayoutDashboard },
   { name: "reservaciones", href: "/dashboard/bookings", icon: ShoppingCart },
-  { name: "servicios", href: "/dashboard/services", icon: HandPlatter },
+  // { name: "servicios", href: "/dashboard/services", icon: HandPlatter },
   { name: "reportes", href: "/dashboard/reports", icon: ClipboardMinus },
-  { name: "configuración", href: "/dashboard/settings", icon: Settings },
+  // { name: "configuración", href: "/dashboard/settings", icon: Settings },
   { name: "roles", href: "/dashboard/roles", icon: User },
   { name: "Ofertas", href: "/dashboard/offerts", icon: ShoppingCart },
   { name: "notificaciones", href: "/dashboard/notifications", icon: Bell },
-  { name: "Testimoniales", href: "/dashboard/testimonials", icon: ClipboardMinus },
+  {
+    name: "Testimoniales",
+    href: "/dashboard/testimonials",
+    icon: ClipboardMinus,
+  },
   { name: "Historial", href: "/dashboard/historic", icon: History },
 ];
 
@@ -64,7 +66,6 @@ export default function MainSidebar({ onStateChange }: SidebarProps) {
       console.error("Error al cargar notificaciones:", error);
     }
   };
-
 
   useEffect(() => {
     onStateChange?.(isExpanded || isPinned);
@@ -101,17 +102,17 @@ export default function MainSidebar({ onStateChange }: SidebarProps) {
 
         <div className='flex items-center gap-4'>
           <Button
-            variant="ghost"
-            size="icon"
+            variant='ghost'
+            size='icon'
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="mr-2"
+            className='mr-2'
           >
             {mounted && theme === "dark" ? (
-              <Sun className="h-5 w-5" />
+              <Sun className='h-5 w-5' />
             ) : (
-              <Moon className="h-5 w-5" />
+              <Moon className='h-5 w-5' />
             )}
-            <span className="sr-only">Toggle theme</span>
+            <span className='sr-only'>Toggle theme</span>
           </Button>
 
           <div
@@ -134,7 +135,7 @@ export default function MainSidebar({ onStateChange }: SidebarProps) {
         className={cn(
           "fixed z-30 h-[calc(100vh-4rem)] top-16 left-0 flex flex-col transition-all duration-300 ease-in-out bg-background border-r",
           isMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
-          isExpanded || isPinned ? "w-64" : "w-16"
+          isExpanded || isPinned ? "w-64" : "w-16",
         )}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -149,7 +150,7 @@ export default function MainSidebar({ onStateChange }: SidebarProps) {
                   "flex items-center rounded-md py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors",
                   isExpanded || isPinned
                     ? "px-3 justify-start"
-                    : "px-0 justify-center"
+                    : "px-0 justify-center",
                 )}
               >
                 <div className='relative'>
@@ -176,7 +177,7 @@ export default function MainSidebar({ onStateChange }: SidebarProps) {
               "w-full flex items-center rounded-md py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground",
               isExpanded || isPinned
                 ? "px-3 justify-start"
-                : "px-0 justify-center"
+                : "px-0 justify-center",
             )}
           >
             {isPinned ? (

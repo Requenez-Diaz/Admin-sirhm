@@ -12,6 +12,7 @@ export const updateBedroom = async (data: {
   numberBedroom: number;
   capacity: number;
   status: string;
+  seasonsId: number; // Agregado para coincidir con el formulario
 }) => {
   const {
     bedroomsId,
@@ -22,23 +23,13 @@ export const updateBedroom = async (data: {
     numberBedroom,
     capacity,
     status,
+    seasonsId,
   } = data;
+
   const active = status === "1";
 
   try {
-    const existingBedroom = await prisma.bedrooms.findUnique({
-      where: {
-        id: parseInt(bedroomsId),
-      },
-    });
-
-    if (!existingBedroom) {
-      return {
-        success: false,
-        message: "La habitación no existe.",
-      };
-    }
-
+    // Usamos el update directamente. Si no existe, caerá al catch.
     await prisma.bedrooms.update({
       where: {
         id: parseInt(bedroomsId),
@@ -51,6 +42,9 @@ export const updateBedroom = async (data: {
         numberBedroom,
         capacity,
         status: active,
+        Seasons: {
+          connect: { id: seasonsId },
+        },
       },
     });
 
@@ -58,9 +52,13 @@ export const updateBedroom = async (data: {
 
     return {
       success: true,
-      message: "La habitación se actualizó correctamente.",
+      message: "La habitación y su temporada se actualizaron correctamente.",
     };
   } catch (error) {
-    return { success: false, message: "Error al actualizar la habitación." };
+    console.error("Update Error:", error);
+    return {
+      success: false,
+      message: "Error al actualizar la habitación. Verifique los datos.",
+    };
   }
 };

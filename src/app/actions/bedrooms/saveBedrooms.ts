@@ -17,7 +17,7 @@ export type ActionState = { success: boolean; message: string; data?: any };
 
 export async function saveBedroomsWithUpload(
   _prevState: ActionState,
-  formData: FormData
+  formData: FormData,
 ): Promise<ActionState> {
   try {
     const typeBedroom = String(formData.get("typeBedroom") || "").trim();
@@ -28,7 +28,7 @@ export async function saveBedroomsWithUpload(
     const capacity = Number(formData.get("capacity"));
     const statusStr = String(formData.get("status") ?? "1");
     const seasonType = String(formData.get("seasonType") || "").trim();
-    const isHighSeason = seasonType === "high";
+    const _isHighSeason = seasonType === "high";
 
     const imageUrl = String(formData.get("imageUrl") || "");
     const mimeType = String(formData.get("mimeType") || "");
@@ -51,7 +51,7 @@ export async function saveBedroomsWithUpload(
 
     if (
       [lowSeasonPrice, highSeasonPrice, numberBedroom, capacity].some((n) =>
-        Number.isNaN(n)
+        Number.isNaN(n),
       )
     ) {
       return { success: false, message: "Hay valores numéricos inválidos." };
@@ -81,14 +81,14 @@ export async function saveBedroomsWithUpload(
     const galleryData =
       imageUrl && mimeType && fileName
         ? {
-          create: [
-            {
-              imageContent: imageUrl,
-              mimeType,
-              fileName,
-            },
-          ],
-        }
+            create: [
+              {
+                imageContent: imageUrl,
+                mimeType,
+                fileName,
+              },
+            ],
+          }
         : undefined;
 
     const created = await prisma.bedrooms.create({
@@ -107,7 +107,6 @@ export async function saveBedroomsWithUpload(
             nameSeason: "",
             dateStart: now,
             dateEnd: nextYear,
-            isHighSeason: isHighSeason,
           },
         },
         galleryImages: galleryData,

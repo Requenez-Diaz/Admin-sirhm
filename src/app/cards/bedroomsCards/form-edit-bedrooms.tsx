@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import Icon from "@/components/ui/icons/icons";
-import { Bedrooms, BedroomImages } from "@prisma/client";
+import { Bedrooms, BedroomImages, Seasons } from "@prisma/client"; // Importamos Seasons
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -24,30 +24,24 @@ import GalleryImageUploader from "./add-image";
 const FormSchema = z.object({
   typeBedroom: z.string().min(1, "El tipo de habitación es obligatorio."),
   description: z.string().trim().min(1, "La descripción es obligatoria."),
-  lowSeasonPrice: z.coerce
-    .number()
-    .min(1, "El precio en temporada baja debe ser mayor que cero."),
-  highSeasonPrice: z.coerce
-    .number()
-    .min(1, "El precio en temporada alta debe ser mayor que cero."),
-  numberBedroom: z.coerce
-    .number()
-    .min(1, "El número de habitación debe ser mayor que cero."),
+  lowSeasonPrice: z.coerce.number().min(1, "Precio temporada baja requerido."),
+  highSeasonPrice: z.coerce.number().min(1, "Precio temporada alta requerido."),
+  numberBedroom: z.coerce.number().min(1, "Número de habitación requerido."),
   capacity: z.coerce.number().min(1, "La capacidad debe ser mayor a cero."),
-  status: z.enum(["1", "0"]).refine((val) => val !== undefined, {
-    message: "El estado es obligatorio.",
-  }),
+  seasonsId: z.coerce.number().min(1, "Debes seleccionar una temporada."), // Nuevo campo
+  status: z.enum(["1", "0"]),
 });
 
 type BedroomsWithImages = Bedrooms & {
   galleryImages: BedroomImages[];
 };
 
-export function FormEditBedrooms({
-  bedroom,
-}: {
+interface Props {
   bedroom: BedroomsWithImages | null;
-}) {
+  seasons: Seasons[]; // Recibimos las temporadas desde el componente padre
+}
+
+export function FormEditBedrooms({ bedroom, seasons }: Props) {
   const { toast } = useToast();
   const router = useRouter();
 
@@ -61,73 +55,55 @@ export function FormEditBedrooms({
           highSeasonPrice: bedroom.highSeasonPrice,
           numberBedroom: bedroom.numberBedroom,
           capacity: bedroom.capacity,
+          seasonsId: bedroom.seasonsId, // Valor inicial
           status: bedroom.status ? "1" : "0",
         }
       : {
           typeBedroom: "",
           description: "",
-          lowSeasonPrice: undefined,
-          highSeasonPrice: undefined,
-          numberBedroom: undefined,
-          capacity: undefined,
+          lowSeasonPrice: 0,
+          highSeasonPrice: 0,
+          numberBedroom: 0,
+          capacity: 1,
+          seasonsId: undefined,
           status: "1",
         },
   });
 
   const handleSubmit = async (data: z.infer<typeof FormSchema>) => {
-    if (!bedroom) {
-      toast({
-        title: "Error",
-        description:
-          "No se pudo actualizar la habitación: no se encontró la información.",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (!bedroom) return;
 
     const formData = {
+      ...data,
       bedroomsId: bedroom.id.toString(),
-      typeBedroom: data.typeBedroom,
-      description: data.description,
-      lowSeasonPrice: data.lowSeasonPrice,
-      highSeasonPrice: data.highSeasonPrice,
-      numberBedroom: data.numberBedroom,
-      capacity: data.capacity,
-      status: data.status,
     };
 
     const response = await updateBedroom(formData);
 
     if (response.success) {
-      toast({
-        title: "Habitación actualizada.",
-        description: response.message,
-      });
+      toast({ title: "Actualizado", description: response.message });
       router.refresh();
     } else {
       toast({
         title: "Error",
-        description:
-          response.message ||
-          "Ha ocurrido un error al actualizar la habitación.",
+        description: response.message,
         variant: "destructive",
       });
     }
   };
 
-  if (!bedroom) {
-    return <p>Error: No se encontró la habitación</p>;
-  }
+  if (!bedroom) return <p>No se encontró la habitación</p>;
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
-        className='grid gap-4 py-4'
+        className='grid gap-6 py-4 max-h-[80vh] overflow-y-auto px-1'
       >
         <input type='hidden' name='bedroomsId' value={bedroom.id} />
 
-        <div className='grid grid-cols-2 gap-4'>
+        {/* --- Responsivo: 1 col en móvil, 2 en desktop --- */}
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           <FormField
             control={form.control}
             name='typeBedroom'
@@ -135,14 +111,7 @@ export function FormEditBedrooms({
               <FormItem>
                 <FormLabel>Tipo de habitación</FormLabel>
                 <FormControl>
-                  <Input
-                    id='typeBedroom'
-                    type='text'
-                    placeholder='Escribe el tipo de habitación'
-                    {...field}
-                    className='border border-gray-300 rounded px-2 py-1 w-full'
-                    disabled={true} // <-- El campo ya no es editable
-                  />
+                  <Input {...field} disabled className='bg-muted' />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -156,13 +125,7 @@ export function FormEditBedrooms({
               <FormItem>
                 <FormLabel>Descripción</FormLabel>
                 <FormControl>
-                  <Input
-                    id='description'
-                    type='text'
-                    placeholder='Descripción de la habitación'
-                    {...field}
-                    className='border border-gray-300 rounded px-2 py-1 w-full'
-                  />
+                  <Input {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -170,22 +133,15 @@ export function FormEditBedrooms({
           />
         </div>
 
-        <div className='grid grid-cols-2 gap-4'>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           <FormField
             control={form.control}
             name='lowSeasonPrice'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Temporada baja</FormLabel>
+                <FormLabel>Precio Temporada Baja</FormLabel>
                 <FormControl>
-                  <Input
-                    id='lowSeasonPrice'
-                    type='number'
-                    min='1'
-                    placeholder='Precio temporada baja'
-                    {...field}
-                    className='border border-gray-300 rounded px-2 py-1 w-full'
-                  />
+                  <Input type='number' {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -197,16 +153,9 @@ export function FormEditBedrooms({
             name='highSeasonPrice'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Temporada alta</FormLabel>
+                <FormLabel>Precio Temporada Alta</FormLabel>
                 <FormControl>
-                  <Input
-                    id='highSeasonPrice'
-                    type='number'
-                    min='1'
-                    placeholder='Precio temporada alta'
-                    {...field}
-                    className='border border-gray-300 rounded px-2 py-1 w-full'
-                  />
+                  <Input type='number' {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -214,7 +163,30 @@ export function FormEditBedrooms({
           />
         </div>
 
-        <div className='grid grid-cols-2 gap-4'>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+          {/* NUEVO CAMPO: Temporada Actual */}
+          <FormField
+            control={form.control}
+            name='seasonsId'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Temporada Asignada</FormLabel>
+                <select
+                  {...field}
+                  className='flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring'
+                >
+                  <option value=''>Selecciona...</option>
+                  {seasons.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.nameSeason}
+                    </option>
+                  ))}
+                </select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={form.control}
             name='capacity'
@@ -222,13 +194,7 @@ export function FormEditBedrooms({
               <FormItem>
                 <FormLabel>Capacidad</FormLabel>
                 <FormControl>
-                  <Input
-                    id='capacity'
-                    type='number'
-                    min='1'
-                    placeholder='Capacidad de la habitación'
-                    {...field}
-                  />
+                  <Input type='number' {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -240,16 +206,9 @@ export function FormEditBedrooms({
             name='numberBedroom'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Número de habitación</FormLabel>
+                <FormLabel>N° Habitación</FormLabel>
                 <FormControl>
-                  <Input
-                    id='numberBedroom'
-                    type='number'
-                    min='1'
-                    placeholder='Número de habitación'
-                    {...field}
-                    className='border border-gray-300 rounded px-2 py-1 w-full'
-                  />
+                  <Input type='number' {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -257,20 +216,24 @@ export function FormEditBedrooms({
           />
         </div>
 
-        <div className='grid grid-cols-2 gap-4'>
-          <div>
-            <label htmlFor='status' className='text-right'>
-              Estado
-            </label>
-            <select
-              id='status'
-              {...form.register("status")}
-              className='border border-gray-300 rounded px-2 py-1 w-full'
-            >
-              <option value='1'>Activo</option>
-              <option value='0'>Inactivo</option>
-            </select>
-          </div>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+          <FormField
+            control={form.control}
+            name='status'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Estado</FormLabel>
+                <select
+                  {...field}
+                  className='flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring'
+                >
+                  <option value='1'>Activo</option>
+                  <option value='0'>Inactivo</option>
+                </select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
         <GalleryImageUploader
@@ -279,21 +242,21 @@ export function FormEditBedrooms({
           onImageUploaded={() => router.refresh()}
         />
 
-        <DialogFooter className='flex justify-end gap-4'>
+        <DialogFooter className='flex flex-col-reverse sm:flex-row sm:justify-end gap-3'>
           <DialogClose asChild>
-            <Button type='button' variant='outline'>
-              <Icon action='undo' className='mr-2' />
-              Cancelar
+            <Button
+              type='button'
+              variant='outline'
+              className='w-full sm:w-auto'
+            >
+              <Icon action='undo' className='mr-2' /> Cancelar
             </Button>
           </DialogClose>
-          <Button type='submit' variant='success'>
-            <Icon action='save' className='mr-2' />
-            Actualizar
+          <Button type='submit' variant='success' className='w-full sm:w-auto'>
+            <Icon action='save' className='mr-2' /> Actualizar
           </Button>
         </DialogFooter>
       </form>
     </Form>
   );
 }
-
-export default FormEditBedrooms;
