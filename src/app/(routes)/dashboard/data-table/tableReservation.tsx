@@ -44,16 +44,7 @@ const TableReservation: React.FC<TableReservationProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const reservationsPerPage = 10;
 
-  const contadoresEstado: Record<BookingStatus, number> = {
-    PENDING: 0,
-    CONFIRMED: 0,
-    CANCELLED: 0,
-  };
-
-  reservations.forEach((res) => {
-    contadoresEstado[res.status]++;
-  });
-
+  // Mapeo de estados y estilos
   const statusVariants: Record<BookingStatus, BadgeProps["variant"]> = {
     PENDING: "info",
     CONFIRMED: "success",
@@ -66,39 +57,43 @@ const TableReservation: React.FC<TableReservationProps> = ({
     CANCELLED: "Cancelado",
   };
 
+  // 1. LÓGICA DE FILTRADO UNIFICADA
   const filteredReservations = reservations.filter((res) => {
     const term = searchTerm.toLowerCase();
+    const userName = (res.userName ?? "").toLowerCase();
+    const email = (res.email ?? "").toLowerCase();
+    const statusLabel = statusLabels[res.status];
 
-    if (selectedFilter === "Todo") return true;
+    // Filtro por Estado (Dropdown)
+    const matchesStatus =
+      selectedFilter === "Todo" || statusLabel === selectedFilter;
 
-    if (selectedFilter === "Nombre") {
-      return (res.userName ?? "").toLowerCase().includes(term);
-    }
+    const matchesSearch = userName.includes(term) || email.includes(term);
 
-    if (selectedFilter === "Apellido") {
-      return (res.userName ?? "").toLowerCase().includes(term);
-    }
-
-    if (selectedFilter === "Estado") {
-      return statusLabels[res.status].toLowerCase().includes(term);
-    }
-
-    if (selectedFilter === "Email") {
-      return (res.email ?? "").toLowerCase().includes(term);
-    }
-
-    return true;
+    return matchesStatus && matchesSearch;
   });
 
+  // 2. CONTADORES (Basados en la data original para los badges superiores)
+  const contadoresEstado: Record<BookingStatus, number> = {
+    PENDING: 0,
+    CONFIRMED: 0,
+    CANCELLED: 0,
+  };
+
+  reservations.forEach((res) => {
+    contadoresEstado[res.status]++;
+  });
+
+  // 3. PAGINACIÓN
   const indexOfLastReservation = currentPage * reservationsPerPage;
   const indexOfFirstReservation = indexOfLastReservation - reservationsPerPage;
   const currentReservations = filteredReservations.slice(
     indexOfFirstReservation,
-    indexOfLastReservation
+    indexOfLastReservation,
   );
 
   const totalPages = Math.ceil(
-    filteredReservations.length / reservationsPerPage
+    filteredReservations.length / reservationsPerPage,
   );
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
@@ -132,7 +127,10 @@ const TableReservation: React.FC<TableReservationProps> = ({
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
           selectedFilter={selectedFilter}
-          setSelectedFilter={setSelectedFilter}
+          setSelectedFilter={(filter) => {
+            setSelectedFilter(filter);
+            setCurrentPage(1); // Resetear a pag 1 al filtrar
+          }}
         />
       </div>
 
@@ -149,10 +147,10 @@ const TableReservation: React.FC<TableReservationProps> = ({
                 Email
               </TableHead>
               <TableHead className='text-xs sm:text-sm'>Estado</TableHead>
-              <TableHead className='hidden sm:table-cell text-xs sm:text-sm'>
+              <TableHead className='hidden sm:table-cell text-xs sm:text-sm text-center'>
                 Huéspedes
               </TableHead>
-              <TableHead className='hidden sm:table-cell text-xs sm:text-sm'>
+              <TableHead className='hidden sm:table-cell text-xs sm:text-sm text-center'>
                 Habitaciones
               </TableHead>
               <TableHead className='text-xs sm:text-sm'>
@@ -167,132 +165,123 @@ const TableReservation: React.FC<TableReservationProps> = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {currentReservations.map((reservation) => {
-              // Convierte ISO a Date
-              const arrival = reservation.arrivalDate
-                ? new Date(reservation.arrivalDate)
-                : null;
-              const departure = reservation.departureDate
-                ? new Date(reservation.departureDate)
-                : null;
+            {currentReservations.length > 0 ? (
+              currentReservations.map((reservation) => {
+                const arrival = reservation.arrivalDate
+                  ? new Date(reservation.arrivalDate)
+                  : null;
+                const departure = reservation.departureDate
+                  ? new Date(reservation.departureDate)
+                  : null;
+                const duration = calculateDuration(arrival, departure);
+                const durationLabel = duration === 1 ? "noche" : "noches";
 
-              const duration = calculateDuration(arrival, departure);
-              const durationLabel = duration === 1 ? "noche" : "noches";
+                // Dividir nombre para mostrar en columnas separadas
+                const [firstName, ...lastParts] = (
+                  reservation.userName ?? ""
+                ).split(" ");
+                const lastName = lastParts.join(" ");
 
-              const [firstName, ...lastParts] = (
-                reservation.userName ?? ""
-              ).split(" ");
-              const lastName = lastParts.join(" ");
-
-              return (
-                <TableRow key={reservation.id} className='border-b'>
-                  <TableCell className='text-xs sm:text-sm'>
-                    {reservation.id}
-                  </TableCell>
-
-                  <TableCell className='text-xs sm:text-sm'>
-                    {firstName || reservation.userName || "—"}
-                  </TableCell>
-
-                  <TableCell className='hidden sm:table-cell text-xs sm:text-sm'>
-                    {lastName || "—"}
-                  </TableCell>
-
-                  <TableCell className='hidden md:table-cell text-xs sm:text-sm'>
-                    {reservation.email ?? "—"}
-                  </TableCell>
-
-                  <TableCell className='text-xs sm:text-sm'>
-                    <Badge variant={statusVariants[reservation.status]}>
-                      {statusLabels[reservation.status]}
-                    </Badge>
-                  </TableCell>
-
-                  <TableCell className='hidden sm:table-cell text-xs sm:text-sm'>
-                    {reservation.guests}
-                  </TableCell>
-
-                  <TableCell className='hidden sm:table-cell text-xs sm:text-sm'>
-                    {reservation.rooms}
-                  </TableCell>
-
-                  <TableCell className='text-xs sm:text-sm'>
-                    {reservation.bedroomsType || "—"}
-                  </TableCell>
-
-                  <TableCell className='text-xs sm:text-sm text-right'>
-                    {duration} {durationLabel}
-                  </TableCell>
-
-                  <TableCell className='text-xs sm:text-sm text-right'>
-                    {arrival
-                      ? arrival.toLocaleDateString("es-ES", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "2-digit",
-                        })
-                      : "—"}{" "}
-                    -{" "}
-                    {departure
-                      ? departure.toLocaleDateString("es-ES", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "2-digit",
-                        })
-                      : "—"}
-                  </TableCell>
-
-                  <TableCell className='text-xs sm:text-sm text-right'>
-                    {reservation.offerts ?? "N/A"}
-                  </TableCell>
-
-                  <TableCell className='flex flex-wrap gap-2 text-xs sm:text-sm'>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant='ghost' className='h-8 w-8 p-0'>
-                          <span className='sr-only'>Open menu</span>
-                          <MoreHorizontal />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        align='end'
-                        className='flex flex-col'
-                      >
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
-                        <DropdownMenuItem
-                          onSelect={(e) => e.preventDefault()}
-                          asChild
-                        >
-                          <ConfirmReservation reservationId={reservation.id} />
-                        </DropdownMenuItem>
-
-                        <DropdownMenuItem
-                          onSelect={(e) => e.preventDefault()}
-                          asChild
-                        >
-                          <CancellReservation reservationId={reservation.id} />
-                        </DropdownMenuItem>
-
-                        <DropdownMenuItem
-                          onSelect={(e) => e.preventDefault()}
-                          asChild
-                        >
-                          <EditReservation reservationId={reservation.id} />
-                        </DropdownMenuItem>
-
-                        <DropdownMenuItem
-                          onSelect={(e) => e.preventDefault()}
-                          asChild
-                        >
-                          <ViewReservation reservationId={reservation.id} />
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+                return (
+                  <TableRow key={reservation.id} className='border-b'>
+                    <TableCell className='text-xs sm:text-sm'>
+                      {reservation.id}
+                    </TableCell>
+                    <TableCell className='text-xs sm:text-sm'>
+                      {firstName || "—"}
+                    </TableCell>
+                    <TableCell className='hidden sm:table-cell text-xs sm:text-sm'>
+                      {lastName || "—"}
+                    </TableCell>
+                    <TableCell className='hidden md:table-cell text-xs sm:text-sm'>
+                      {reservation.email ?? "—"}
+                    </TableCell>
+                    <TableCell className='text-xs sm:text-sm'>
+                      <Badge variant={statusVariants[reservation.status]}>
+                        {statusLabels[reservation.status]}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className='hidden sm:table-cell text-xs sm:text-sm text-center'>
+                      {reservation.guests}
+                    </TableCell>
+                    <TableCell className='hidden sm:table-cell text-xs sm:text-sm text-center'>
+                      {reservation.rooms}
+                    </TableCell>
+                    <TableCell className='text-xs sm:text-sm'>
+                      {reservation.bedroomsType || "—"}
+                    </TableCell>
+                    <TableCell className='text-xs sm:text-sm text-right'>
+                      {duration} {durationLabel}
+                    </TableCell>
+                    <TableCell className='text-xs sm:text-sm text-right'>
+                      {arrival?.toLocaleDateString("es-ES", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "2-digit",
+                      }) || "—"}{" "}
+                      -{" "}
+                      {departure?.toLocaleDateString("es-ES", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "2-digit",
+                      }) || "—"}
+                    </TableCell>
+                    <TableCell className='text-xs sm:text-sm text-right'>
+                      {reservation.offerts ?? "N/A"}
+                    </TableCell>
+                    <TableCell className='text-xs sm:text-sm'>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant='ghost' className='h-8 w-8 p-0'>
+                            <MoreHorizontal className='h-4 w-4' />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align='end'>
+                          <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                          <DropdownMenuItem
+                            onSelect={(e) => e.preventDefault()}
+                            asChild
+                          >
+                            <ConfirmReservation
+                              reservationId={reservation.id}
+                            />
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onSelect={(e) => e.preventDefault()}
+                            asChild
+                          >
+                            <CancellReservation
+                              reservationId={reservation.id}
+                            />
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onSelect={(e) => e.preventDefault()}
+                            asChild
+                          >
+                            <EditReservation reservationId={reservation.id} />
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onSelect={(e) => e.preventDefault()}
+                            asChild
+                          >
+                            <ViewReservation reservationId={reservation.id} />
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={12}
+                  className='text-center py-10 text-gray-500'
+                >
+                  No se encontraron reservaciones que coincidan con los filtros.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>
