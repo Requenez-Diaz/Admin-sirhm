@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
-import { Search, ChevronDown, Check, X } from "lucide-react";
+import { ChevronDown, Check, X } from "lucide-react";
 
 interface FilterProps {
   searchTerm: string;
@@ -51,16 +51,12 @@ export function Filter({
   return (
     <div className='relative flex items-center gap-2'>
       <div className='relative w-full max-w-md'>
-        <Search
-          className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400'
-          size={20}
-        />
         <input
           type='text'
           placeholder='Buscar por nombre, apellido o email...'
           value={searchTerm}
           onChange={handleSearchChange}
-          className='w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 transition-all'
+          className='flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all'
         />
       </div>
 

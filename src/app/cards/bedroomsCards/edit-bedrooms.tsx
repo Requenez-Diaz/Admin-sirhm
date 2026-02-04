@@ -1,3 +1,5 @@
+"use client"; // Asegúrate de tener esto arriba
+
 import {
   Dialog,
   DialogContent,
@@ -6,17 +8,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { getBedroomsById } from "@/app/actions/bedrooms";
-
 import Icon from "@/components/ui/icons/icons";
-import prisma from "@/lib/db";
 import { FormEditBedrooms } from "./form-edit-bedrooms";
+import { Seasons, Bedrooms, BedroomImages } from "@prisma/client";
 
-export async function EditBedrooms({ bedroomId }: { bedroomId: number }) {
-  const bedroom = await getBedroomsById(bedroomId);
-  const seasons = await prisma.seasons.findMany();
+// Definimos el tipo para la habitación con sus imágenes
+type BedroomsWithImages = Bedrooms & {
+  galleryImages: BedroomImages[];
+};
 
+interface EditBedroomsProps {
+  bedroom: BedroomsWithImages;
+  seasons: Seasons[];
+}
+
+export function EditBedrooms({ bedroom, seasons }: EditBedroomsProps) {
   if (!bedroom) {
     return <p>Error: No se encontró la habitación</p>;
   }
@@ -24,17 +30,19 @@ export async function EditBedrooms({ bedroomId }: { bedroomId: number }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant='ghost'>
-          <Icon action='edit' />
-        </Button>
+        <button className='flex items-center gap-2 text-sm px-2 py-1 rounded hover:bg-accent hover:text-accent-foreground transition'>
+          <Icon action='edit' className='w-4 h-4 opacity-80' />
+          Editar
+        </button>
       </DialogTrigger>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
           <DialogTitle>Editar habitaciones</DialogTitle>
           <DialogDescription>
-            Esta seguro de actualizar la información de la habitación?
+            ¿Estás seguro de actualizar la información de la habitación?
           </DialogDescription>
         </DialogHeader>
+        {/* Pasamos los datos directamente al formulario */}
         <FormEditBedrooms bedroom={bedroom} seasons={seasons} />
       </DialogContent>
     </Dialog>
