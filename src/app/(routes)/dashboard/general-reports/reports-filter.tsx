@@ -52,12 +52,12 @@ export default function ReportFilters() {
           className='w-48'
         />
       </div>
-      <Button type='submit' variant='default'>
+      <Button type='submit' variant='success'>
         Aplicar Filtros
       </Button>
       <Button
         type='button'
-        variant='outline'
+        variant='destructive'
         onClick={() => router.push(pathname)}
         className='flex gap-2'
       >

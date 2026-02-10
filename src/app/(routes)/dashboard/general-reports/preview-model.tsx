@@ -31,7 +31,7 @@ export default function ReportPreview({ data, metrics, periodo }: Props) {
     doc.setFontSize(10);
     doc.text(`Periodo: ${periodo}`, 14, 28);
     doc.text(
-      `Ingreso Total: $${metrics.ingresosTotales.toLocaleString()}`,
+      `Ingreso Total: C$${metrics.ingresosTotales.toLocaleString()}`,
       14,
       34,
     );
@@ -43,7 +43,7 @@ export default function ReportPreview({ data, metrics, periodo }: Props) {
         ...data.map((r) => [
           r.Cliente,
           r.Email,
-          `$${r.Total_Gastado.toLocaleString()}`,
+          `C$${r.Total_Gastado.toLocaleString()}`,
           r.Hab_Ocupadas,
         ]),
         [
@@ -53,7 +53,7 @@ export default function ReportPreview({ data, metrics, periodo }: Props) {
             styles: { halign: "right", fontStyle: "bold" },
           },
           {
-            content: `$${metrics.ingresosTotales.toLocaleString()}`,
+            content: `C$${metrics.ingresosTotales.toLocaleString()}`,
             styles: { fontStyle: "bold" },
           },
           "",
@@ -61,7 +61,6 @@ export default function ReportPreview({ data, metrics, periodo }: Props) {
       ],
     });
 
-    // En lugar de doc.save(), usamos output('bloburl')
     const blob = doc.output("bloburl");
     setPdfUrl(blob as unknown as string);
   };

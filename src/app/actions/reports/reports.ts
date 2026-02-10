@@ -21,59 +21,60 @@ export async function getReservationReport(
           }
         : {};
 
-    const users = await prisma.user.findMany({
-      select: {
-        username: true,
-        email: true,
-        Reservation: {
-          where: dateFilter,
-          include: { ReservationDetails: true },
+    // Buscamos directamente las reservaciones del periodo
+    const reservations = await prisma.reservation.findMany({
+      where: dateFilter,
+      include: {
+        User: true,
+        ReservationDetails: {
+          include: { Bedrooms: true },
         },
       },
+      orderBy: { createdAt: "desc" },
     });
 
     let globalTotalRevenue = 0;
     const uniqueOccupiedRooms = new Set();
 
-    const reportData = users
-      .map((user) => {
-        let userSpent = 0;
-        const userRooms = new Set();
+    // Transformamos cada reserva en una fila del reporte
+    const reservationsList = reservations.map((res) => {
+      const totalMontoReserva = res.ReservationDetails.reduce(
+        (acc, detail) => acc + detail.price,
+        0,
+      );
+      globalTotalRevenue += totalMontoReserva;
 
-        user.Reservation.forEach((res) => {
-          res.ReservationDetails.forEach((detail) => {
-            userSpent += detail.price;
-            userRooms.add(detail.bedrooms_id);
-            uniqueOccupiedRooms.add(detail.bedrooms_id);
-          });
-        });
+      res.ReservationDetails.forEach((d) =>
+        uniqueOccupiedRooms.add(d.bedrooms_id),
+      );
 
-        globalTotalRevenue += userSpent;
-
-        return {
-          Cliente: user.username,
-          Email: user.email,
-          Total_Gastado: userSpent,
-          Hab_Ocupadas: userRooms.size,
-          Frecuencia: user.Reservation.length,
-        };
-      })
-      .filter((u) => u.Frecuencia > 0 || !startDate);
+      return {
+        id: res.id,
+        fecha: res.createdAt.toISOString(),
+        cliente: res.User.username,
+        email: res.User.email,
+        monto: totalMontoReserva,
+        habitaciones: res.ReservationDetails.map(
+          (d) => d.Bedrooms.numberBedroom,
+        ).join(", "),
+      };
+    });
 
     return {
       success: true,
-      data: reportData,
+      data: reservationsList,
       metrics: {
         ingresosTotales: globalTotalRevenue,
         tasaOcupacion:
           totalRoomsCount > 0
             ? ((uniqueOccupiedRooms.size / totalRoomsCount) * 100).toFixed(1)
             : "0",
-        totalHabitaciones: totalRoomsCount,
+        totalReservas: reservations.length,
         conteoOcupadas: uniqueOccupiedRooms.size,
       },
     };
   } catch (error) {
-    return { success: false, error: "Error al generar el reporte" };
+    console.error("Error en reporte:", error);
+    return { success: false, error: "Error al obtener las reservaciones" };
   }
 }

@@ -1,9 +1,14 @@
 import { getReservationReport } from "@/app/actions/reports/reports";
 import ReportButtons from "./reports-button";
-
-import { Card, CardContent } from "@/components/ui/card";
-import {Users, Hotel } from "lucide-react";
 import ReportFilters from "./reports-filter";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  ClipboardList,
+  Hotel,
+  Calendar,
+  User,
+  ArrowUpRight,
+} from "lucide-react";
 
 export default async function ReportPage(props: {
   searchParams: Promise<{ start?: string; end?: string }>;
@@ -12,22 +17,34 @@ export default async function ReportPage(props: {
   const { start, end } = searchParams;
 
   const result = await getReservationReport(start, end);
-  if (!result.success || !result.data)
-    return <div className='p-10'>Error al cargar datos.</div>;
+
+  if (!result.success || !result.data) {
+    return (
+      <div className='p-10 text-center text-destructive'>
+        Error al cargar datos.
+      </div>
+    );
+  }
 
   return (
-    <div className='p-8 max-w-7xl mx-auto space-y-6'>
-      <div className='flex justify-between items-end'>
-        <div>
-          <h1 className='text-3xl font-black'>Reportes Financieros</h1>
-          <p className='text-muted-foreground mt-1'>
-            Creado por:{" "}
-            <span className='font-bold text-foreground'>Administración</span> |
-            Periodo:{" "}
-            <span className='font-bold text-foreground'>
-              {start || "Inicio"} - {end || "Hoy"}
+    <div className='p-8 max-w-7xl mx-auto space-y-8 bg-background text-foreground transition-colors'>
+      {/* HEADER */}
+      <div className='flex flex-col md:flex-row justify-between items-start md:items-end gap-4'>
+        <div className='space-y-1'>
+          <h1 className='text-3xl font-black tracking-tight border-l-4 border-primary pl-4 uppercase'>
+            Control de Reservaciones
+          </h1>
+          <div className='flex items-center gap-3 text-sm text-muted-foreground'>
+            <span className='flex items-center gap-1'>
+              <User className='w-3 h-3' /> Admin
             </span>
-          </p>
+            <span>•</span>
+            <span className='flex items-center gap-1'>
+              <Calendar className='w-3 h-3' />
+              {start ? new Date(start).toLocaleDateString() : "Inicio"} -{" "}
+              {end ? new Date(end).toLocaleDateString() : "Hoy"}
+            </span>
+          </div>
         </div>
         <ReportButtons
           data={result.data}
@@ -37,85 +54,116 @@ export default async function ReportPage(props: {
         />
       </div>
 
-      {/* PANEL DE PREVISUALIZACIÓN RÁPIDA (DASHBOARD) */}
-      <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-        <Card className='bg-slate-900 text-white'>
+      {/* DASHBOARD DE MÉTRICAS */}
+      <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+        <Card className='bg-primary text-primary-foreground border-none shadow-xl'>
           <CardContent className='pt-6'>
-            <p className='text-xs text-slate-400 uppercase font-bold tracking-widest'>
-              Ingreso Total
+            <p className='text-xs uppercase font-bold opacity-80'>
+              Ingreso Bruto Periodo
             </p>
-            <h2 className='text-3xl font-black mt-2 text-green-400'>
-              ${result.metrics.ingresosTotales.toLocaleString()}
-            </h2>
+            <div className='flex items-center justify-between'>
+              <h2 className='text-4xl font-black mt-1'>
+                C${result.metrics.ingresosTotales.toLocaleString()}
+              </h2>
+              <ArrowUpRight className='w-8 h-8 opacity-50' />
+            </div>
           </CardContent>
         </Card>
-        <Card>
+
+        <Card className='bg-card border-border'>
           <CardContent className='pt-6 flex justify-between items-center'>
             <div>
               <p className='text-xs text-muted-foreground uppercase font-bold'>
-                Ocupación
+                Reservas Realizadas
               </p>
-              <h2 className='text-3xl font-black mt-2 text-blue-600'>
+              <h2 className='text-3xl font-black mt-1'>
+                {result.metrics.totalReservas}
+              </h2>
+            </div>
+            <div className='bg-muted p-3 rounded-full'>
+              <ClipboardList className='w-6 h-6 text-muted-foreground' />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className='bg-card border-border'>
+          <CardContent className='pt-6 flex justify-between items-center'>
+            <div>
+              <p className='text-xs text-muted-foreground uppercase font-bold'>
+                Ocupación Real
+              </p>
+              <h2 className='text-3xl font-black mt-1 text-blue-500'>
                 {result.metrics.tasaOcupacion}%
               </h2>
             </div>
-            <Hotel className='w-8 h-8 text-blue-200' />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className='pt-6 flex justify-between items-center'>
-            <div>
-              <p className='text-xs text-muted-foreground uppercase font-bold'>
-                Clientes Activos
-              </p>
-              <h2 className='text-3xl font-black mt-2 text-purple-600'>
-                {result.data.length}
-              </h2>
+            <div className='bg-blue-500/10 p-3 rounded-full'>
+              <Hotel className='w-6 h-6 text-blue-500' />
             </div>
-            <Users className='w-8 h-8 text-purple-200' />
           </CardContent>
         </Card>
       </div>
 
       <ReportFilters />
 
-      <div className='bg-white rounded-xl border shadow-sm overflow-hidden'>
-        <table className='min-w-full divide-y divide-gray-200'>
-          <thead className='bg-gray-50'>
-            <tr className='text-[10px] font-bold uppercase text-gray-400'>
-              <th className='px-6 py-4 text-left'>Cliente</th>
-              <th className='px-6 py-4 text-left'>Ingresos</th>
-              <th className='px-6 py-4 text-center'>Habitaciones</th>
-              <th className='px-6 py-4 text-center'>Reservas</th>
-            </tr>
-          </thead>
-          <tbody className='divide-y divide-gray-100'>
-            {result.data.map((row: any) => (
-              <tr
-                key={row.Email}
-                className='hover:bg-gray-50 transition text-sm'
-              >
-                <td className='px-6 py-4'>
-                  <div className='font-bold text-gray-900'>{row.Cliente}</div>
-                  <div className='text-xs text-gray-500 font-mono'>
-                    {row.Email}
-                  </div>
-                </td>
-                <td className='px-6 py-4 font-mono font-bold text-green-700'>
-                  ${row.Total_Gastado.toLocaleString()}
-                </td>
-                <td className='px-6 py-4 text-center'>
-                  <span className='px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold border border-blue-100'>
-                    {row.Hab_Ocupadas}
-                  </span>
-                </td>
-                <td className='px-6 py-4 text-center font-semibold'>
-                  {row.Frecuencia}
-                </td>
+      {/* TABLA DE RESERVAS INDIVIDUALES */}
+      <div className='bg-card text-card-foreground rounded-xl border border-border shadow-sm overflow-hidden'>
+        <div className='px-6 py-4 border-b border-border bg-muted/20'>
+          <h3 className='font-bold text-xs uppercase tracking-widest text-muted-foreground'>
+            Detalle de Reservas del Periodo
+          </h3>
+        </div>
+        <div className='overflow-x-auto'>
+          <table className='min-w-full divide-y divide-border'>
+            <thead className='bg-muted/50'>
+              <tr className='text-[10px] font-bold uppercase text-muted-foreground tracking-tighter'>
+                <th className='px-6 py-4 text-left'>Fecha Emisión</th>
+                <th className='px-6 py-4 text-left'>Cliente / Usuario</th>
+                <th className='px-6 py-4 text-center'>Habitaciones</th>
+                <th className='px-6 py-4 text-right'>Monto Total</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className='divide-y divide-border'>
+              {result.data.map((res: any) => (
+                <tr
+                  key={res.id}
+                  className='hover:bg-muted/30 transition-colors text-sm group'
+                >
+                  <td className='px-6 py-4 whitespace-nowrap text-muted-foreground font-mono text-xs'>
+                    {new Date(res.fecha).toLocaleDateString("es-ES", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </td>
+                  <td className='px-6 py-4'>
+                    <div className='font-bold text-foreground group-hover:text-primary transition-colors'>
+                      {res.cliente}
+                    </div>
+                    <div className='text-xs text-muted-foreground'>
+                      {res.email}
+                    </div>
+                  </td>
+                  <td className='px-6 py-4 text-center'>
+                    <span className='px-2 py-1 bg-secondary text-secondary-foreground rounded text-[10px] font-black border border-border'>
+                      HAB: {res.habitaciones || "N/A"}
+                    </span>
+                  </td>
+                  <td className='px-6 py-4 text-right font-mono font-bold text-emerald-600 dark:text-emerald-400'>
+                    C${res.monto.toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {result.data.length === 0 && (
+          <div className='p-16 text-center text-muted-foreground italic'>
+            No existen registros para el rango de fechas proporcionado.
+          </div>
+        )}
       </div>
     </div>
   );

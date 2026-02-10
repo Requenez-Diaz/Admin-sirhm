@@ -16,6 +16,8 @@ import {
   Bell,
   Moon,
   Sun,
+  MessageCircle,
+  BookIcon,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -26,7 +28,7 @@ import { getUnreadNotificationsCount } from "@/app/actions/notification/getUnrea
 const links = [
   { name: "usuarios", href: "/dashboard/users", icon: UsersRound },
   { name: "habitaciones", href: "/dashboard/bedrooms", icon: LayoutDashboard },
-  { name: "reservaciones", href: "/dashboard/bookings", icon: ShoppingCart },
+  { name: "reservaciones", href: "/dashboard/bookings", icon: BookIcon },
   // { name: "servicios", href: "/dashboard/services", icon: HandPlatter },
   // { name: "reportes", href: "/dashboard/reports", icon: ClipboardMinus },
   // { name: "configuración", href: "/dashboard/settings", icon: Settings },
@@ -34,14 +36,14 @@ const links = [
   { name: "Ofertas", href: "/dashboard/offerts", icon: ShoppingCart },
   // { name: "notificaciones", href: "/dashboard/notifications", icon: Bell },
   {
-    name: "general-reports",
+    name: "Reportes generales",
     href: "/dashboard/general-reports",
-    icon: LayoutDashboard,
+    icon: ClipboardMinus,
   },
   {
     name: "Testimoniales",
     href: "/dashboard/testimonials",
-    icon: ClipboardMinus,
+    icon: MessageCircle,
   },
   // { name: "Historial", href: "/dashboard/historic", icon: History },
 ];
