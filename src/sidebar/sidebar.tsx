@@ -4,48 +4,59 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import {
-  ClipboardMinus,
-  LayoutDashboard,
-  ShoppingCart,
-  UsersRound,
-  Pin,
-  PinOff,
-  Menu,
-  User,
-  Bell,
-  Moon,
-  Sun,
-  MessageCircle,
-  BookIcon,
-} from "lucide-react";
-
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import UserProfile from "./components/usersProfile";
 import { getUnreadNotificationsCount } from "@/app/actions/notification/getUnreadNotificationsCount";
 
+import {
+  BedDouble,
+  CalendarCheck,
+  ShieldCheck,
+  Tag,
+  BarChart3,
+  MessageSquareQuote,
+  UsersRound,
+  Pin,
+  PinOff,
+  Menu,
+  Bell,
+  Moon,
+  Sun,
+} from "lucide-react";
+
 const links = [
   { name: "usuarios", href: "/dashboard/users", icon: UsersRound },
-  { name: "habitaciones", href: "/dashboard/bedrooms", icon: LayoutDashboard },
-  { name: "reservaciones", href: "/dashboard/bookings", icon: BookIcon },
-  // { name: "servicios", href: "/dashboard/services", icon: HandPlatter },
-  // { name: "reportes", href: "/dashboard/reports", icon: ClipboardMinus },
-  // { name: "configuración", href: "/dashboard/settings", icon: Settings },
-  { name: "roles", href: "/dashboard/roles", icon: User },
-  { name: "Ofertas", href: "/dashboard/offerts", icon: ShoppingCart },
-  // { name: "notificaciones", href: "/dashboard/notifications", icon: Bell },
+  {
+    name: "habitaciones",
+    href: "/dashboard/bedrooms",
+    icon: BedDouble,
+  },
+  {
+    name: "reservaciones",
+    href: "/dashboard/bookings",
+    icon: CalendarCheck,
+  },
+  {
+    name: "roles",
+    href: "/dashboard/roles",
+    icon: ShieldCheck,
+  },
+  {
+    name: "Ofertas",
+    href: "/dashboard/offerts",
+    icon: Tag,
+  },
   {
     name: "Reportes generales",
     href: "/dashboard/general-reports",
-    icon: ClipboardMinus,
+    icon: BarChart3,
   },
   {
     name: "Testimoniales",
     href: "/dashboard/testimonials",
-    icon: MessageCircle,
+    icon: MessageSquareQuote,
   },
-  // { name: "Historial", href: "/dashboard/historic", icon: History },
 ];
 
 interface SidebarProps {
