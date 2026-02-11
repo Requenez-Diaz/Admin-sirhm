@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/db";
-import { BookingsStatus, NotificationType } from "@prisma/client"; // ajusta si tu enum de notificaciones se llama distinto
+import { BookingsStatus, NotificationType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
 export async function confirmReservation(reservationId: number) {
@@ -11,14 +11,16 @@ export async function confirmReservation(reservationId: number) {
       include: {
         User: true,
         ReservationDetails: {
-          select: { Bedrooms: { select: { typeBedroom: true } } },
+          select: {
+            bedrooms_id: true,
+            Bedrooms: { select: { typeBedroom: true } },
+          },
         },
       },
     });
 
-    if (!reservation) {
+    if (!reservation)
       return { success: false, message: "Reservación no encontrada." };
-    }
 
     let newStatus: BookingsStatus;
     if (reservation.status === BookingsStatus.CANCELLED) {
@@ -26,43 +28,54 @@ export async function confirmReservation(reservationId: number) {
     } else if (reservation.status === BookingsStatus.PENDING) {
       newStatus = BookingsStatus.CONFIRMED;
     } else {
-      return {
-        success: false,
-        message: "No se puede confirmar esta reservación.",
-      };
+      return { success: false, message: "Estado actual no permite cambios." };
     }
 
-    await prisma.reservation.update({
-      where: { id: reservationId },
-      data: { status: newStatus },
+    // Transacción atómica: o se actualiza todo o nada
+    await prisma.$transaction(async (tx) => {
+      // 1. Actualizar reserva
+      await tx.reservation.update({
+        where: { id: reservationId },
+        data: { status: newStatus },
+      });
+
+      // 2. Si se confirma, marcar habitaciones como Ocupadas (false)
+      if (newStatus === BookingsStatus.CONFIRMED) {
+        const bedroomIds = reservation.ReservationDetails.map(
+          (d) => d.bedrooms_id,
+        );
+        await tx.bedrooms.updateMany({
+          where: { id: { in: bedroomIds } },
+          data: { status: false }, // false representa "Ocupado" en tu lógica actual
+        });
+      }
     });
 
-    const { User: user } = reservation;
-    const bedroomName =
-      reservation.ReservationDetails?.[0]?.Bedrooms?.typeBedroom ??
-      "habitación";
-
+    // Notificación
     if (newStatus === BookingsStatus.CONFIRMED) {
+      const bedroomName =
+        reservation.ReservationDetails?.[0]?.Bedrooms?.typeBedroom ??
+        "habitación";
       await prisma.notification.create({
         data: {
-          title: "Reservación confirmada",
-          message: `Tu reservación para una ${bedroomName} ha sido confirmada.`,
-          email: user?.email ?? null,
+          title: "¡Reservación Confirmada!",
+          message: `Tu reserva para ${bedroomName} ha sido confirmada y la habitación ha sido asignada.`,
           userId: reservation.user_id,
           reservationId: reservation.id,
           type: NotificationType.CONFIRMED,
+          email: reservation.User?.email,
         },
       });
     }
 
     revalidatePath("/dashboard/bookings");
-
+    revalidatePath("/dashboard/bedrooms");
     return {
       success: true,
-      message: `Reservación actualizada a ${newStatus}.`,
+      message: `Reserva confirmada y habitación ocupada.`,
     };
   } catch (error) {
-    console.error("Error en confirmReservation:", error);
-    return { success: false, message: "Error al confirmar la reservación." };
+    console.error(error);
+    return { success: false, message: "Error al procesar la confirmación." };
   }
 }

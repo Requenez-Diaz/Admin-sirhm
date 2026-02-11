@@ -103,7 +103,9 @@ export default function MainSidebar({ onStateChange }: SidebarProps) {
             <Menu className='h-5 w-5' />
             <span className='sr-only'>Toggle menu</span>
           </Button>
-          <h1 className='text-lg font-semibold'>Dashboard</h1>
+          <Link href='/dashboard/home' className='text-lg font-bold'>
+            Dashboard
+          </Link>
         </div>
 
         <div className='flex items-center gap-4'>
