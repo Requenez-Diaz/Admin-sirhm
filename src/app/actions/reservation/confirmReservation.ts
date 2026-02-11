@@ -22,44 +22,38 @@ export async function confirmReservation(reservationId: number) {
     if (!reservation)
       return { success: false, message: "Reservación no encontrada." };
 
+    // Definir el nuevo estado de la reserva
     let newStatus: BookingsStatus;
     if (reservation.status === BookingsStatus.CANCELLED) {
       newStatus = BookingsStatus.PENDING;
     } else if (reservation.status === BookingsStatus.PENDING) {
       newStatus = BookingsStatus.CONFIRMED;
     } else {
-      return { success: false, message: "Estado actual no permite cambios." };
+      return { success: false, message: "No se puede modificar esta reserva." };
     }
 
-    // Transacción atómica: o se actualiza todo o nada
     await prisma.$transaction(async (tx) => {
-      // 1. Actualizar reserva
       await tx.reservation.update({
         where: { id: reservationId },
         data: { status: newStatus },
       });
 
-      // 2. Si se confirma, marcar habitaciones como Ocupadas (false)
       if (newStatus === BookingsStatus.CONFIRMED) {
         const bedroomIds = reservation.ReservationDetails.map(
           (d) => d.bedrooms_id,
         );
         await tx.bedrooms.updateMany({
           where: { id: { in: bedroomIds } },
-          data: { status: false }, // false representa "Ocupado" en tu lógica actual
+          data: { status: false },
         });
       }
     });
 
-    // Notificación
     if (newStatus === BookingsStatus.CONFIRMED) {
-      const bedroomName =
-        reservation.ReservationDetails?.[0]?.Bedrooms?.typeBedroom ??
-        "habitación";
       await prisma.notification.create({
         data: {
-          title: "¡Reservación Confirmada!",
-          message: `Tu reserva para ${bedroomName} ha sido confirmada y la habitación ha sido asignada.`,
+          title: "Reservación Confirmada",
+          message: `Tu habitación ha sido asignada. ¡Te esperamos!`,
           userId: reservation.user_id,
           reservationId: reservation.id,
           type: NotificationType.CONFIRMED,
@@ -72,10 +66,10 @@ export async function confirmReservation(reservationId: number) {
     revalidatePath("/dashboard/bedrooms");
     return {
       success: true,
-      message: `Reserva confirmada y habitación ocupada.`,
+      message: "Reserva confirmada y habitación ocupada.",
     };
   } catch (error) {
     console.error(error);
-    return { success: false, message: "Error al procesar la confirmación." };
+    return { success: false, message: "Error al confirmar reservación." };
   }
 }

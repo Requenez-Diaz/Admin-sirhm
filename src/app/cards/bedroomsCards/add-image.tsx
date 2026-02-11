@@ -1,36 +1,24 @@
 "use client";
 
-import type { FC } from "react";
 import { useState } from "react";
 import Image from "next/image";
-import type { BedroomImages } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import Icon from "@/components/ui/icons/icons";
+import { Loader2, Trash2 } from "lucide-react";
 import ImageUploadGallery from "./upload-file-gallery";
 import { uploadGalleryImage } from "@/app/actions/uploadsImage/uploadImageGallery";
 
-interface GalleryImageUploaderProps {
-  bedroomId: number;
-  initialImages?: BedroomImages[];
-  disabled?: boolean;
-  onImageUploaded: () => void;
-}
-
-const GalleryImageUploader: FC<GalleryImageUploaderProps> = ({
+export default function GalleryImageUploader({
   bedroomId,
   initialImages = [],
-  disabled = false,
   onImageUploaded,
-}) => {
+}: any) {
   const [isUploading, setIsUploading] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const handleImageUpload = async (imageData: {
-    imageUrl: string;
-    mimeType: string;
-    fileName: string;
-  }) => {
+  const handleUpload = async (imageData: any) => {
+    setPreview(imageData.imageUrl); // Preview inmediato
     setIsUploading(true);
     try {
       const formData = new FormData();
@@ -39,81 +27,69 @@ const GalleryImageUploader: FC<GalleryImageUploaderProps> = ({
       formData.append("mimeType", imageData.mimeType);
       formData.append("fileName", imageData.fileName);
 
-      const response = await uploadGalleryImage(null, formData);
-
-      if (response.success) {
-        toast({
-          title: "Imagen de galería subida.",
-          description: response.message,
-        });
+      const res = await uploadGalleryImage(null, formData);
+      if (res.success) {
+        toast({ title: "Imagen subida" });
+        setPreview(null);
         onImageUploaded();
-      } else {
-        toast({
-          title: "Error al subir imagen.",
-          description: response.message,
-          variant: "destructive",
-        });
       }
     } catch (error) {
-      console.error("Error al subir imagen de galería:", error);
-      toast({
-        title: "Error inesperado.",
-        description: "No se pudo subir la imagen. Inténtalo de nuevo.",
-        variant: "destructive",
-      });
+      toast({ title: "Error", variant: "destructive" });
+      setPreview(null);
     } finally {
       setIsUploading(false);
     }
   };
 
   return (
-    <div className='space-y-4'>
-      <h3 className='text-lg font-semibold'>Galería de Imágenes</h3>
-      <div className='flex flex-wrap gap-4'>
-        {initialImages.length > 0 ? (
-          initialImages.map((img) => (
-            <div
-              key={img.id}
-              className='relative w-32 h-32 rounded-lg overflow-hidden border'
-            >
-              <Image
-                src={img.imageContent || "/placeholder.svg"}
-                alt='Imagen de la galería'
-                fill
-                className='object-cover'
-              />
-              <Button
-                type='button'
-                variant='destructive'
-                size='sm'
-                className='absolute top-1 right-1'
-                onClick={() => {}}
-                disabled={disabled || isUploading}
-              >
-                <Icon action='delete' className='w-4 h-4' />
+    <div className='space-y-4 border-t pt-4'>
+      <h3 className='text-xs font-bold uppercase text-muted-foreground'>
+        Galería
+      </h3>
+      <div className='grid grid-cols-3 sm:grid-cols-4 gap-2'>
+        {initialImages.map((img: any) => (
+          <div
+            key={img.id}
+            className='relative aspect-square rounded-md overflow-hidden border group'
+          >
+            <Image
+              src={img.imageContent}
+              alt='Gallery'
+              fill
+              className='object-cover'
+            />
+            <div className='absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity'>
+              <Button size='icon' variant='destructive' className='h-7 w-7'>
+                <Trash2 className='h-4 w-4' />
               </Button>
             </div>
-          ))
-        ) : (
-          <p className='text-sm text-gray-500'>
-            No hay imágenes en la galería.
-          </p>
-        )}
-      </div>
+          </div>
+        ))}
 
-      <div className='mt-4'>
-        <ImageUploadGallery
-          onImageUpload={handleImageUpload}
-          onImageRemove={() => {}}
-          currentImage=''
-          disabled={disabled || isUploading}
-        />
-        {isUploading && (
-          <p className='mt-2 text-sm text-gray-500'>Subiendo imagen...</p>
+        {preview && (
+          <div className='relative aspect-square rounded-md overflow-hidden border animate-pulse bg-muted'>
+            <Image
+              src={preview}
+              alt='Preview'
+              fill
+              className='object-cover opacity-50'
+            />
+            <div className='absolute inset-0 flex items-center justify-center'>
+              <Loader2 className='animate-spin' />
+            </div>
+          </div>
+        )}
+
+        {!isUploading && (
+          <div className='aspect-square'>
+            <ImageUploadGallery
+              onImageUpload={handleUpload}
+              onImageRemove={() => {}}
+              currentImage=''
+            />
+          </div>
         )}
       </div>
     </div>
   );
-};
-
-export default GalleryImageUploader;
+}
