@@ -1,12 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
@@ -31,6 +29,7 @@ interface Reservation {
   status: Status;
   promotionId: number | null;
   isRead: boolean;
+  imageUrl?: string | null;
 }
 
 interface ViewReservationProps {
@@ -80,113 +79,115 @@ export function ViewReservation({ reservationId }: ViewReservationProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className='flex items-center gap-2 text-sm px-2 py-1 rounded hover:bg-accent hover:text-accent-foreground transition'>
-          <Icon action='view' className='w-4 h-4 opacity-80' />
+        <button className="flex items-center gap-2 text-sm px-2 py-1 rounded hover:bg-accent transition">
+          <Icon action="view" className="w-4 h-4 opacity-80" />
           Ver detalles
         </button>
       </DialogTrigger>
 
-      <DialogContent className='w-full max-w-[90vw] sm:max-w-md p-5 rounded-2xl shadow-lg bg-white border border-gray-100'>
-        <DialogHeader>
-          <DialogTitle className='text-xl font-bold text-gray-900'>
-            Detalles de la Reservación
-          </DialogTitle>
-          <DialogDescription className='mt-1 text-gray-500 text-sm'>
-            Información completa de la reservación seleccionada.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto p-0 rounded-2xl bg-gray-50">
+
+        <div className="px-6 pt-6 pb-4 bg-white border-b">
+          <div className="flex justify-between items-start">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">
+                Detalles de la reserva
+              </h2>
+              <p className="text-sm text-gray-500">
+                Reserva #{reservation?.id}
+              </p>
+            </div>
+
+            <Badge variant={statusVariant as any}>
+              {reservation?.status}
+            </Badge>
+          </div>
+        </div>
 
         {loading || !reservation ? (
-          <div className='py-10 text-center text-gray-400'>
+          <div className="p-10 text-center text-gray-400">
             Cargando datos...
           </div>
         ) : (
-          <div className='mt-4 grid gap-3'>
-            <div className='flex justify-start'>
-              <Badge
-                variant={statusVariant as any}
-                className='px-3 py-1 text-sm'
-              >
-                {reservation.status}
-              </Badge>
-            </div>
+          <div className="p-6 space-y-6">
 
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
-              <div className='p-3 bg-gray-50 rounded-lg shadow-sm break-words'>
-                <p className='text-gray-600 text-xs'>Nombre</p>
-                <p className='font-semibold text-gray-900 mt-1 text-sm'>
-                  {reservation.name} {reservation.lastName}
-                </p>
-              </div>
-              <div className='p-3 bg-gray-50 rounded-lg shadow-sm break-words'>
-                <p className='text-gray-600 text-xs'>Email</p>
-                <p className='font-semibold text-gray-900 mt-1 text-sm'>
-                  {reservation.email}
-                </p>
-              </div>
-            </div>
 
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
-              <div className='p-3 bg-gray-50 rounded-lg shadow-sm break-words'>
-                <p className='text-gray-600 text-xs'>Huéspedes</p>
-                <p className='font-semibold text-gray-900 mt-1 text-sm'>
-                  {reservation.guests}
-                </p>
-              </div>
-              <div className='p-3 bg-gray-50 rounded-lg shadow-sm break-words'>
-                <p className='text-gray-600 text-xs'>Habitaciones</p>
-                <p className='font-semibold text-gray-900 mt-1 text-sm'>
-                  {reservation.rooms}
-                </p>
+            <div className="bg-white rounded-xl border p-5 shadow-sm">
+              <h3 className="font-semibold text-base mb-4">
+                Información del huésped
+              </h3>
+
+              <div className="space-y-3 text-sm">
+                <div>
+                  <p className="text-gray-500">Nombre</p>
+                  <p className="font-medium">
+                    {reservation.name} {reservation.lastName}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-gray-500">Email</p>
+                  <p className="font-medium break-all">
+                    {reservation.email}
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
-              <div className='p-3 bg-gray-50 rounded-lg shadow-sm break-words'>
-                <p className='text-gray-600 text-xs'>Tipo de Habitación</p>
-                <p className='font-semibold text-gray-900 mt-1 text-sm'>
-                  {reservation.bedroomsType}
-                </p>
+            <div className="bg-white rounded-xl border p-5 shadow-sm">
+              <h3 className="font-semibold text-lg mb-4">
+                {reservation.bedroomsType}
+              </h3>
+
+              <div className="flex flex-col sm:flex-row gap-6">
+                {reservation.imageUrl && (
+                  <div className="relative w-full sm:w-48 h-32 rounded-lg overflow-hidden flex-shrink-0">
+                    <Image
+                      src={reservation.imageUrl}
+                      alt="Imagen de la habitación"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                )}
+
+                <div className="flex-1 space-y-3 text-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-500 flex items-center gap-2">Check-in:</span>
+                    <span className="font-medium text-right">{formatDate(reservation.arrivalDate)}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-500 flex items-center gap-2">Check-out:</span>
+                    <span className="font-medium text-right">{formatDate(reservation.departureDate)}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-500">Noches:</span>
+                    <Badge variant="secondary" className="font-normal text-xs">{nights} noche(s)</Badge>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-500">Huéspedes:</span>
+                    <span className="font-medium">{reservation.guests}</span>
+                  </div>
+                </div>
               </div>
-              <div className='p-3 bg-gray-50 rounded-lg shadow-sm break-words'>
-                <p className='text-gray-600 text-xs'>Noches</p>
-                <p className='font-semibold text-gray-900 mt-1 text-sm'>
-                  {nights}
-                </p>
+
+              <div className="border-t mt-4 pt-4 flex justify-between items-center">
+                <span className="text-gray-600">Subtotal:</span>
+                <span className="text-xl font-bold text-orange-600">C$600</span>
               </div>
             </div>
 
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
-              <div className='p-3 bg-gray-50 rounded-lg shadow-sm break-words'>
-                <p className='text-gray-600 text-xs'>Llegada</p>
-                <p className='font-semibold text-gray-900 mt-1 text-sm'>
-                  {formatDate(reservation.arrivalDate)}
-                </p>
-              </div>
-              <div className='p-3 bg-gray-50 rounded-lg shadow-sm break-words'>
-                <p className='text-gray-600 text-xs'>Salida</p>
-                <p className='font-semibold text-gray-900 mt-1 text-sm'>
-                  {formatDate(reservation.departureDate)}
-                </p>
-              </div>
-            </div>
+            <DialogClose asChild>
+              <Button variant="outline" className="w-full rounded-xl">
+                Cerrar
+              </Button>
+            </DialogClose>
 
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
-              <div className='p-3 bg-gray-50 rounded-lg shadow-sm break-words'>
-                <p className='text-gray-600 text-xs'>Ofertas</p>
-                <p className='font-semibold text-gray-900 mt-1 text-sm'>
-                  {reservation.offerts || "N/A"}
-                </p>
-              </div>
-            </div>
           </div>
         )}
-
-        <DialogClose asChild>
-          <Button variant='outline' className='mt-5 w-full hover:bg-gray-100'>
-            Cerrar
-          </Button>
-        </DialogClose>
       </DialogContent>
     </Dialog>
   );

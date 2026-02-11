@@ -11,12 +11,13 @@ export interface ReservationDTO {
   bedroomsType: string;
   guests: number;
   rooms: number;
-  arrivalDate: string | null; 
-  departureDate: string | null; 
+  arrivalDate: string | null;
+  departureDate: string | null;
   offerts?: string | null;
   status: BookingsStatus;
   promotionId: number | null;
   isRead: boolean;
+  imageUrl?: string | null; // NUEVO
 }
 
 export const getReservationById = async (
@@ -38,7 +39,18 @@ export const getReservationById = async (
             dateEnd: true,
             guestQuantity: true,
             bedrooms_id: true,
-            Bedrooms: { select: { id: true, typeBedroom: true } },
+            Bedrooms: {
+              select: {
+                id: true,
+                typeBedroom: true,
+                galleryImages: { //  TRAEMOS IMÁGENES
+                  select: {
+                    id: true,
+                    imageContent: true,
+                  },
+                },
+              },
+            },
             promotion_id: true,
             Promotions: { select: { codePromotions: true } },
           },
@@ -50,7 +62,6 @@ export const getReservationById = async (
 
     const details = reservation.ReservationDetails ?? [];
 
-    // Consolida fechas: mínimo inicio (arrival) y máximo fin (departure)
     const starts = details.map((d) => d.dateStart).filter(Boolean) as Date[];
     const ends = details.map((d) => d.dateEnd).filter(Boolean) as Date[];
 
@@ -62,39 +73,52 @@ export const getReservationById = async (
       ? new Date(Math.max(...ends.map((d) => new Date(d).getTime())))
       : null;
 
-    // Suma de huéspedes en todos los detalles
-    const guests = details.reduce((acc, d) => acc + (d.guestQuantity ?? 0), 0);
+    const guests = details.reduce(
+      (acc, d) => acc + (d.guestQuantity ?? 0),
+      0
+    );
 
-    // Habitaciones únicas y nombres
     const uniqueBedroomIds = new Set<number>();
     const bedroomNamesSet = new Set<string>();
+
     details.forEach((d) => {
       if (d.Bedrooms?.id) uniqueBedroomIds.add(d.Bedrooms.id);
-      if (d.Bedrooms?.typeBedroom) bedroomNamesSet.add(d.Bedrooms.typeBedroom);
+      if (d.Bedrooms?.typeBedroom)
+        bedroomNamesSet.add(d.Bedrooms.typeBedroom);
     });
 
     const rooms = uniqueBedroomIds.size;
     const bedroomsType = Array.from(bedroomNamesSet).join(", ");
 
-    // Promociones: códigos únicos
     const promoSet = new Set<string>();
     details.forEach((d) => {
       const code = d.Promotions?.codePromotions;
       if (code) promoSet.add(code);
     });
 
-    const offerts = promoSet.size ? Array.from(promoSet).join(", ") : null;
+    const offerts = promoSet.size
+      ? Array.from(promoSet).join(", ")
+      : null;
 
-    // Toma el primer promotion_id si necesitas uno específico
     const promotionId =
       details.find((d) => d.promotion_id != null)?.promotion_id ?? null;
 
-    // Deriva nombre y apellido desde username (si no hay separación real)
     const username = reservation.User?.username ?? "";
     const [firstName, ...lastParts] = username.split(" ");
     const lastName = lastParts.join(" ");
 
-    const dto: ReservationDTO = {
+    // OBTENER PRIMERA IMAGEN DISPONIBLE
+    let imageUrl: string | null = null;
+
+    for (const d of details) {
+      const firstImage = d.Bedrooms?.galleryImages?.[0];
+      if (firstImage?.imageContent) {
+        imageUrl = firstImage.imageContent;
+        break;
+      }
+    }
+
+    return {
       id: reservation.id,
       name: firstName || username || "Usuario",
       lastName: lastName || "",
@@ -108,9 +132,8 @@ export const getReservationById = async (
       status: reservation.status,
       promotionId,
       isRead: reservation.isRead,
+      imageUrl, //  SE ENVÍA AL FRONT
     };
-
-    return dto;
   } catch (error) {
     console.error("Error al obtener la reservación", error);
     return null;
