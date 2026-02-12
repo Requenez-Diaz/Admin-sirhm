@@ -13,7 +13,17 @@ import Icon from "@/components/ui/icons/icons";
 import { getReservationById } from "@/app/actions/reservation";
 import { Badge } from "@/components/ui/badge";
 import { Status } from "@prisma/client";
-import { calculateDuration } from "@/app/actions/reservation/calculateDuration";
+
+interface RoomDetail {
+  id: number;
+  name: string;
+  description: string;
+  capacity: number;
+  price: number;
+  image: string | null;
+  nights: number;
+  subtotal: number;
+}
 
 interface Reservation {
   id: number;
@@ -30,6 +40,8 @@ interface Reservation {
   promotionId: number | null;
   isRead: boolean;
   imageUrl?: string | null;
+  roomDetails: RoomDetail[];
+  totalAmount: number;
 }
 
 interface ViewReservationProps {
@@ -72,10 +84,6 @@ export function ViewReservation({ reservationId }: ViewReservationProps) {
         ? "destructive"
         : "info";
 
-  const nights = reservation
-    ? calculateDuration(reservation.arrivalDate, reservation.departureDate)
-    : 0;
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -85,7 +93,7 @@ export function ViewReservation({ reservationId }: ViewReservationProps) {
         </button>
       </DialogTrigger>
 
-      <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto p-0 rounded-2xl bg-gray-50 dark:bg-slate-950">
+      <DialogContent className="w-[95vw] max-w-3xl max-h-[90vh] overflow-y-auto p-0 rounded-2xl bg-gray-50 dark:bg-slate-950">
 
         <div className="px-6 pt-6 pb-4 bg-white dark:bg-slate-900 border-b dark:border-gray-800">
           <div className="flex justify-between items-start">
@@ -111,15 +119,14 @@ export function ViewReservation({ reservationId }: ViewReservationProps) {
         ) : (
           <div className="p-6 space-y-6">
 
-
             <div className="bg-white dark:bg-slate-900 rounded-xl border dark:border-gray-800 p-5 shadow-sm">
               <h3 className="font-semibold text-base mb-4 dark:text-gray-200">
-                Información del huésped
+                Información del cliente
               </h3>
 
-              <div className="space-y-3 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-gray-500 dark:text-gray-400">Nombre</p>
+                  <p className="text-gray-500 dark:text-gray-400">Nombre Completo</p>
                   <p className="font-medium dark:text-gray-200">
                     {reservation.name} {reservation.lastName}
                   </p>
@@ -131,58 +138,104 @@ export function ViewReservation({ reservationId }: ViewReservationProps) {
                     {reservation.email}
                   </p>
                 </div>
+
+                <div>
+                  <p className="text-gray-500 dark:text-gray-400">Total Habitaciones</p>
+                  <p className="font-medium dark:text-gray-200">
+                    {reservation.rooms}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-gray-500 dark:text-gray-400">Total Huéspedes</p>
+                  <p className="font-medium dark:text-gray-200">
+                    {reservation.guests}
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 rounded-xl border dark:border-gray-800 p-5 shadow-sm">
-              <h3 className="font-semibold text-lg mb-4 dark:text-gray-200">
-                {reservation.bedroomsType}
+            <div className="space-y-4">
+              <h3 className="font-semibold text-lg dark:text-gray-200 px-1">
+                Habitaciones Reservadas
               </h3>
 
-              <div className="flex flex-col sm:flex-row gap-6">
-                {reservation.imageUrl && (
-                  <div className="relative w-full sm:w-48 h-32 rounded-lg overflow-hidden flex-shrink-0">
-                    <Image
-                      src={reservation.imageUrl}
-                      alt="Imagen de la habitación"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                )}
+              {reservation.roomDetails && reservation.roomDetails.length > 0 ? (
+                reservation.roomDetails.map((room, index) => (
+                  <div key={index} className="bg-white dark:bg-slate-900 rounded-xl border dark:border-gray-800 p-5 shadow-sm flex flex-col sm:flex-row gap-6">
+                    <div className="relative w-full sm:w-40 h-32 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
+                      {room.image ? (
+                        <Image
+                          src={room.image}
+                          alt={room.name}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-full text-gray-400">
+                          <Icon action="view" className="w-8 h-8 opacity-20" />
+                        </div>
+                      )}
+                    </div>
 
-                <div className="flex-1 space-y-3 text-sm">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-500 dark:text-gray-400 flex items-center gap-2">Check-in:</span>
-                    <span className="font-medium dark:text-gray-200 text-right">{formatDate(reservation.arrivalDate)}</span>
-                  </div>
+                    <div className="flex-1 space-y-2 text-sm">
+                      <div className="flex justify-between items-start">
+                        <h4 className="font-bold text-base dark:text-gray-100">{room.name}</h4>
+                        <Badge variant="secondary" className="font-normal text-xs">
+                          {room.nights} noche(s)
+                        </Badge>
+                      </div>
 
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-500 dark:text-gray-400 flex items-center gap-2">Check-out:</span>
-                    <span className="font-medium dark:text-gray-200 text-right">{formatDate(reservation.departureDate)}</span>
-                  </div>
+                      <p className="text-gray-500 dark:text-gray-400 line-clamp-2 text-xs">
+                        {room.description}
+                      </p>
 
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-500 dark:text-gray-400">Noches:</span>
-                    <Badge variant="secondary" className="font-normal text-xs">{nights} noche(s)</Badge>
-                  </div>
+                      <div className="grid grid-cols-2 gap-y-1 gap-x-4 mt-2">
+                        <div className="flex justify-between">
+                          <span className="text-gray-500 dark:text-gray-400">Capacidad:</span>
+                          <span className="font-medium dark:text-gray-200">{room.capacity} pers.</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500 dark:text-gray-400">Precio/noche:</span>
+                          <span className="font-medium dark:text-gray-200">C${room.price}</span>
+                        </div>
+                      </div>
 
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-500 dark:text-gray-400">Huéspedes:</span>
-                    <span className="font-medium dark:text-gray-200">{reservation.guests}</span>
+                      <div className="border-t dark:border-gray-800 mt-3 pt-2 flex justify-between items-center">
+                        <span className="text-gray-600 dark:text-gray-400 font-medium">Subtotal:</span>
+                        <span className="text-lg font-bold text-gray-800 dark:text-gray-100">
+                          C${room.subtotal.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                ))
+              ) : (
+                <div className="text-center p-4 text-gray-500">No hay detalles de habitaciones disponibles.</div>
+              )}
+            </div>
+
+            <div className="bg-orange-50 dark:bg-orange-900/10 rounded-xl border border-orange-100 dark:border-orange-900/30 p-5 flex justify-between items-center">
+              <span className="text-orange-800 dark:text-orange-400 font-semibold text-lg">Total Final</span>
+              <span className="text-2xl font-bold text-orange-600 dark:text-orange-500">
+                C${reservation.totalAmount?.toLocaleString() ?? 0}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 text-sm bg-gray-50 dark:bg-slate-950/50 p-4 rounded-lg border dark:border-gray-800">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-500 dark:text-gray-400">Llegada:</span>
+                <span className="font-medium dark:text-gray-200">{formatDate(reservation.arrivalDate)}</span>
               </div>
-
-              <div className="border-t dark:border-gray-800 mt-4 pt-4 flex justify-between items-center">
-                <span className="text-gray-600 dark:text-gray-400">Subtotal:</span>
-                <span className="text-xl font-bold text-orange-600">C$600</span>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-500 dark:text-gray-400">Salida:</span>
+                <span className="font-medium dark:text-gray-200">{formatDate(reservation.departureDate)}</span>
               </div>
             </div>
 
             <DialogClose asChild>
-              <Button variant="outline" className="w-full rounded-xl">
-                Cerrar
+              <Button variant="outline" className="w-full rounded-xl py-6 text-base">
+                Cerrar Detalles
               </Button>
             </DialogClose>
 

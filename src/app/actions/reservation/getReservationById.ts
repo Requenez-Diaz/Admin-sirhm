@@ -3,6 +3,17 @@
 import prisma from "@/lib/db";
 import { BookingsStatus } from "@prisma/client";
 
+export interface RoomDetailDTO {
+  id: number;
+  name: string;
+  description: string;
+  capacity: number;
+  price: number;
+  image: string | null;
+  nights: number;
+  subtotal: number;
+}
+
 export interface ReservationDTO {
   id: number;
   name: string;
@@ -17,7 +28,9 @@ export interface ReservationDTO {
   status: BookingsStatus;
   promotionId: number | null;
   isRead: boolean;
-  imageUrl?: string | null; // NUEVO
+  imageUrl?: string | null;
+  roomDetails: RoomDetailDTO[];
+  totalAmount: number;
 }
 
 export const getReservationById = async (
@@ -35,6 +48,7 @@ export const getReservationById = async (
         },
         ReservationDetails: {
           select: {
+            price: true,
             dateStart: true,
             dateEnd: true,
             guestQuantity: true,
@@ -43,7 +57,9 @@ export const getReservationById = async (
               select: {
                 id: true,
                 typeBedroom: true,
-                galleryImages: { //  TRAEMOS IMÁGENES
+                description: true,
+                capacity: true,
+                galleryImages: {
                   select: {
                     id: true,
                     imageContent: true,
@@ -73,6 +89,7 @@ export const getReservationById = async (
       ? new Date(Math.max(...ends.map((d) => new Date(d).getTime())))
       : null;
 
+
     const guests = details.reduce(
       (acc, d) => acc + (d.guestQuantity ?? 0),
       0
@@ -81,14 +98,40 @@ export const getReservationById = async (
     const uniqueBedroomIds = new Set<number>();
     const bedroomNamesSet = new Set<string>();
 
-    details.forEach((d) => {
+    // Construir detalles de habitaciones
+    const roomDetails: RoomDetailDTO[] = details.map((d) => {
+      const start = d.dateStart ? new Date(d.dateStart) : minStart;
+      const end = d.dateEnd ? new Date(d.dateEnd) : maxEnd;
+
+      const nights =
+        start && end
+          ? Math.max(0, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)))
+          : 0;
+
+      const price = d.price ?? 0;
+      const subtotal = price * nights;
+
       if (d.Bedrooms?.id) uniqueBedroomIds.add(d.Bedrooms.id);
       if (d.Bedrooms?.typeBedroom)
         bedroomNamesSet.add(d.Bedrooms.typeBedroom);
+
+      const firstImage = d.Bedrooms?.galleryImages?.[0]?.imageContent ?? null;
+
+      return {
+        id: d.Bedrooms?.id ?? 0,
+        name: d.Bedrooms?.typeBedroom ?? "Habitación",
+        description: d.Bedrooms?.description ?? "",
+        capacity: d.Bedrooms?.capacity ?? 0,
+        price: price,
+        image: firstImage,
+        nights: nights,
+        subtotal: subtotal,
+      };
     });
 
     const rooms = uniqueBedroomIds.size;
     const bedroomsType = Array.from(bedroomNamesSet).join(", ");
+    const totalAmount = roomDetails.reduce((acc, r) => acc + r.subtotal, 0);
 
     const promoSet = new Set<string>();
     details.forEach((d) => {
@@ -107,16 +150,8 @@ export const getReservationById = async (
     const [firstName, ...lastParts] = username.split(" ");
     const lastName = lastParts.join(" ");
 
-    // OBTENER PRIMERA IMAGEN DISPONIBLE
-    let imageUrl: string | null = null;
-
-    for (const d of details) {
-      const firstImage = d.Bedrooms?.galleryImages?.[0];
-      if (firstImage?.imageContent) {
-        imageUrl = firstImage.imageContent;
-        break;
-      }
-    }
+    // Primera imagen para el fallback o vista general si se requiere
+    const imageUrl = roomDetails.find(r => r.image)?.image ?? null;
 
     return {
       id: reservation.id,
@@ -132,7 +167,9 @@ export const getReservationById = async (
       status: reservation.status,
       promotionId,
       isRead: reservation.isRead,
-      imageUrl, //  SE ENVÍA AL FRONT
+      imageUrl,
+      roomDetails,
+      totalAmount
     };
   } catch (error) {
     console.error("Error al obtener la reservación", error);
