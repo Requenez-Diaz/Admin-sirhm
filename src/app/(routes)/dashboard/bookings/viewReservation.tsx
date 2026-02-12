@@ -85,15 +85,15 @@ export function ViewReservation({ reservationId }: ViewReservationProps) {
         </button>
       </DialogTrigger>
 
-      <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto p-0 rounded-2xl bg-gray-50">
+      <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto p-0 rounded-2xl bg-gray-50 dark:bg-slate-950">
 
-        <div className="px-6 pt-6 pb-4 bg-white border-b">
+        <div className="px-6 pt-6 pb-4 bg-white dark:bg-slate-900 border-b dark:border-gray-800">
           <div className="flex justify-between items-start">
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                 Detalles de la reserva
               </h2>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 Reserva #{reservation?.id}
               </p>
             </div>
@@ -112,30 +112,30 @@ export function ViewReservation({ reservationId }: ViewReservationProps) {
           <div className="p-6 space-y-6">
 
 
-            <div className="bg-white rounded-xl border p-5 shadow-sm">
-              <h3 className="font-semibold text-base mb-4">
+            <div className="bg-white dark:bg-slate-900 rounded-xl border dark:border-gray-800 p-5 shadow-sm">
+              <h3 className="font-semibold text-base mb-4 dark:text-gray-200">
                 Información del huésped
               </h3>
 
               <div className="space-y-3 text-sm">
                 <div>
-                  <p className="text-gray-500">Nombre</p>
-                  <p className="font-medium">
+                  <p className="text-gray-500 dark:text-gray-400">Nombre</p>
+                  <p className="font-medium dark:text-gray-200">
                     {reservation.name} {reservation.lastName}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-gray-500">Email</p>
-                  <p className="font-medium break-all">
+                  <p className="text-gray-500 dark:text-gray-400">Email</p>
+                  <p className="font-medium break-all dark:text-gray-200">
                     {reservation.email}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl border p-5 shadow-sm">
-              <h3 className="font-semibold text-lg mb-4">
+            <div className="bg-white dark:bg-slate-900 rounded-xl border dark:border-gray-800 p-5 shadow-sm">
+              <h3 className="font-semibold text-lg mb-4 dark:text-gray-200">
                 {reservation.bedroomsType}
               </h3>
 
@@ -153,29 +153,29 @@ export function ViewReservation({ reservationId }: ViewReservationProps) {
 
                 <div className="flex-1 space-y-3 text-sm">
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-500 flex items-center gap-2">Check-in:</span>
-                    <span className="font-medium text-right">{formatDate(reservation.arrivalDate)}</span>
+                    <span className="text-gray-500 dark:text-gray-400 flex items-center gap-2">Check-in:</span>
+                    <span className="font-medium dark:text-gray-200 text-right">{formatDate(reservation.arrivalDate)}</span>
                   </div>
 
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-500 flex items-center gap-2">Check-out:</span>
-                    <span className="font-medium text-right">{formatDate(reservation.departureDate)}</span>
+                    <span className="text-gray-500 dark:text-gray-400 flex items-center gap-2">Check-out:</span>
+                    <span className="font-medium dark:text-gray-200 text-right">{formatDate(reservation.departureDate)}</span>
                   </div>
 
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-500">Noches:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Noches:</span>
                     <Badge variant="secondary" className="font-normal text-xs">{nights} noche(s)</Badge>
                   </div>
 
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-500">Huéspedes:</span>
-                    <span className="font-medium">{reservation.guests}</span>
+                    <span className="text-gray-500 dark:text-gray-400">Huéspedes:</span>
+                    <span className="font-medium dark:text-gray-200">{reservation.guests}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="border-t mt-4 pt-4 flex justify-between items-center">
-                <span className="text-gray-600">Subtotal:</span>
+              <div className="border-t dark:border-gray-800 mt-4 pt-4 flex justify-between items-center">
+                <span className="text-gray-600 dark:text-gray-400">Subtotal:</span>
                 <span className="text-xl font-bold text-orange-600">C$600</span>
               </div>
             </div>
