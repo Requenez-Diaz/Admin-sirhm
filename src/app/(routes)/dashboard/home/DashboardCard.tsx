@@ -16,14 +16,14 @@ interface DashboardCardProps {
 
 export function DashboardCard({ title, value, description, icon, href, type, extraContent }: DashboardCardProps) {
   const typeColors: Record<string, { icon: string; hover: string }> = {
-    users: { icon: "text-green-500", hover: "hover:bg-green-100" },
-    rooms: { icon: "text-purple-500", hover: "hover:bg-purple-100" },
-    reservations: { icon: "text-blue-500", hover: "hover:bg-blue-100" },
-    services: { icon: "text-yellow-500", hover: "hover:bg-yellow-100" },
-    occupied: { icon: "text-red-500", hover: "hover:bg-red-100" },
+    users: { icon: "text-green-500", hover: "hover:bg-green-100 dark:hover:bg-green-900/20" },
+    rooms: { icon: "text-purple-500", hover: "hover:bg-purple-100 dark:hover:bg-purple-900/20" },
+    reservations: { icon: "text-blue-500", hover: "hover:bg-blue-100 dark:hover:bg-blue-900/20" },
+    services: { icon: "text-yellow-500", hover: "hover:bg-yellow-100 dark:hover:bg-yellow-900/20" },
+    occupied: { icon: "text-red-500", hover: "hover:bg-red-100 dark:hover:bg-red-900/20" },
   };
 
-  const colors = type ? typeColors[type] : { icon: "text-gray-500", hover: "hover:bg-gray-100" };
+  const colors = type ? typeColors[type] : { icon: "text-gray-500", hover: "hover:bg-gray-100 dark:hover:bg-gray-800/20" };
 
   const content = (
     <Card className={`cursor-pointer transition-transform duration-200 hover:scale-105 hover:shadow-lg active:scale-95 ${colors.hover}`}>
