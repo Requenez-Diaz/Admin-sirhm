@@ -215,9 +215,12 @@ const TableReservation: React.FC<TableReservationProps> = ({
                     <TableCell className='hidden sm:table-cell text-center'>
                       {reservation.rooms}
                     </TableCell>
+
+                    {/* LA CELDA QUE TE IMPORTABA: Muestra el bedroomsType del Server Action */}
                     <TableCell className='text-xs sm:text-sm'>
                       {reservation.bedroomsType || "—"}
                     </TableCell>
+
                     <TableCell className='text-xs sm:text-sm text-right whitespace-nowrap'>
                       {duration} {durationLabel}
                     </TableCell>
@@ -252,30 +255,30 @@ const TableReservation: React.FC<TableReservationProps> = ({
                             Acciones de Reserva
                           </DropdownMenuLabel>
                           <DropdownMenuItem
-                            onSelect={(e) => e.preventDefault()}
                             asChild
+                            onSelect={(e) => e.preventDefault()}
                           >
                             <ConfirmReservation
                               reservationId={reservation.id}
                             />
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onSelect={(e) => e.preventDefault()}
                             asChild
+                            onSelect={(e) => e.preventDefault()}
                           >
                             <CancellReservation
                               reservationId={reservation.id}
                             />
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onSelect={(e) => e.preventDefault()}
                             asChild
+                            onSelect={(e) => e.preventDefault()}
                           >
                             <EditReservation reservationId={reservation.id} />
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onSelect={(e) => e.preventDefault()}
                             asChild
+                            onSelect={(e) => e.preventDefault()}
                           >
                             <ViewReservation reservationId={reservation.id} />
                           </DropdownMenuItem>
