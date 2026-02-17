@@ -93,9 +93,9 @@ model Services {
 
 model Seasons {
   id         Int          @id @default(autoincrement())
-  nameSeason String
   dateStart  DateTime
   dateEnd    DateTime
+  nameSeason SeasonType   @default(BAJA)
   Bedrooms   Bedrooms[]
   Promotions Promotions[]
 }
@@ -127,21 +127,22 @@ model invoceDetails {
 
 model Bedrooms {
   id                 Int                  @id @default(autoincrement())
-  typeBedroom        String
   description        String
   lowSeasonPrice     Int
   highSeasonPrice    Int
   status             Boolean
   numberBedroom      Int
-  seasonsId          Int
+  seasonsId          Int?
   amenities          String[]
   capacity           Int
   createdAt          DateTime             @default(now())
   image              String
   updatedAt          DateTime             @updatedAt
   slug               String               @unique
+  typeBedroomId      Int?
   galleryImages      BedroomImages[]
-  Seasons            Seasons              @relation(fields: [seasonsId], references: [id], onDelete: Cascade)
+  Seasons            Seasons?             @relation(fields: [seasonsId], references: [id])
+  TypeBedrooms       TypeBedrooms?        @relation(fields: [typeBedroomId], references: [id])
   BedroomsPromotions BedroomsPromotions[]
   Comments           Comments[]
   ReservationDetails ReservationDetails[]
@@ -246,6 +247,15 @@ model ReservationDetails {
   Reservation    Reservation @relation(fields: [reservation_id], references: [id])
 }
 
+model TypeBedrooms {
+  id          Int        @id @default(autoincrement())
+  nameType    String
+  description String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime
+  Bedrooms    Bedrooms[]
+}
+
 enum NotificationType {
   CREATED
   CONFIRMED
@@ -268,4 +278,9 @@ enum Status {
   PENDING
   CONFIRMED
   CANCELLED
+}
+
+enum SeasonType {
+  ALTA
+  BAJA
 }

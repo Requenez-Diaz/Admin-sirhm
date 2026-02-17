@@ -23,6 +23,7 @@ import {
   Bell,
   Moon,
   Sun,
+  CalendarDays,
 } from "lucide-react";
 
 const links = [
@@ -56,6 +57,11 @@ const links = [
     name: "Testimoniales",
     href: "/dashboard/testimonials",
     icon: MessageSquareQuote,
+  },
+  {
+    name: "Temporadas",
+    href: "/dashboard/seasons",
+    icon: CalendarDays,
   },
 ];
 
