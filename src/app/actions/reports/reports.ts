@@ -1,7 +1,6 @@
 "use server";
 
 import { PrismaClient } from "@prisma/client";
-
 const prisma = new PrismaClient();
 
 export async function getReservationReport(
@@ -11,17 +10,20 @@ export async function getReservationReport(
   try {
     const totalRoomsCount = await prisma.bedrooms.count();
 
-    const dateFilter =
-      startDate || endDate
-        ? {
-            createdAt: {
-              ...(startDate && { gte: new Date(startDate) }),
-              ...(endDate && { lte: new Date(endDate) }),
-            },
-          }
-        : {};
+    let dateFilter = {};
 
-    // Buscamos directamente las reservaciones del periodo
+    if (startDate || endDate) {
+      const start = startDate ? new Date(`${startDate}T00:00:00`) : null;
+      const end = endDate ? new Date(`${endDate}T23:59:59.999`) : null;
+
+      dateFilter = {
+        createdAt: {
+          ...(start && { gte: start }),
+          ...(end && { lte: end }),
+        },
+      };
+    }
+
     const reservations = await prisma.reservation.findMany({
       where: dateFilter,
       include: {
@@ -35,24 +37,20 @@ export async function getReservationReport(
 
     let globalTotalRevenue = 0;
     const uniqueOccupiedRooms = new Set();
-
-    // Transformamos cada reserva en una fila del reporte
     const reservationsList = reservations.map((res) => {
       const totalMontoReserva = res.ReservationDetails.reduce(
-        (acc, detail) => acc + detail.price,
+        (acc, d) => acc + d.price,
         0,
       );
       globalTotalRevenue += totalMontoReserva;
-
       res.ReservationDetails.forEach((d) =>
         uniqueOccupiedRooms.add(d.bedrooms_id),
       );
-
       return {
         id: res.id,
         fecha: res.createdAt.toISOString(),
-        cliente: res.User.username,
-        email: res.User.email,
+        cliente: res.User?.username || "N/A",
+        email: res.User?.email || "N/A",
         monto: totalMontoReserva,
         habitaciones: res.ReservationDetails.map(
           (d) => d.Bedrooms.numberBedroom,

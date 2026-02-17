@@ -53,7 +53,7 @@ export default async function ReportPage(props: {
           endDate={end}
         />
       </div>
-
+      <ReportFilters />
       {/* DASHBOARD DE MÉTRICAS */}
       <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
         <Card className='bg-primary text-primary-foreground border-none shadow-xl'>
@@ -102,9 +102,6 @@ export default async function ReportPage(props: {
           </CardContent>
         </Card>
       </div>
-
-      <ReportFilters />
-
       {/* TABLA DE RESERVAS INDIVIDUALES */}
       <div className='bg-card text-card-foreground rounded-xl border border-border shadow-sm overflow-hidden'>
         <div className='px-6 py-4 border-b border-border bg-muted/20'>
