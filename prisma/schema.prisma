@@ -91,9 +91,14 @@ model Services {
   bookings    bookingsServices[]
 }
 
+enum SeasonType {
+  ALTA
+  BAJA
+}
+
 model Seasons {
   id         Int          @id @default(autoincrement())
-  nameSeason String
+  nameSeason SeasonType   @default(BAJA)
   dateStart  DateTime
   dateEnd    DateTime
   Bedrooms   Bedrooms[]
@@ -127,13 +132,12 @@ model invoceDetails {
 
 model Bedrooms {
   id                 Int                  @id @default(autoincrement())
-  typeBedroom        String
   description        String
   lowSeasonPrice     Int
   highSeasonPrice    Int
   status             Boolean
   numberBedroom      Int
-  seasonsId          Int
+  seasonsId          Int?
   amenities          String[]
   capacity           Int
   createdAt          DateTime             @default(now())
@@ -141,11 +145,13 @@ model Bedrooms {
   updatedAt          DateTime             @updatedAt
   slug               String               @unique
   galleryImages      BedroomImages[]
-  Seasons            Seasons              @relation(fields: [seasonsId], references: [id], onDelete: Cascade)
+  Seasons            Seasons?             @relation(fields: [seasonsId], references: [id])
   BedroomsPromotions BedroomsPromotions[]
   Comments           Comments[]
   ReservationDetails ReservationDetails[]
   testimonials       testimonials[]
+  typeBedroomId      Int?
+  TypeBedrooms       TypeBedrooms?        @relation(fields: [typeBedroomId], references: [id])
 }
 
 model BedroomImages {
@@ -157,6 +163,15 @@ model BedroomImages {
   mimeType     String
   imageContent String?
   bedroom      Bedrooms @relation(fields: [bedroomId], references: [id])
+}
+
+model TypeBedrooms {
+  id          Int        @id @default(autoincrement())
+  nameType    String
+  description String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  Bedrooms    Bedrooms[]
 }
 
 model Comments {

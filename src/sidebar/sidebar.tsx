@@ -57,6 +57,11 @@ const links = [
     href: "/dashboard/testimonials",
     icon: MessageSquareQuote,
   },
+  {
+    name: "Tipos de habitaciones",
+    href: "/dashboard/room-types",
+    icon: BedDouble,
+  },
 ];
 
 interface SidebarProps {
