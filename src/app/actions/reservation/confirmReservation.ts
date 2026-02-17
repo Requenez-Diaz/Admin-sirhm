@@ -13,7 +13,7 @@ export async function confirmReservation(reservationId: number) {
         ReservationDetails: {
           select: {
             bedrooms_id: true,
-            Bedrooms: { select: { typeBedroom: true } },
+            Bedrooms: { select: { TypeBedrooms: { select: { nameType: true } } } },
           },
         },
       },

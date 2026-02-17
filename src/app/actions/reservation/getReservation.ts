@@ -21,26 +21,7 @@ export type ReservationRow = {
 
 export const getReservations = async (): Promise<ReservationRow[]> => {
   try {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
     const reservations = await prisma.reservation.findMany({
-      where: {
-        OR: [
-          {
-            status: { in: ["PENDING", "CONFIRMED"] },
-            // ReservationDetails: {
-            //   some: { dateStart: { gte: today } }, // o dateEnd según lo que signifique "futuro" en tu negocio
-            // },
-          },
-          {
-            status: "CANCELLED",
-            ReservationDetails: {
-              some: { dateStart: { gte: today } },
-            },
-          },
-        ],
-      },
       orderBy: { createdAt: "desc" },
       include: {
         User: {
@@ -55,7 +36,12 @@ export const getReservations = async (): Promise<ReservationRow[]> => {
             dateStart: true,
             dateEnd: true,
             guestQuantity: true,
-            Bedrooms: { select: { id: true, typeBedroom: true } },
+            Bedrooms: {
+              select: {
+                id: true,
+                TypeBedrooms: { select: { nameType: true } }
+              }
+            },
             Promotions: { select: { codePromotions: true } },
           },
         },
@@ -88,8 +74,9 @@ export const getReservations = async (): Promise<ReservationRow[]> => {
 
       details.forEach((d) => {
         if (d.Bedrooms?.id) uniqueBedroomIds.add(d.Bedrooms.id);
-        if (d.Bedrooms?.typeBedroom)
-          bedroomNamesSet.add(d.Bedrooms.typeBedroom);
+
+        const typeName = d.Bedrooms?.TypeBedrooms?.nameType;
+        if (typeName) bedroomNamesSet.add(typeName);
       });
 
       const rooms = uniqueBedroomIds.size;

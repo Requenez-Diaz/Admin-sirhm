@@ -56,7 +56,7 @@ export const getReservationById = async (
             Bedrooms: {
               select: {
                 id: true,
-                typeBedroom: true,
+                TypeBedrooms: { select: { nameType: true } },
                 description: true,
                 capacity: true,
                 galleryImages: {
@@ -112,14 +112,14 @@ export const getReservationById = async (
       const subtotal = price * nights;
 
       if (d.Bedrooms?.id) uniqueBedroomIds.add(d.Bedrooms.id);
-      if (d.Bedrooms?.typeBedroom)
-        bedroomNamesSet.add(d.Bedrooms.typeBedroom);
+      const typeName = d.Bedrooms?.TypeBedrooms?.nameType;
+      if (typeName) bedroomNamesSet.add(typeName);
 
       const firstImage = d.Bedrooms?.galleryImages?.[0]?.imageContent ?? null;
 
       return {
         id: d.Bedrooms?.id ?? 0,
-        name: d.Bedrooms?.typeBedroom ?? "Habitación",
+        name: d.Bedrooms?.TypeBedrooms?.nameType ?? "Habitación",
         description: d.Bedrooms?.description ?? "",
         capacity: d.Bedrooms?.capacity ?? 0,
         price: price,

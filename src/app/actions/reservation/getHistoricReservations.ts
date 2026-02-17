@@ -44,7 +44,12 @@ export const getHistoricReservations = async (): Promise<
             dateStart: true,
             dateEnd: true,
             guestQuantity: true,
-            Bedrooms: { select: { id: true, typeBedroom: true } },
+            Bedrooms: {
+              select: {
+                id: true,
+                TypeBedrooms: { select: { nameType: true } }
+              }
+            },
             Promotions: { select: { codePromotions: true } },
           },
         },
@@ -78,8 +83,8 @@ export const getHistoricReservations = async (): Promise<
 
       details.forEach((d) => {
         if (d.Bedrooms?.id) uniqueBedroomIds.add(d.Bedrooms.id);
-        if (d.Bedrooms?.typeBedroom)
-          bedroomNamesSet.add(d.Bedrooms.typeBedroom);
+        const typeName = d.Bedrooms?.TypeBedrooms?.nameType;
+        if (typeName) bedroomNamesSet.add(typeName);
       });
 
       const rooms = uniqueBedroomIds.size;

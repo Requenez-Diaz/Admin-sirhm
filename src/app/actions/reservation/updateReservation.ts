@@ -35,7 +35,11 @@ export const updateReservation = async (data: {
     }
 
     const bedroom = await prisma.bedrooms.findFirst({
-      where: { typeBedroom: bedroomsType }
+      where: {
+        TypeBedrooms: {
+          nameType: bedroomsType
+        }
+      }
     });
 
     if (!bedroom) {
@@ -46,19 +50,19 @@ export const updateReservation = async (data: {
       prisma.user.update({
         where: { id: reservation.user_id },
         data: {
-          username: name, 
+          username: name,
           email: email,
         },
       }),
 
-    
+
       prisma.reservationDetails.updateMany({
         where: { reservation_id: parseInt(reservationId) },
         data: {
           guestQuantity: parseInt(guests),
           dateStart: new Date(arrivalDate),
           dateEnd: new Date(departureDate),
-          bedrooms_id: bedroom.id, 
+          bedrooms_id: bedroom.id,
         },
       }),
     ]);
