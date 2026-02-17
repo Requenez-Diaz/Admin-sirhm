@@ -98,9 +98,13 @@ enum SeasonType {
 
 model Seasons {
   id         Int          @id @default(autoincrement())
+<<<<<<< HEAD
   nameSeason SeasonType   @default(BAJA)
+=======
+>>>>>>> seasons
   dateStart  DateTime
   dateEnd    DateTime
+  nameSeason SeasonType   @default(BAJA)
   Bedrooms   Bedrooms[]
   Promotions Promotions[]
 }
@@ -144,8 +148,13 @@ model Bedrooms {
   image              String
   updatedAt          DateTime             @updatedAt
   slug               String               @unique
+  typeBedroomId      Int?
   galleryImages      BedroomImages[]
   Seasons            Seasons?             @relation(fields: [seasonsId], references: [id])
+<<<<<<< HEAD
+=======
+  TypeBedrooms       TypeBedrooms?        @relation(fields: [typeBedroomId], references: [id])
+>>>>>>> seasons
   BedroomsPromotions BedroomsPromotions[]
   Comments           Comments[]
   ReservationDetails ReservationDetails[]
@@ -261,6 +270,15 @@ model ReservationDetails {
   Reservation    Reservation @relation(fields: [reservation_id], references: [id])
 }
 
+model TypeBedrooms {
+  id          Int        @id @default(autoincrement())
+  nameType    String
+  description String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime
+  Bedrooms    Bedrooms[]
+}
+
 enum NotificationType {
   CREATED
   CONFIRMED
@@ -283,4 +301,9 @@ enum Status {
   PENDING
   CONFIRMED
   CANCELLED
+}
+
+enum SeasonType {
+  ALTA
+  BAJA
 }

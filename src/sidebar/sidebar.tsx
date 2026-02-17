@@ -23,6 +23,7 @@ import {
   Bell,
   Moon,
   Sun,
+  CalendarDays,
 } from "lucide-react";
 
 const links = [
@@ -61,6 +62,11 @@ const links = [
     name: "Tipos de habitaciones",
     href: "/dashboard/room-types",
     icon: BedDouble,
+  },
+  {
+    name: "Temporadas",
+    href: "/dashboard/seasons",
+    icon: CalendarDays,
   },
 ];
 
