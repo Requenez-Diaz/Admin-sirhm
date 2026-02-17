@@ -77,7 +77,6 @@ export default function TableSeasons({ seasons }: { seasons: any[] }) {
                                     <TableCell>
                                         <div className="flex items-center gap-2">
                                             <CalendarDays className="h-4 w-4 text-primary" />
-                                            <span className="font-semibold">{season.nameSeason}</span>
                                             <Badge
                                                 variant={season.nameSeason === 'ALTA' ? 'default' : 'secondary'}
                                                 className="ml-2"
