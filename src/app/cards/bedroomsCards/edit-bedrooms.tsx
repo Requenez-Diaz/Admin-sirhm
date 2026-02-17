@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import Icon from "@/components/ui/icons/icons";
 import { FormEditBedrooms } from "./form-edit-bedrooms";
-import { Seasons, Bedrooms, BedroomImages } from "@prisma/client";
+import { Seasons, Bedrooms, BedroomImages, TypeBedrooms } from "@prisma/client";
 import { useState } from "react";
 
 type BedroomsWithImages = Bedrooms & {
@@ -20,9 +20,10 @@ type BedroomsWithImages = Bedrooms & {
 interface EditBedroomsProps {
   bedroom: BedroomsWithImages;
   seasons: Seasons[];
+  roomTypes: TypeBedrooms[];
 }
 
-export function EditBedrooms({ bedroom, seasons }: EditBedroomsProps) {
+export function EditBedrooms({ bedroom, seasons, roomTypes }: EditBedroomsProps) {
   const [open, setOpen] = useState(false);
   if (!bedroom) {
     return <p>Error: No se encontró la habitación</p>;
@@ -46,6 +47,7 @@ export function EditBedrooms({ bedroom, seasons }: EditBedroomsProps) {
         <FormEditBedrooms
           bedroom={bedroom}
           seasons={seasons}
+          roomTypes={roomTypes}
           setOpen={setOpen}
         />
       </DialogContent>

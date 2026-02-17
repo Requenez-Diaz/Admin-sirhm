@@ -29,14 +29,15 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default function TableBedrooms({ bedrooms, seasons }: any) {
+export default function TableBedrooms({ bedrooms, seasons, roomTypes }: any) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
   const filtered = useMemo(() => {
     return bedrooms.filter((b: any) => {
+      const typeName = b.TypeBedrooms?.nameType || b.typeBedroom || "";
       const matchesSearch =
-        b.typeBedroom.toLowerCase().includes(search.toLowerCase()) ||
+        typeName.toLowerCase().includes(search.toLowerCase()) ||
         b.numberBedroom.toString().includes(search);
       const matchesStatus =
         statusFilter === "all" ? true : String(b.status) === statusFilter;
@@ -62,7 +63,7 @@ export default function TableBedrooms({ bedrooms, seasons }: any) {
             <option value='false'>Ocupadas</option>
           </select>
         </div>
-        <AddBedrooms />
+        <AddBedrooms roomTypes={roomTypes} seasons={seasons} />
       </div>
 
       <div className='rounded-xl border shadow-sm overflow-hidden'>
@@ -90,7 +91,7 @@ export default function TableBedrooms({ bedrooms, seasons }: any) {
                   {bedroom.numberBedroom}
                 </TableCell>
                 <TableCell>
-                  <div className='font-semibold'>{bedroom.typeBedroom}</div>
+                  <div className='font-semibold'>{bedroom.TypeBedrooms?.nameType || bedroom.typeBedroom}</div>
                   <div className='text-xs text-muted-foreground truncate max-w-[180px]'>
                     {bedroom.description}
                   </div>
@@ -140,7 +141,11 @@ export default function TableBedrooms({ bedrooms, seasons }: any) {
                     <DropdownMenuContent align='end' className='w-40'>
                       <DropdownMenuLabel>Opciones</DropdownMenuLabel>
                       <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                        <EditBedrooms bedroom={bedroom} seasons={seasons} />
+                        <EditBedrooms
+                          bedroom={bedroom}
+                          seasons={seasons}
+                          roomTypes={roomTypes}
+                        />
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onSelect={(e) => e.preventDefault()}

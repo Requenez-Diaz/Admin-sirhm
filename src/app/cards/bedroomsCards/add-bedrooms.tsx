@@ -11,8 +11,14 @@ import {
 import Icon from "@/components/ui/icons/icons";
 import { FormBedrooms } from "./form-bedrooms";
 import { saveBedroomsWithUpload } from "@/app/actions/bedrooms/saveBedrooms";
+import { TypeBedrooms, Seasons } from "@prisma/client";
 
-export function AddBedrooms() {
+interface AddBedroomsProps {
+  roomTypes: TypeBedrooms[];
+  seasons: Seasons[];
+}
+
+export function AddBedrooms({ roomTypes, seasons }: AddBedroomsProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -28,7 +34,11 @@ export function AddBedrooms() {
             ¿Está seguro de que desea agregar esta habitación?
           </DialogDescription>
         </DialogHeader>
-        <FormBedrooms saveAction={saveBedroomsWithUpload} />
+        <FormBedrooms
+          saveAction={saveBedroomsWithUpload}
+          roomTypes={roomTypes}
+          seasons={seasons}
+        />
       </DialogContent>
     </Dialog>
   );

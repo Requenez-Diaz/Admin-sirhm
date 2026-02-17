@@ -91,17 +91,8 @@ model Services {
   bookings    bookingsServices[]
 }
 
-enum SeasonType {
-  ALTA
-  BAJA
-}
-
 model Seasons {
   id         Int          @id @default(autoincrement())
-<<<<<<< HEAD
-  nameSeason SeasonType   @default(BAJA)
-=======
->>>>>>> seasons
   dateStart  DateTime
   dateEnd    DateTime
   nameSeason SeasonType   @default(BAJA)
@@ -151,16 +142,11 @@ model Bedrooms {
   typeBedroomId      Int?
   galleryImages      BedroomImages[]
   Seasons            Seasons?             @relation(fields: [seasonsId], references: [id])
-<<<<<<< HEAD
-=======
   TypeBedrooms       TypeBedrooms?        @relation(fields: [typeBedroomId], references: [id])
->>>>>>> seasons
   BedroomsPromotions BedroomsPromotions[]
   Comments           Comments[]
   ReservationDetails ReservationDetails[]
   testimonials       testimonials[]
-  typeBedroomId      Int?
-  TypeBedrooms       TypeBedrooms?        @relation(fields: [typeBedroomId], references: [id])
 }
 
 model BedroomImages {
@@ -268,15 +254,6 @@ model ReservationDetails {
   Bedrooms       Bedrooms    @relation(fields: [bedrooms_id], references: [id])
   Promotions     Promotions? @relation(fields: [promotion_id], references: [id])
   Reservation    Reservation @relation(fields: [reservation_id], references: [id])
-}
-
-model TypeBedrooms {
-  id          Int        @id @default(autoincrement())
-  nameType    String
-  description String
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime
-  Bedrooms    Bedrooms[]
 }
 
 enum NotificationType {

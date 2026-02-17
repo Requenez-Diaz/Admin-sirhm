@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/components/ui/use-toast";
 import { updateBedroom } from "@/app/actions/bedrooms";
 import { Loader2, Save } from "lucide-react";
+import { TypeBedrooms } from "@prisma/client";
 
 import {
   Form,
@@ -26,12 +27,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import GalleryImageUploader from "./add-image";
 
 const FormSchema = z.object({
-  typeBedroom: z.string().min(1, "El tipo es obligatorio"),
+  typeBedroomId: z.string().min(1, "El tipo es obligatorio"),
   description: z.string().min(1, "La descripción es obligatoria"),
   lowSeasonPrice: z.coerce.number().min(1, "Precio inválido"),
   highSeasonPrice: z.coerce.number().min(1, "Precio inválido"),
@@ -41,7 +43,7 @@ const FormSchema = z.object({
   seasonsId: z.string().min(1, "Selecciona temporada"),
 });
 
-export function FormEditBedrooms({ bedroom, seasons, setOpen }: any) {
+export function FormEditBedrooms({ bedroom, seasons, roomTypes, setOpen }: any) {
   const router = useRouter();
   const { toast } = useToast();
   const [isPending, setIsPending] = useState(false);
@@ -49,14 +51,14 @@ export function FormEditBedrooms({ bedroom, seasons, setOpen }: any) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      typeBedroom: bedroom.typeBedroom,
-      description: bedroom.description,
-      lowSeasonPrice: bedroom.lowSeasonPrice,
-      highSeasonPrice: bedroom.highSeasonPrice,
+      typeBedroomId: bedroom.typeBedroomId?.toString() ?? "",
+      description: bedroom.description || "",
+      lowSeasonPrice: bedroom.lowSeasonPrice || 0,
+      highSeasonPrice: bedroom.highSeasonPrice || 0,
       numberBedroom: bedroom.numberBedroom,
       capacity: bedroom.capacity,
       status: bedroom.status ? "1" : "0",
-      seasonsId: bedroom.seasonsId.toString(),
+      seasonsId: bedroom.seasonsId?.toString() ?? "",
     },
   });
 
@@ -65,6 +67,7 @@ export function FormEditBedrooms({ bedroom, seasons, setOpen }: any) {
     try {
       const res = await updateBedroom({
         ...data,
+        typeBedroomId: Number(data.typeBedroomId),
         bedroomsId: bedroom.id.toString(),
         seasonsId: Number(data.seasonsId),
       });
@@ -118,11 +121,10 @@ export function FormEditBedrooms({ bedroom, seasons, setOpen }: any) {
                   >
                     <FormControl>
                       <SelectTrigger
-                        className={`h-12 font-bold transition-all ${
-                          field.value === "1"
-                            ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400"
-                            : "border-red-500 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400"
-                        }`}
+                        className={`h-12 font-bold transition-all ${field.value === "1"
+                          ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400"
+                          : "border-red-500 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400"
+                          }`}
                       >
                         <SelectValue placeholder='Estado' />
                       </SelectTrigger>
@@ -161,6 +163,40 @@ export function FormEditBedrooms({ bedroom, seasons, setOpen }: any) {
           <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
             <FormField
               control={form.control}
+              name='typeBedroomId'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tipo de Habitación</FormLabel>
+                  <Select
+                    onValueChange={(val) => {
+                      field.onChange(val);
+                      const selected = roomTypes.find((t: TypeBedrooms) => t.id.toString() === val);
+                      if (selected) {
+                        form.setValue("description", selected.description);
+                      }
+                    }}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className='dark:bg-slate-900'>
+                        <SelectValue placeholder='Selecciona tipo' />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent className='dark:bg-slate-950'>
+                      {roomTypes.map((t: any) => (
+                        <SelectItem key={t.id} value={t.id.toString()}>
+                          {t.nameType}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name='numberBedroom'
               render={({ field }) => (
                 <FormItem>
@@ -174,35 +210,54 @@ export function FormEditBedrooms({ bedroom, seasons, setOpen }: any) {
                 </FormItem>
               )}
             />
-
-            <FormField
-              control={form.control}
-              name='seasonsId'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Temporada Asignada</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className='dark:bg-slate-900'>
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent className='dark:bg-slate-950'>
-                      {seasons.map((s: any) => (
-                        <SelectItem key={s.id} value={s.id.toString()}>
-                          {s.nameSeason}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </div>
+
+          <FormField
+            control={form.control}
+            name='description'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Descripción</FormLabel>
+                <FormControl>
+                  <Textarea
+                    {...field}
+                    placeholder='Describe la habitación...'
+                    rows={4}
+                    className='resize-none dark:bg-slate-900'
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name='seasonsId'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Temporada Asignada</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className='dark:bg-slate-900'>
+                      <SelectValue />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent className='dark:bg-slate-950'>
+                    {seasons.map((s: any) => (
+                      <SelectItem key={s.id} value={s.id.toString()}>
+                        {s.nameSeason} ({new Date(s.dateStart).toLocaleDateString()} - {new Date(s.dateEnd).toLocaleDateString()})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
             <FormField

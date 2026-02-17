@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import ImageUpload from "./upload-file";
+import { TypeBedrooms, Seasons } from "@prisma/client";
 
 type ActionState = { success: boolean; message: string };
 
@@ -31,11 +32,15 @@ interface FormBedroomsProps {
     prevState: ActionState,
     formData: FormData
   ) => Promise<ActionState>;
+  roomTypes: TypeBedrooms[];
+  seasons: Seasons[];
 }
 
-export function FormBedrooms({ saveAction }: FormBedroomsProps) {
+export function FormBedrooms({ saveAction, roomTypes, seasons }: FormBedroomsProps) {
   const [statusValue, setStatusValue] = useState("1");
-  const [seasonType, setSeasonType] = useState("");
+  const [typeBedroomId, setTypeBedroomId] = useState("");
+  const [description, setDescription] = useState("");
+  const [seasonsId, setSeasonsId] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [mimeType, setMimeType] = useState("");
   const [fileName, setFileName] = useState("");
@@ -56,7 +61,9 @@ export function FormBedrooms({ saveAction }: FormBedroomsProps) {
     });
     if (state.success) {
       setStatusValue("1");
-      setSeasonType("");
+      setTypeBedroomId("");
+      setDescription("");
+      setSeasonsId("");
       setImageUrl("");
       setMimeType("");
       setFileName("");
@@ -84,16 +91,31 @@ export function FormBedrooms({ saveAction }: FormBedroomsProps) {
           </div>
 
           <div className='space-y-2'>
-            <Label htmlFor='typeBedroom' className='text-base'>
+            <Label htmlFor='typeBedroomId' className='text-base'>
               Tipo de Habitación
             </Label>
-            <Input
-              id='typeBedroom'
-              name='typeBedroom'
-              required
-              placeholder='Ej: Suite Deluxe'
-              className='h-11'
-            />
+            <Select
+              value={typeBedroomId}
+              onValueChange={(value) => {
+                setTypeBedroomId(value);
+                const selectedType = roomTypes.find(t => t.id.toString() === value);
+                if (selectedType) {
+                  setDescription(selectedType.description);
+                }
+              }}
+            >
+              <SelectTrigger className='h-11'>
+                <SelectValue placeholder='Selecciona tipo de habitación' />
+              </SelectTrigger>
+              <SelectContent>
+                {roomTypes.map((type) => (
+                  <SelectItem key={type.id} value={type.id.toString()}>
+                    {type.nameType}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <input type='hidden' name='typeBedroomId' value={typeBedroomId} />
           </div>
 
           <div className='space-y-2'>
@@ -107,6 +129,8 @@ export function FormBedrooms({ saveAction }: FormBedroomsProps) {
               placeholder='Describe la habitación...'
               rows={5}
               className='resize-none'
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
             />
           </div>
         </div>
@@ -156,28 +180,24 @@ export function FormBedrooms({ saveAction }: FormBedroomsProps) {
 
           <div className='space-y-2'>
             <Label className='text-base'>Temporada *</Label>
-            <Select value={seasonType} onValueChange={setSeasonType}>
+            <Select value={seasonsId} onValueChange={setSeasonsId}>
               <SelectTrigger className='h-11'>
                 <SelectValue placeholder='Selecciona una temporada' />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='low'>Temporada Baja</SelectItem>
-                <SelectItem value='high'>Temporada Alta</SelectItem>
+                {seasons.map((season) => (
+                  <SelectItem key={season.id} value={season.id.toString()}>
+                    {season.nameSeason} ({new Date(season.dateStart).toLocaleDateString()} - {new Date(season.dateEnd).toLocaleDateString()})
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
-            {!seasonType && (
+            {!seasonsId && (
               <p className='text-sm text-destructive'>
                 Debes seleccionar una temporada para continuar
               </p>
             )}
-            {seasonType && (
-              <p className='text-sm text-muted-foreground'>
-                {seasonType === 'high'
-                  ? 'Se guardará con precio de temporada alta'
-                  : 'Se guardará con precio de temporada baja'}
-              </p>
-            )}
-            <input type='hidden' name='seasonType' value={seasonType} />
+            <input type='hidden' name='seasonsId' value={seasonsId} />
           </div>
         </div>
 

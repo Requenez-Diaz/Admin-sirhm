@@ -20,32 +20,31 @@ export async function saveBedroomsWithUpload(
   formData: FormData,
 ): Promise<ActionState> {
   try {
-    const typeBedroom = String(formData.get("typeBedroom") || "").trim();
+    const typeBedroomId = Number(formData.get("typeBedroomId"));
+    const seasonsId = Number(formData.get("seasonsId"));
     const description = String(formData.get("description") || "").trim();
     const lowSeasonPrice = Number(formData.get("lowSeasonPrice"));
     const highSeasonPrice = Number(formData.get("highSeasonPrice"));
     const numberBedroom = Number(formData.get("numberBedroom"));
     const capacity = Number(formData.get("capacity"));
     const statusStr = String(formData.get("status") ?? "1");
-    const seasonType = String(formData.get("seasonType") || "").trim();
-    const _isHighSeason = seasonType === "high";
 
     const imageUrl = String(formData.get("imageUrl") || "");
     const mimeType = String(formData.get("mimeType") || "");
     const fileName = String(formData.get("fileName") || "");
 
     // 3. Validaciones
-    if (!typeBedroom || !numberBedroom) {
+    if (!typeBedroomId || !numberBedroom) {
       return {
         success: false,
         message: "Faltan datos requeridos (Tipo o Número de Habitación).",
       };
     }
 
-    if (!seasonType || (seasonType !== "low" && seasonType !== "high")) {
+    if (!seasonsId) {
       return {
         success: false,
-        message: "Debes seleccionar una temporada (Baja o Alta).",
+        message: "Debes seleccionar una temporada.",
       };
     }
 
@@ -61,6 +60,14 @@ export async function saveBedroomsWithUpload(
       return { success: false, message: "La imagen principal es requerida." };
     }
 
+    const roomType = await prisma.typeBedrooms.findUnique({
+      where: { id: typeBedroomId },
+    });
+
+    if (!roomType) {
+      return { success: false, message: "El tipo de habitación no es válido." };
+    }
+
     const exists = await prisma.bedrooms.findFirst({
       where: { numberBedroom },
     });
@@ -72,28 +79,23 @@ export async function saveBedroomsWithUpload(
     }
 
     const active = statusStr === "1";
-    const slug = generateSlug(typeBedroom);
-
-    const now = new Date();
-    const nextYear = new Date(now);
-    nextYear.setFullYear(now.getFullYear() + 1);
+    const slug = generateSlug(`${roomType.nameType}_${numberBedroom}`);
 
     const galleryData =
       imageUrl && mimeType && fileName
         ? {
-            create: [
-              {
-                imageContent: imageUrl,
-                mimeType,
-                fileName,
-              },
-            ],
-          }
+          create: [
+            {
+              imageContent: imageUrl,
+              mimeType,
+              fileName,
+            },
+          ],
+        }
         : undefined;
 
     const created = await prisma.bedrooms.create({
       data: {
-        typeBedroom,
         description,
         lowSeasonPrice,
         highSeasonPrice,
@@ -102,19 +104,14 @@ export async function saveBedroomsWithUpload(
         status: active,
         image: imageUrl,
         slug,
-        Seasons: {
-          create: {
-            nameSeason: "",
-            dateStart: now,
-            dateEnd: nextYear,
-          },
-        },
+        typeBedroomId,
+        seasonsId,
         galleryImages: galleryData,
       },
       include: { galleryImages: true },
     });
 
-    revalidatePath("/bedrooms");
+    revalidatePath("/dashboard/bedrooms");
     revalidatePath("/");
 
     return {

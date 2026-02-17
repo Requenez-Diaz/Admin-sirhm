@@ -19,7 +19,7 @@ export function AddSeason() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className='gap-2'>
+                <Button className='gap-2' variant="success">
                     <Plus className='w-4 h-4' />
                     Agregar Temporada
                 </Button>
