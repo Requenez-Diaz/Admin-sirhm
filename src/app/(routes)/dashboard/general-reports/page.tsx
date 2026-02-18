@@ -2,6 +2,7 @@ import { getReservationReport } from "@/app/actions/reports/reports";
 import ReportButtons from "./reports-button";
 import ReportFilters from "./reports-filter";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   ClipboardList,
   Hotel,
@@ -113,6 +114,7 @@ export default async function ReportPage(props: {
           <table className='min-w-full divide-y divide-border'>
             <thead className='bg-muted/50'>
               <tr className='text-[10px] font-bold uppercase text-muted-foreground tracking-tighter'>
+                <th className='px-6 py-4 text-left w-12'>#</th>
                 <th className='px-6 py-4 text-left'>Fecha Emisión</th>
                 <th className='px-6 py-4 text-left'>Cliente / Usuario</th>
                 <th className='px-6 py-4 text-center'>Habitaciones</th>
@@ -120,11 +122,14 @@ export default async function ReportPage(props: {
               </tr>
             </thead>
             <tbody className='divide-y divide-border'>
-              {result.data.map((res: any) => (
+              {result.data.map((res: any, index: number) => (
                 <tr
                   key={res.id}
                   className='hover:bg-muted/30 transition-colors text-sm group'
                 >
+                  <td className='px-6 py-4 whitespace-nowrap text-muted-foreground font-bold text-xs'>
+                    {index + 1}
+                  </td>
                   <td className='px-6 py-4 whitespace-nowrap text-muted-foreground font-mono text-xs'>
                     {new Date(res.fecha).toLocaleDateString("es-ES", {
                       day: "2-digit",
@@ -153,6 +158,28 @@ export default async function ReportPage(props: {
                 </tr>
               ))}
             </tbody>
+            {result.data.length > 0 && (
+              <tfoot className='bg-muted/50 border-t-2 border-border'>
+                <tr className='font-black text-xs uppercase tracking-tighter'>
+                  <td className='px-6 py-4 text-left' colSpan={2}>
+                    Total Registros
+                  </td>
+                  <td className='px-6 py-4 text-center'>
+                    <Badge variant="outline" className="font-black bg-background">
+                      {result.data.length} Reservas
+                    </Badge>
+                  </td>
+                  <td className='px-6 py-4 text-right' colSpan={2}>
+                    <div className="flex flex-col items-end">
+                      <span className="text-[10px] text-muted-foreground">Suma Total del Periodo</span>
+                      <span className="text-xl text-primary">
+                        C${result.metrics.ingresosTotales.toLocaleString()}
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              </tfoot>
+            )}
           </table>
         </div>
 

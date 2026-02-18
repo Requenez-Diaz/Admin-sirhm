@@ -6,7 +6,7 @@ import { FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ReservationData {
-  id: string;
+  id: number;
   fecha: string;
   cliente: string;
   email: string;

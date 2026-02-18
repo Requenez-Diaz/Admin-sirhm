@@ -26,6 +26,7 @@ import {
   Users,
   ArrowDownCircle,
   ArrowUpCircle,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -54,14 +55,35 @@ export default function TableBedrooms({ bedrooms, seasons, roomTypes }: any) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <select
-            className='border rounded-md px-2 text-sm bg-background'
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value='all'>Todos</option>
-            <option value='true'>Disponibles</option>
-            <option value='false'>Ocupadas</option>
-          </select>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className={`w-[140px] justify-between ${statusFilter === "all"
+                  ? "bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:text-white"
+                  : ""
+                  }`}
+              >
+                {statusFilter === "all"
+                  ? "Todos"
+                  : statusFilter === "true"
+                    ? "Disponibles"
+                    : "Ocupadas"}
+                <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-[140px]">
+              <DropdownMenuItem onClick={() => setStatusFilter("all")}>
+                Todos
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter("true")}>
+                Disponibles
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter("false")}>
+                Ocupadas
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <AddBedrooms roomTypes={roomTypes} seasons={seasons} />
       </div>

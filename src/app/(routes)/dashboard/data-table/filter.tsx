@@ -70,12 +70,12 @@ export function Filter({
         </button>
 
         {showDropdown && (
-          <div className='absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-50 py-1'>
+          <div className='absolute right-0 mt-2 w-48 bg-popover border border-border rounded-lg shadow-lg z-50 py-1'>
             {options.map((filter) => (
               <button
                 key={filter}
                 onClick={() => handleFilterSelect(filter)}
-                className='flex items-center justify-between w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all'
+                className='flex items-center justify-between w-full px-4 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-all'
               >
                 {filter}
                 {selectedFilter === filter && (
@@ -90,7 +90,7 @@ export function Filter({
       {(searchTerm || selectedFilter !== "Todo") && (
         <button
           onClick={handleClear}
-          className='flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-4 py-2 rounded-lg transition-all'
+          className='flex items-center gap-2 bg-muted hover:bg-muted/80 text-muted-foreground font-medium px-4 py-2 rounded-lg transition-all'
         >
           <X size={18} />
           <span>Limpiar</span>
