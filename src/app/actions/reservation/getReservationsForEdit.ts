@@ -14,7 +14,11 @@ export const getReservationById = async (id: number) => {
                 // Traemos los detalles, y dentro de detalles, la información de la habitación
                 ReservationDetails: {
                     include: {
-                        Bedrooms: true,
+                        Bedrooms: {
+                            include: {
+                                TypeBedrooms: true,
+                            },
+                        },
                     },
                 },
             },

@@ -1,7 +1,7 @@
 "use client";
 
 import { updateReservation } from "@/app/actions/reservation";
-import { getBedrooms } from "@/app/actions/bedrooms";
+import { getTypeBedrooms } from "@/app/actions/roomsType/rooms-type";
 import { Button } from "@/components/ui/button";
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -61,7 +61,7 @@ export function FormEditReservation({
         email: reservationDetails?.Reservation?.User?.email || "",
         guests: reservationDetails?.guestQuantity || 1,
         rooms: 1,
-        bedroomsType: reservationDetails?.Bedrooms?.typeBedroom || "",
+        bedroomsType: reservationDetails?.Bedrooms?.TypeBedrooms?.nameType || "",
         arrivalDate: reservationDetails?.dateStart
           ? new Date(reservationDetails.dateStart).toISOString().split("T")[0]
           : "",
@@ -75,8 +75,10 @@ export function FormEditReservation({
   // EFECTO 2: Cargar lista de habitaciones para el select
   useEffect(() => {
     async function fetchBedrooms() {
-      const data = await getBedrooms();
-      setBedroomsList(data);
+      const result = await getTypeBedrooms();
+      if (result.success && result.data) {
+        setBedroomsList(result.data);
+      }
     }
     fetchBedrooms();
   }, []);
@@ -203,8 +205,8 @@ export function FormEditReservation({
                   >
                     <option value='' disabled>Selecciona tipo</option>
                     {bedroomsList.map((type: any) => (
-                      <option key={type.id} value={type.typeBedroom}>
-                        {type.typeBedroom}
+                      <option key={type.id} value={type.nameType}>
+                        {type.nameType}
                       </option>
                     ))}
                   </select>
