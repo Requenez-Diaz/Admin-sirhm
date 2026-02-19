@@ -78,7 +78,7 @@ export function BedroomSelectionField({
                     {selectedBedroom ? (
                       <div className='flex items-center gap-2'>
                         <span>
-                          {selectedBedroom.id} - {selectedBedroom.typeBedroom} #
+                          {selectedBedroom.id} - {selectedBedroom.TypeBedrooms?.nameType} #
                           {selectedBedroom.id}
                         </span>
                         <Badge variant='secondary' className='text-xs'>
@@ -111,7 +111,7 @@ export function BedroomSelectionField({
                         return (
                           <CommandItem
                             key={bedroom.id}
-                            value={`${bedroom.typeBedroom} ${bedroom.typeBedroom} ${bedroom.highSeasonPrice}`}
+                            value={`${bedroom.TypeBedrooms?.nameType} ${bedroom.TypeBedrooms?.nameType} ${bedroom.highSeasonPrice}`}
                             onSelect={() => {
                               // Cambio: establecer un solo valor en lugar de manejar array
                               field.onChange(bedroom.id.toString());
@@ -128,15 +128,15 @@ export function BedroomSelectionField({
                               <div className='flex flex-col'>
                                 <div className='flex items-center gap-2'>
                                   <span className='font-medium'>
-                                    {bedroom.typeBedroom} -{" "}
-                                    {bedroom.typeBedroom} #{bedroom.id}
+                                    {bedroom.TypeBedrooms?.nameType} -{" "}
+                                    {bedroom.TypeBedrooms?.nameType} #{bedroom.id}
                                   </span>
                                   <Badge variant='outline' className='text-xs'>
                                     ID: {bedroom.id}
                                   </Badge>
                                 </div>
                                 <span className='text-xs text-muted-foreground'>
-                                  {bedroom.typeBedroom}
+                                  {bedroom.TypeBedrooms?.nameType}
                                 </span>
                               </div>
                               <span className='text-muted-foreground'>
@@ -157,13 +157,13 @@ export function BedroomSelectionField({
               único.
             </FormDescription>
             {selectedBedroom && (
-              <div className='p-3 bg-blue-50 rounded-lg border border-blue-200'>
-                <p className='text-sm text-blue-800'>
+              <div className='p-3 rounded-lg border bg-muted/50 border-border'>
+                <p className='text-sm text-muted-foreground'>
                   <strong>Habitación seleccionada:</strong>{" "}
-                  {selectedBedroom.typeBedroom} - {selectedBedroom.typeBedroom}{" "}
+                  {selectedBedroom.TypeBedrooms?.nameType} - {selectedBedroom.TypeBedrooms?.nameType}{" "}
                   #{selectedBedroom.id}
                 </p>
-                <p className='text-xs text-blue-600 mt-1'>
+                <p className='text-xs text-muted-foreground mt-1'>
                   ID único: {selectedBedroom.id} - Esta promoción se aplicará
                   únicamente a esta habitación específica
                 </p>

@@ -117,7 +117,7 @@ export default function TypeBedroomForm({ initialData }: TypeBedroomFormProps) {
           <div className='flex justify-end gap-3 pt-2'>
             <Button
               type='button'
-              variant='destructive'
+              variant='ghost'
               onClick={() => setOpen(false)}
               disabled={loading}
             >
@@ -131,15 +131,13 @@ export default function TypeBedroomForm({ initialData }: TypeBedroomFormProps) {
             >
               {loading ? (
                 <Loader2 className='w-4 h-4 animate-spin' />
-              ) : (
+              ) : isEditing ? (
                 <>
-                  {isEditing ? (
-                    <Save className='w-4 h-4 mr-2' />
-                  ) : (
-                    <Plus className='w-4 h-4 mr-2' />
-                  )}
-                  {isEditing ? "Guardar Cambios" : "Crear Tipo"}
+                  <Save className='w-4 h-4 mr-2' />
+                  Guardar Cambios
                 </>
+              ) : (
+                "Crear Tipo"
               )}
             </Button>
           </div>

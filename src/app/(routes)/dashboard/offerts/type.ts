@@ -2,9 +2,11 @@ import { Bedrooms } from "@prisma/client";
 // Tipos para los datos
 export type Bedroom = {
   id: number;
-  typeBedroom: string;
   lowSeasonPrice: number;
   highSeasonPrice: number;
+  TypeBedrooms?: {
+    nameType: string;
+  };
 };
 
 export type Season = {

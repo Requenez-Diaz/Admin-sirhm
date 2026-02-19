@@ -59,7 +59,7 @@ export function ConfirmReservation({ reservationId }: { reservationId: number })
 
                     <DialogFooter className="flex flex-wrap justify-between pt-4 gap-4">
                         <DialogClose asChild>
-                            <Button type="button" variant="success">
+                            <Button type="button" variant="ghost">
                                 <Icon action='undo' className="mr-2" />
                                 Cancelar
                             </Button>
@@ -67,7 +67,7 @@ export function ConfirmReservation({ reservationId }: { reservationId: number })
                         <DialogClose asChild>
                             <Button
                                 type="submit"
-                                variant="ghost"
+                                variant="success"
                             >
                                 <Icon action='accept' className="mr-2" />
                                 Acceptar

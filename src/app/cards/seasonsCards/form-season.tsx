@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useFormState, useFormStatus } from "react-dom";
+import React, { useState, useEffect } from "react";
+import { useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,7 +19,7 @@ import { SeasonType } from "@prisma/client";
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <Button type='submit' disabled={pending} className='w-full'>
+        <Button type='submit' disabled={pending} className='w-full' variant='default'>
             {pending ? "Guardando..." : isEditing ? "Actualizar Temporada" : "Guardar Temporada"}
         </Button>
     );
@@ -44,7 +44,7 @@ export function FormSeason({ saveAction, initialData, onSuccess }: FormSeasonPro
     const [nameSeason, setNameSeason] = useState<SeasonType>(initialData?.nameSeason || "BAJA");
 
     const initialState: ActionState = { success: false, message: "" };
-    const [state, formAction] = useFormState<ActionState, FormData>(
+    const [state, formAction] = React.useActionState<ActionState, FormData>(
         saveAction,
         initialState
     );

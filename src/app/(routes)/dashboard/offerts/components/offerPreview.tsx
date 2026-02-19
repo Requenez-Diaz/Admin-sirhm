@@ -56,18 +56,17 @@ export function OfferPreview({ watch, bedrooms }: OfferPreviewProps) {
               <MapPin className='h-4 w-4 text-blue-600' />
               <span className='font-medium'>Habitación Específica:</span>
             </div>
-            <div className='p-3 bg-blue-50 rounded-lg border border-blue-200'>
+            <div className='p-3 rounded-lg border bg-muted/50 border-border'>
               <div className='flex items-center gap-2'>
                 <span className='font-medium'>
-                  {bedroom.typeBedroom} - {bedroom.typeBedroom} #{bedroom.id}
+                  {bedroom.TypeBedrooms?.nameType} - {bedroom.TypeBedrooms?.nameType} #{bedroom.id}
                 </span>
                 <Badge variant='outline' className='text-xs'>
                   ID: {bedroom.id}
                 </Badge>
               </div>
-              <p className='text-sm text-blue-600 mt-1'>
-                ßß
-                {bedroom.typeBedroom}
+              <p className='text-sm text-muted-foreground mt-1'>
+                {bedroom.TypeBedrooms?.nameType}
               </p>
             </div>
           </div>

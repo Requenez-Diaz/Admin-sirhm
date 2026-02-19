@@ -248,9 +248,9 @@ export function FormEditReservation({
 
         <DialogFooter className='pt-4 gap-4'>
           <DialogClose asChild>
-            <Button type='button' variant='outline'>Cancelar</Button>
+            <Button type='button' variant='ghost'>Cancelar</Button>
           </DialogClose>
-          <Button type='submit'>Actualizar</Button>
+          <Button type='submit' variant='success'>Actualizar</Button>
         </DialogFooter>
       </form>
     </Form>

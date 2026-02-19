@@ -5,11 +5,8 @@ import prisma from "@/lib/db";
 export const getAllBedrooomToPromotions = async () => {
   try {
     const bedrooms = await prisma.bedrooms.findMany({
-      select: {
-        id: true,
-        typeBedroom: true,
-        lowSeasonPrice: true,
-        highSeasonPrice: true,
+      include: {
+        TypeBedrooms: true,
       },
     });
     return bedrooms;
