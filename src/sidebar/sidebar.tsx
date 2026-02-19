@@ -2,12 +2,10 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import UserProfile from "./components/usersProfile";
-import { getUnreadNotificationsCount } from "@/app/actions/notification/getUnreadNotificationsCount";
 
 import {
   BedDouble,
@@ -20,7 +18,6 @@ import {
   Pin,
   PinOff,
   Menu,
-  Bell,
   Moon,
   Sun,
   CalendarDays,
@@ -75,32 +72,17 @@ interface SidebarProps {
 }
 
 export default function MainSidebar({ onStateChange }: SidebarProps) {
-  const router = useRouter();
   const { setTheme, theme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
 
-  const [notificationsCount, setNotificationsCount] = useState(0);
-
-  const fetchUnreadNotifications = async () => {
-    try {
-      const response = await getUnreadNotificationsCount();
-      if (response.success) {
-        setNotificationsCount(response.count);
-      }
-    } catch (error) {
-      console.error("Error al cargar notificaciones:", error);
-    }
-  };
-
   useEffect(() => {
     onStateChange?.(isExpanded || isPinned);
   }, [isExpanded, isPinned, onStateChange]);
 
   useEffect(() => {
-    fetchUnreadNotifications();
     setMounted(true);
   }, []);
 
@@ -145,18 +127,6 @@ export default function MainSidebar({ onStateChange }: SidebarProps) {
             <span className='sr-only'>Toggle theme</span>
           </Button>
 
-          <div
-            className='relative cursor-pointer'
-            onClick={() => router.push("/dashboard/notifications")}
-          >
-            <Bell className='h-6 w-6 text-foreground' />
-            {notificationsCount > 0 && (
-              <span className='absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-500 rounded-full'>
-                {notificationsCount}
-              </span>
-            )}
-          </div>
-
           <UserProfile />
         </div>
       </header>
@@ -185,11 +155,6 @@ export default function MainSidebar({ onStateChange }: SidebarProps) {
               >
                 <div className='relative'>
                   <link.icon className='h-5 w-5 flex-shrink-0' />
-                  {link.name === "notificaciones" && notificationsCount > 0 && (
-                    <span className='absolute -top-2 -right-2 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-500 rounded-full'>
-                      {notificationsCount}
-                    </span>
-                  )}
                 </div>
                 {(isExpanded || isPinned) && (
                   <span className='ml-3 capitalize'>{link.name}</span>
