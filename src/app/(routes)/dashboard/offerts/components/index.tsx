@@ -45,16 +45,18 @@ export function OfferForm({ onSuccess, editingOffer }: OfferFormProps) {
       porcentageDescuent: editingOffer?.porcentageDescuent || 10,
       dateRange: editingOffer
         ? {
-            from: new Date(editingOffer.dateStart),
-            to: new Date(editingOffer.dateEnd),
-          }
+          from: new Date(editingOffer.dateStart),
+          to: new Date(editingOffer.dateEnd),
+        }
         : {
-            from: new Date(),
-            to: new Date(new Date().setMonth(new Date().getMonth() + 1)),
-          },
+          from: new Date(),
+          to: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+        },
       seasonId: editingOffer?.season?.id?.toString() || "",
       bedroomId:
-        editingOffer?.bedroomPromotions?.[0]?.bedroom?.id?.toString() || "",
+        editingOffer?.BedroomsPromotions?.[0]?.bedroom?.id?.toString() ||
+        editingOffer?.bedroomPromotions?.[0]?.bedroom?.id?.toString() ||
+        "",
       description: editingOffer?.description || "",
     },
   });

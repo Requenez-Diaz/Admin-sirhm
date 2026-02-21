@@ -277,20 +277,20 @@ export function EditOfferForm({
                               onCheckedChange={(checked) => {
                                 return checked
                                   ? field.onChange([
-                                      ...field.value,
-                                      bedroom.id.toString(),
-                                    ])
+                                    ...field.value,
+                                    bedroom.id.toString(),
+                                  ])
                                   : field.onChange(
-                                      field.value?.filter(
-                                        (value) =>
-                                          value !== bedroom.id.toString()
-                                      )
-                                    );
+                                    field.value?.filter(
+                                      (value) =>
+                                        value !== bedroom.id.toString()
+                                    )
+                                  );
                               }}
                             />
                           </FormControl>
                           <FormLabel className='font-normal'>
-                            {bedroom.typeBedroom}
+                            {bedroom.TypeBedrooms?.nameType ?? `Habitación #${bedroom.id}`}
                           </FormLabel>
                         </FormItem>
                       );

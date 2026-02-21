@@ -28,8 +28,8 @@ export const getBedroomTypes = (offer: Promotion): string[] => {
     offer.BedroomsPromotions.length > 0
   ) {
     return offer.BedroomsPromotions.filter(
-      (bp) => bp && bp.bedroom && bp.bedroom.typeBedroom
-    ).map((bp) => bp.bedroom.typeBedroom);
+      (bp) => bp && bp.bedroom && bp.bedroom.TypeBedrooms
+    ).map((bp) => bp.bedroom.TypeBedrooms?.nameType ?? "");
   }
 
   // Try bedroomPromotions as fallback (from your type)
@@ -39,8 +39,8 @@ export const getBedroomTypes = (offer: Promotion): string[] => {
     offer.bedroomPromotions.length > 0
   ) {
     return offer.bedroomPromotions
-      .filter((bp) => bp && bp.bedroom && bp.bedroom.typeBedroom)
-      .map((bp) => bp.bedroom.typeBedroom);
+      .filter((bp) => bp && bp.bedroom && bp.bedroom.TypeBedrooms)
+      .map((bp) => bp.bedroom.TypeBedrooms?.nameType ?? "");
   }
 
   // If neither exists or they're empty, return an empty array

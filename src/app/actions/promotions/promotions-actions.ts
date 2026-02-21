@@ -101,7 +101,11 @@ export async function getPromotions() {
         seasons: true,
         BedroomsPromotions: {
           include: {
-            bedroom: true,
+            bedroom: {
+              include: {
+                TypeBedrooms: true,
+              },
+            },
           },
         },
       },
@@ -126,7 +130,11 @@ export async function getPromotion(id: number) {
         seasons: true,
         BedroomsPromotions: {
           include: {
-            bedroom: true,
+            bedroom: {
+              include: {
+                TypeBedrooms: true,
+              },
+            },
           },
         },
       },
@@ -207,7 +215,7 @@ export async function updatePromotion(id: number, data: PromotionData) {
       if (existingBedroomPromotion) {
         return {
           success: false,
-          error: `Ya existe una promoción activa para la habitación ${existingBedroomPromotion.bedroom.typeBedroom} (${existingBedroomPromotion.promotion.codePromotions})`,
+          error: `Ya existe una promoción activa para la habitación ID ${existingBedroomPromotion.bedroomId} (${existingBedroomPromotion.promotion.codePromotions})`,
         };
       }
     }
@@ -282,7 +290,7 @@ export async function getAvailableBedrooms() {
     const bedrooms = await prisma.bedrooms.findMany({
       select: {
         id: true,
-        typeBedroom: true,
+        TypeBedrooms: true,
         numberBedroom: true,
       },
       orderBy: {
