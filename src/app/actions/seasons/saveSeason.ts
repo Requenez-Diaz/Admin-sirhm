@@ -12,8 +12,15 @@ export async function saveSeason(
 ): Promise<ActionState> {
   try {
     const nameSeason = formData.get("nameSeason") as SeasonType;
-    const dateStart = new Date(formData.get("dateStart") as string);
-    const dateEnd = new Date(formData.get("dateEnd") as string);
+    const parseDateLocal = (s: string | null) => {
+      if (!s) return null;
+      const parts = s.split("-").map(Number);
+      const [y, m, d] = parts;
+      return new Date(y, m - 1, d);
+    };
+
+    const dateStart = parseDateLocal(formData.get("dateStart") as string | null);
+    const dateEnd = parseDateLocal(formData.get("dateEnd") as string | null);
 
     if (!nameSeason || !dateStart || !dateEnd) {
       return {
