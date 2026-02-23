@@ -140,7 +140,7 @@ export function BedroomSelectionField({
                                 </span>
                               </div>
                               <span className='text-muted-foreground'>
-                                ${price}
+                                C$ {price}
                               </span>
                             </div>
                           </CommandItem>

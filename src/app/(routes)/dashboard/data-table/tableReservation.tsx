@@ -166,6 +166,9 @@ const TableReservation: React.FC<TableReservationProps> = ({
                 Ofertas
               </TableHead>
               <TableHead className='text-xs sm:text-sm text-foreground font-bold text-right'>
+                Total
+              </TableHead>
+              <TableHead className='text-xs sm:text-sm text-foreground font-bold text-right'>
                 Acciones
               </TableHead>
             </TableRow>
@@ -239,6 +242,9 @@ const TableReservation: React.FC<TableReservationProps> = ({
                     </TableCell>
                     <TableCell className='text-xs sm:text-sm text-right font-medium'>
                       {reservation.offerts ?? "N/A"}
+                    </TableCell>
+                    <TableCell className='text-xs sm:text-sm text-right font-bold text-primary'>
+                      C$ {Math.floor(reservation.totalPrice)}
                     </TableCell>
                     <TableCell className='text-right'>
                       <DropdownMenu>

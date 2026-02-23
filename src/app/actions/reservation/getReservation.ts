@@ -17,6 +17,7 @@ export type ReservationRow = {
   arrivalDate: string | null;
   departureDate: string | null;
   offerts: string | null;
+  totalPrice: number;
 };
 
 export const getReservations = async (): Promise<ReservationRow[]> => {
@@ -92,6 +93,16 @@ export const getReservations = async (): Promise<ReservationRow[]> => {
       });
       const offerts = promoSet.size ? Array.from(promoSet).join(", ") : null;
 
+      // Total Price Calculation (Historic)
+      const totalPrice = details.reduce((acc, d) => {
+        const start = d.dateStart;
+        const end = d.dateEnd;
+        if (!start || !end || d.price === null) return acc;
+
+        const nights = Math.max(0, Math.ceil((new Date(end).getTime() - new Date(start).getTime()) / (1000 * 60 * 60 * 24)));
+        return acc + (d.price * nights);
+      }, 0);
+
       return {
         id: reservation.id,
         status: reservation.status as BookingStatus,
@@ -103,6 +114,7 @@ export const getReservations = async (): Promise<ReservationRow[]> => {
         arrivalDate: minStart ? minStart.toISOString() : null,
         departureDate: maxEnd ? maxEnd.toISOString() : null,
         offerts,
+        totalPrice,
       };
     });
 

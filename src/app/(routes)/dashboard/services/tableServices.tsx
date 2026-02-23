@@ -38,7 +38,7 @@ async function TableServices() {
                                 <TableCell className='font-medium'>{index + 1}</TableCell>
                                 <TableCell>{service.nameService}</TableCell>
                                 <TableCell>{service.description}</TableCell>
-                                <TableCell>{service.price}</TableCell>
+                                <TableCell>C$ {service.price}</TableCell>
                                 <TableCell className='text-right flex items-center justify-center'>
                                     <div className='flex justify-between gap-3'>
                                         <EditServices serviceId={service.id} />

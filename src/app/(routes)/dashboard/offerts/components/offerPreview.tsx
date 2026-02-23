@@ -78,12 +78,12 @@ export function OfferPreview({ watch, bedrooms }: OfferPreviewProps) {
               <div>Precio Final</div>
             </div>
             <div className='grid grid-cols-3 gap-2 text-sm border-t pt-2'>
-              <div>${originalPrice}</div>
+              <div>C${originalPrice}</div>
               <div className='text-red-500'>
                 -${discount.toFixed(2)} ({porcentageDescuent}%)
               </div>
               <div className='font-medium text-green-600'>
-                ${finalPrice.toFixed(2)}
+                C${finalPrice.toFixed(2)}
               </div>
             </div>
           </div>

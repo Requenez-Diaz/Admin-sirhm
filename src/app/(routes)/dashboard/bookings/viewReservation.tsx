@@ -25,6 +25,7 @@ interface RoomDetail {
   image: string | null;
   nights: number;
   subtotal: number;
+  seasonName?: string;
 }
 
 interface Reservation {
@@ -196,6 +197,12 @@ export function ViewReservation({ reservationId }: ViewReservationProps) {
                         <div className="flex justify-between">
                           <span className="text-gray-500 dark:text-gray-400">Precio/noche:</span>
                           <span className="font-medium dark:text-gray-200">C${room.price}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500 dark:text-gray-400">Temporada:</span>
+                          <Badge variant="outline" className={`font-medium ${room.seasonName === "ALTA" ? "text-orange-600 border-orange-200 bg-orange-50" : "text-emerald-600 border-emerald-200 bg-emerald-50"}`}>
+                            {room.seasonName === "ALTA" ? "Alta" : "Baja"}
+                          </Badge>
                         </div>
                       </div>
 
