@@ -22,19 +22,27 @@ interface EditSeasonProps {
         dateEnd: Date;
     };
     seasons?: any[];
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    showTrigger?: boolean;
 }
 
-export function EditSeason({ season, seasons }: EditSeasonProps) {
-    const [open, setOpen] = useState(false);
+export function EditSeason({ season, seasons, open: controlledOpen, onOpenChange: controlledOnOpenChange, showTrigger = true }: EditSeasonProps) {
+    const [internalOpen, setInternalOpen] = useState(false);
+
+    const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+    const setOpen = controlledOnOpenChange !== undefined ? controlledOnOpenChange : setInternalOpen;
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button variant='ghost' size='sm' className='w-full justify-start gap-2'>
-                    <Edit2 className='w-4 h-4' />
-                    Editar
-                </Button>
-            </DialogTrigger>
+            {showTrigger && (
+                <DialogTrigger asChild>
+                    <Button variant='ghost' size='sm' className='w-full justify-start gap-2'>
+                        <Edit2 className='w-4 h-4' />
+                        Editar
+                    </Button>
+                </DialogTrigger>
+            )}
             <DialogContent className='sm:max-w-md'>
                 <DialogHeader>
                     <DialogTitle>Editar Temporada</DialogTitle>

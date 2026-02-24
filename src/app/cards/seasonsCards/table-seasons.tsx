@@ -32,6 +32,7 @@ import { es } from "date-fns/locale";
 
 export default function TableSeasons({ seasons }: { seasons: any[] }) {
     const [search, setSearch] = useState("");
+    const [editingSeason, setEditingSeason] = useState<any | null>(null);
 
     const filtered = useMemo(() => {
         // first apply search filtering
@@ -113,8 +114,11 @@ export default function TableSeasons({ seasons }: { seasons: any[] }) {
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align='end' className='w-40'>
                                                 <DropdownMenuLabel>Opciones</DropdownMenuLabel>
-                                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                                    <EditSeason season={season} seasons={seasons} />
+                                                <DropdownMenuItem onClick={() => setEditingSeason(season)}>
+                                                    <div className="flex items-center gap-2">
+                                                        <MoreHorizontal className='w-4 h-4' />
+                                                        Editar
+                                                    </div>
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem
                                                     onSelect={(e) => e.preventDefault()}
@@ -137,6 +141,17 @@ export default function TableSeasons({ seasons }: { seasons: any[] }) {
                     </TableBody>
                 </Table>
             </div>
+
+            {/* Controlled Dialogs outside DropdownMenu to avoid closure on calendar clicks */}
+            {editingSeason && (
+                <EditSeason
+                    season={editingSeason}
+                    seasons={seasons}
+                    open={!!editingSeason}
+                    onOpenChange={(open) => !open && setEditingSeason(null)}
+                    showTrigger={false}
+                />
+            )}
         </div>
     );
 }
