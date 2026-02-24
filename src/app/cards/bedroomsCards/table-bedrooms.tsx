@@ -27,6 +27,7 @@ import {
   ArrowDownCircle,
   ArrowUpCircle,
   ChevronDown,
+  BedDouble,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -47,7 +48,21 @@ export default function TableBedrooms({ bedrooms, seasons, roomTypes }: any) {
   }, [bedrooms, search, statusFilter]);
 
   return (
-    <div className='p-4 space-y-4'>
+    <div className='p-4 space-y-6'>
+      {/* CABECERA AGREGADA */}
+      <div className='flex flex-col gap-1'>
+        <div className='flex items-center gap-2 text-slate-900 dark:text-slate-100'>
+          <BedDouble className='h-6 w-6 text-blue-600' />
+          <h1 className='text-2xl font-black tracking-tight'>
+            Gestión de Habitaciones
+          </h1>
+        </div>
+        <p className='text-slate-500 text-sm'>
+          Administra las unidades, tipos de habitación, capacidades y tarifas
+          por temporada.
+        </p>
+      </div>
+
       <div className='flex flex-col md:flex-row justify-between items-start md:items-center gap-4'>
         <div className='flex flex-1 gap-2 w-full md:max-w-md'>
           <Input
@@ -58,21 +73,22 @@ export default function TableBedrooms({ bedrooms, seasons, roomTypes }: any) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
-                variant="outline"
-                className={`w-[140px] justify-between ${statusFilter === "all"
-                  ? "bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:text-white"
-                  : ""
-                  }`}
+                variant='outline'
+                className={`w-[140px] justify-between ${
+                  statusFilter === "all"
+                    ? "bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:text-white"
+                    : ""
+                }`}
               >
                 {statusFilter === "all"
                   ? "Todos"
                   : statusFilter === "true"
                     ? "Disponibles"
                     : "Ocupadas"}
-                <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
+                <ChevronDown className='ml-2 h-4 w-4 opacity-50' />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-[140px]">
+            <DropdownMenuContent align='start' className='w-[140px]'>
               <DropdownMenuItem onClick={() => setStatusFilter("all")}>
                 Todos
               </DropdownMenuItem>
@@ -95,7 +111,6 @@ export default function TableBedrooms({ bedrooms, seasons, roomTypes }: any) {
               <TableHead className='w-[80px]'>N° Hab.</TableHead>
               <TableHead>Tipo / Descripción</TableHead>
               <TableHead className='text-center'>Capacidad</TableHead>
-              {/* NUEVA COLUMNA DE PRECIOS */}
               <TableHead className='text-center'>
                 Tarifas (Baja / Alta)
               </TableHead>
@@ -113,7 +128,9 @@ export default function TableBedrooms({ bedrooms, seasons, roomTypes }: any) {
                   {bedroom.numberBedroom}
                 </TableCell>
                 <TableCell>
-                  <div className='font-semibold'>{bedroom.TypeBedrooms?.nameType || bedroom.typeBedroom}</div>
+                  <div className='font-semibold'>
+                    {bedroom.TypeBedrooms?.nameType || bedroom.typeBedroom}
+                  </div>
                   <div className='text-xs text-muted-foreground truncate max-w-[180px]'>
                     {bedroom.description}
                   </div>
@@ -125,7 +142,6 @@ export default function TableBedrooms({ bedrooms, seasons, roomTypes }: any) {
                   </div>
                 </TableCell>
 
-                {/* CELDA DE PRECIOS DINÁMICA */}
                 <TableCell className='text-center'>
                   <div className='flex flex-col items-center gap-1'>
                     <div className='flex items-center gap-1 text-emerald-600 font-medium text-sm'>

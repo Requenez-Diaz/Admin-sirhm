@@ -23,7 +23,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, CalendarCheck2 } from "lucide-react"; // Solo agregamos el icono
 import { Button } from "@/components/ui/button";
 import Pagination from "./pagination";
 import { ViewReservation } from "../bookings/viewReservation";
@@ -90,8 +90,21 @@ const TableReservation: React.FC<TableReservationProps> = ({
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
-    <div className='overflow-x-auto p-4'>
-      {/* SECCIÓN SUPERIOR */}
+    <div className='overflow-x-auto p-4 space-y-6'>
+      <div className='flex flex-col gap-1'>
+        <div className='flex items-center gap-2 text-slate-900 dark:text-slate-100'>
+          <CalendarCheck2 className='h-6 w-6 text-black dark:text-white' />
+          <h1 className='text-2xl font-black tracking-tight uppercase'>
+            Control de Reservaciones
+          </h1>
+        </div>
+        <p className='text-slate-500 text-sm italic'>
+          Gestión centralizada de reservas, estados de pago y disponibilidad de
+          clientes.
+        </p>
+      </div>
+
+      {/* SECCIÓN SUPERIOR - MANTIENE TODA TU LÓGICA */}
       <div className='flex flex-col sm:flex-row sm:items-center gap-4 mb-6'>
         <AddReservation />
 
@@ -127,7 +140,7 @@ const TableReservation: React.FC<TableReservationProps> = ({
         />
       </div>
 
-      {/* TABLA CON BORDES DEFINIDOS Y CABECERA ESTILIZADA */}
+      {/* TABLA - MANTIENE TODA TU LÓGICA */}
       <div className='rounded-md border border-border overflow-hidden bg-background'>
         <Table className='min-w-full'>
           <TableHeader className='bg-muted/50'>
@@ -219,7 +232,6 @@ const TableReservation: React.FC<TableReservationProps> = ({
                       {reservation.rooms}
                     </TableCell>
 
-                    {/* LA CELDA QUE TE IMPORTABA: Muestra el bedroomsType del Server Action */}
                     <TableCell className='text-xs sm:text-sm'>
                       {reservation.bedroomsType || "—"}
                     </TableCell>
@@ -297,7 +309,7 @@ const TableReservation: React.FC<TableReservationProps> = ({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={12}
+                  colSpan={13}
                   className='text-center py-12 text-muted-foreground'
                 >
                   No se encontraron reservaciones que coincidan con los filtros.
