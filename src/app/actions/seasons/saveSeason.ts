@@ -36,6 +36,23 @@ export async function saveSeason(
       };
     }
 
+    // validate overlapping seasons
+    const overlapping = await prisma.seasons.findFirst({
+      where: {
+        AND: [
+          { dateStart: { lte: dateEnd } },
+          { dateEnd: { gte: dateStart } },
+        ],
+      },
+    });
+
+    if (overlapping) {
+      return {
+        success: false,
+        message: "Ya existe una temporada que se solapa con estas fechas.",
+      };
+    }
+
     const created = await prisma.seasons.create({
       data: {
         nameSeason,

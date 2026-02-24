@@ -34,12 +34,25 @@ export default function TableSeasons({ seasons }: { seasons: any[] }) {
     const [search, setSearch] = useState("");
 
     const filtered = useMemo(() => {
-        return seasons.filter((s) => {
+        // first apply search filtering
+        const results = seasons.filter((s) => {
             const matchesSearch =
                 s.nameSeason.toLowerCase().includes(search.toLowerCase()) ||
                 format(new Date(s.dateStart), "MMMM", { locale: es }).toLowerCase().includes(search.toLowerCase());
             return matchesSearch;
         });
+
+        // then sort by start date (and end date as tiebreaker) to guarantee order
+        results.sort((a, b) => {
+            const aStart = new Date(a.dateStart).getTime();
+            const bStart = new Date(b.dateStart).getTime();
+            if (aStart !== bStart) return aStart - bStart;
+            const aEnd = new Date(a.dateEnd).getTime();
+            const bEnd = new Date(b.dateEnd).getTime();
+            return aEnd - bEnd;
+        });
+
+        return results;
     }, [seasons, search]);
 
     return (
@@ -54,7 +67,7 @@ export default function TableSeasons({ seasons }: { seasons: any[] }) {
                         className="pl-9"
                     />
                 </div>
-                <AddSeason />
+                <AddSeason seasons={seasons} />
             </div>
 
             <div className='rounded-xl border shadow-sm overflow-hidden'>
@@ -101,7 +114,7 @@ export default function TableSeasons({ seasons }: { seasons: any[] }) {
                                             <DropdownMenuContent align='end' className='w-40'>
                                                 <DropdownMenuLabel>Opciones</DropdownMenuLabel>
                                                 <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                                    <EditSeason season={season} />
+                                                    <EditSeason season={season} seasons={seasons} />
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem
                                                     onSelect={(e) => e.preventDefault()}

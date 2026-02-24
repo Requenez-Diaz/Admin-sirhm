@@ -38,6 +38,24 @@ export async function updateSeason(
             };
         }
 
+        // validate overlapping seasons excluding current record
+        const overlapping = await prisma.seasons.findFirst({
+            where: {
+                AND: [
+                    { id: { not: id } },
+                    { dateStart: { lte: dateEnd } },
+                    { dateEnd: { gte: dateStart } },
+                ],
+            },
+        });
+
+        if (overlapping) {
+            return {
+                success: false,
+                message: "Ya existe una temporada que se solapa con estas fechas.",
+            };
+        }
+
         const updated = await prisma.seasons.update({
             where: { id },
             data: {

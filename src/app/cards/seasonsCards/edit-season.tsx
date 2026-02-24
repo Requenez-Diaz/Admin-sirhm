@@ -21,9 +21,10 @@ interface EditSeasonProps {
         dateStart: Date;
         dateEnd: Date;
     };
+    seasons?: any[];
 }
 
-export function EditSeason({ season }: EditSeasonProps) {
+export function EditSeason({ season, seasons }: EditSeasonProps) {
     const [open, setOpen] = useState(false);
 
     return (
@@ -41,6 +42,7 @@ export function EditSeason({ season }: EditSeasonProps) {
                 <FormSeason
                     saveAction={updateSeason}
                     initialData={season}
+                    existingSeasons={seasons}
                     onSuccess={() => setOpen(false)}
                 />
             </DialogContent>

@@ -99,7 +99,12 @@ export const getReservationById = async (
     const uniqueBedroomIds = new Set<number>();
     const bedroomNamesSet = new Set<string>();
 
-    const seasons = await prisma.seasons.findMany();
+    const seasons = await prisma.seasons.findMany({
+      orderBy: [
+        { dateStart: 'asc' },
+        { dateEnd: 'asc' },
+      ],
+    });
 
     const getSeasonForDate = (date: Date) => {
       const season = seasons.find(s => date >= s.dateStart && date <= s.dateEnd);

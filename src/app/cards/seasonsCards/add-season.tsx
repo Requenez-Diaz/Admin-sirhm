@@ -13,7 +13,11 @@ import { Plus } from "lucide-react";
 import { FormSeason } from "./form-season";
 import { saveSeason } from "@/app/actions/seasons/saveSeason";
 
-export function AddSeason() {
+interface AddSeasonProps {
+    seasons: any[];
+}
+
+export function AddSeason({ seasons }: AddSeasonProps) {
     const [open, setOpen] = useState(false);
 
     return (
@@ -30,6 +34,7 @@ export function AddSeason() {
                 </DialogHeader>
                 <FormSeason
                     saveAction={saveSeason}
+                    existingSeasons={seasons}
                     onSuccess={() => setOpen(false)}
                 />
             </DialogContent>
