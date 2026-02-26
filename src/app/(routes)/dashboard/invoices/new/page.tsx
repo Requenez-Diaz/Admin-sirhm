@@ -1,32 +1,40 @@
 "use client";
 
 import { useState } from "react";
-
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { BedDouble, UserSearch, ReceiptText, Loader2 } from "lucide-react";
-import { getLastReservationByClient } from "@/app/actions/invoices/reservationsForInvoices";
+import {
+  BedDouble,
+  UserSearch,
+  ReceiptText,
+  Loader2,
+  User,
+} from "lucide-react";
 import { createInvoice } from "@/app/actions/invoices/createInvoices";
-import { Separator } from "@radix-ui/react-dropdown-menu";
+import { getLastReservationByClient } from "@/app/actions/invoices/reservationsForInvoices";
 
 export default function NewInvoicePage() {
   const router = useRouter();
   const [clientId, setClientId] = useState("");
+  const [clientName, setClientName] = useState(""); // Nuevo estado para nombre
   const [items, setItems] = useState<any[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [loadingRes, setLoadingRes] = useState(false);
 
-  const PRECIO_HABITACION_NIO = 800;
-
   const fetchLastReservation = async () => {
-    if (!clientId) return;
+    if (!clientId && !clientName) {
+      toast.error("Ingresa un ID o un Nombre para buscar");
+      return;
+    }
+
     setLoadingRes(true);
 
-    const res = await getLastReservationByClient(clientId);
+    const res = await getLastReservationByClient(clientId, clientName);
 
     if (res.success && res.data) {
       const detail = res.data.ReservationDetails[0];
@@ -38,16 +46,21 @@ export default function NewInvoicePage() {
         ) || 1;
 
       const tipoHab = detail.Bedrooms.TypeBedrooms?.nameType || "Estándar";
+      const precioReserva = detail.Bedrooms.lowSeasonPrice || 0;
+
+      setClientId(res.data.user_id.toString());
 
       setItems([
         {
           item: `ESTANCIA: HAB #${detail.Bedrooms.numberBedroom} (${tipoHab})`,
-          price: PRECIO_HABITACION_NIO,
+          price: precioReserva,
           amount: noches,
           type: tipoHab,
         },
       ]);
-      toast.success("Reserva confirmada encontrada");
+      toast.success(
+        `Reserva encontrada: ${res.data.User?.username || "Cliente"}`,
+      );
     } else {
       toast.error(res.error || "No se encontró reservación");
       setItems([]);
@@ -76,29 +89,68 @@ export default function NewInvoicePage() {
         </h1>
       </div>
 
-      <Card className='border-border bg-card text-card-foreground'>
+      <Card className='border-border bg-card text-card-foreground shadow-lg'>
         <CardHeader>
           <CardTitle className='text-sm font-bold uppercase flex items-center gap-2'>
-            <UserSearch className='h-4 w-4' /> Buscar Cliente
+            <UserSearch className='h-4 w-4' /> Buscar Reservación
           </CardTitle>
         </CardHeader>
-        <CardContent className='flex gap-3'>
-          <Input
-            type='number'
-            placeholder='ID del cliente (ej. 15)'
-            className='bg-background border-input'
-            value={clientId}
-            onChange={(e) => setClientId(e.target.value)}
-          />
-          <Button onClick={fetchLastReservation} disabled={loadingRes}>
+        <CardContent className='space-y-4'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            {/* INPUT ID */}
+            <div className='space-y-2'>
+              <label className='text-[10px] font-bold uppercase opacity-60 pl-1'>
+                Por ID Cliente
+              </label>
+              <Input
+                type='number'
+                placeholder='Ej: 15'
+                className='bg-background border-input'
+                value={clientId}
+                onChange={(e) => {
+                  setClientId(e.target.value);
+                  if (e.target.value) setClientName(""); // Limpia el nombre si escribes ID
+                }}
+              />
+            </div>
+
+            {/* INPUT NOMBRE */}
+            <div className='space-y-2'>
+              <label className='text-[10px] font-bold uppercase opacity-60 pl-1'>
+                Por Nombre
+              </label>
+              <div className='relative'>
+                <Input
+                  type='text'
+                  placeholder='Ej: Avimilex Requenez'
+                  className='bg-background border-input pl-9'
+                  value={clientName}
+                  onChange={(e) => {
+                    setClientName(e.target.value);
+                    if (e.target.value) setClientId(""); // Limpia el ID si escribes nombre
+                  }}
+                />
+                <User className='absolute left-3 top-2.5 h-4 w-4 text-muted-foreground' />
+              </div>
+            </div>
+          </div>
+
+          <Button
+            onClick={fetchLastReservation}
+            disabled={loadingRes}
+            variant={"fetch" as any}
+            className='w-full font-bold uppercase'
+          >
             {loadingRes ? (
-              <Loader2 className='animate-spin h-4 w-4' />
+              <Loader2 className='animate-spin h-4 w-4 mr-2' />
             ) : (
-              "Cargar Reserva"
+              "Buscar Reservación"
             )}
           </Button>
         </CardContent>
       </Card>
+
+      {/* RESULTADO DE FACTURA (Tus estilos originales) */}
       {items.length > 0 && (
         <Card className='border-primary/20 bg-primary/5 shadow-2xl animate-in fade-in zoom-in-95 duration-300'>
           <CardContent className='p-8 space-y-6'>
@@ -126,30 +178,31 @@ export default function NewInvoicePage() {
               </div>
             </div>
 
-            <Separator className='bg-primary/20' />
+            <Separator className='bg-primary/20 h-[1px]' />
 
             <div className='grid grid-cols-2 gap-4 text-sm'>
               <div className='p-4 rounded-lg bg-background/50 border'>
                 <p className='text-muted-foreground'>Precio por Noche</p>
-                <p className='font-bold'>
+                <p className='font-bold text-foreground'>
                   C$ {items[0].price.toLocaleString()}
                 </p>
               </div>
               <div className='p-4 rounded-lg bg-background/50 border'>
                 <p className='text-muted-foreground'>Cant. Noches</p>
-                <p className='font-bold'>{items[0].amount}</p>
+                <p className='font-bold text-foreground'>{items[0].amount}</p>
               </div>
             </div>
 
             <Button
-              className='w-full h-14 text-lg font-black uppercase tracking-widest shadow-lg hover:scale-[1.01] transition-transform'
+              className='w-full py-6 text-lg font-bold uppercase tracking-widest'
+              variant={"save" as any}
               onClick={handleFinalSave}
               disabled={isSaving}
             >
               {isSaving ? (
                 <Loader2 className='animate-spin mr-2' />
               ) : (
-                "Generar Factura"
+                "Generar Factura Final"
               )}
             </Button>
           </CardContent>

@@ -2,36 +2,46 @@
 
 import prisma from "@/lib/db";
 
-export async function getLastReservationByClient(clientId: string) {
+export async function getLastReservationByClient(
+  clientId?: string,
+  clientName?: string,
+) {
   try {
-    const id = parseInt(clientId);
-    if (isNaN(id)) return { success: false };
+    const whereCondition: any = {
+      status: "CONFIRMED", // Solo facturar si está confirmada
+    };
+
+    if (clientId) {
+      whereCondition.user_id = parseInt(clientId);
+    } else if (clientName) {
+      whereCondition.User = {
+        username: {
+          contains: clientName,
+          mode: "insensitive",
+        },
+      };
+    }
 
     const reservation = await prisma.reservation.findFirst({
-      where: {
-        user_id: id,
-        status: "CONFIRMED",
-      },
+      where: whereCondition,
       orderBy: { createdAt: "desc" },
       include: {
+        User: true,
         ReservationDetails: {
           include: {
             Bedrooms: {
-              include: {
-                TypeBedrooms: true,
-              },
+              include: { TypeBedrooms: true },
             },
           },
         },
       },
     });
 
-    if (!reservation || reservation.ReservationDetails.length === 0) {
-      return { success: false, error: "No hay reservas confirmadas." };
-    }
+    if (!reservation)
+      return { success: false, error: "No se encontró reservación confirmada" };
 
     return { success: true, data: reservation };
   } catch (error) {
-    return { success: false, error: "Error de servidor." };
+    return { success: false, error: "Error en el servidor de base de datos" };
   }
 }

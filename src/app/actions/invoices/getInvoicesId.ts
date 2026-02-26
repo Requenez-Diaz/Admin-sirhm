@@ -13,7 +13,6 @@ export async function getFullInvoiceDetail(id: string) {
 
     if (!invoice) return { success: false, error: "Factura no encontrada" };
 
-    // Buscamos al usuario con más campos (incluyendo su imagen y rol)
     const user = await prisma.user.findUnique({
       where: { id: invoice.clientId },
       select: {
