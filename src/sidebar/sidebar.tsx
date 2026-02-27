@@ -22,6 +22,7 @@ import {
   Moon,
   Sun,
   CalendarDays,
+  ReceiptText,
 } from "lucide-react";
 
 const links = [
@@ -45,6 +46,11 @@ const links = [
     name: "Ofertas",
     href: "/dashboard/offerts",
     icon: Tag,
+  },
+  {
+    name: "Facturación",
+    href: "/dashboard/invoices",
+    icon: ReceiptText,
   },
   {
     name: "Reportes generales",
