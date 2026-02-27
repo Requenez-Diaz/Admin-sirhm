@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
@@ -72,6 +73,7 @@ interface SidebarProps {
 }
 
 export default function MainSidebar({ onStateChange }: SidebarProps) {
+  const pathname = usePathname();
   const { setTheme, theme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -142,25 +144,31 @@ export default function MainSidebar({ onStateChange }: SidebarProps) {
       >
         <div className='flex-1 overflow-y-auto'>
           <nav className='flex flex-col gap-1 p-2'>
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "flex items-center rounded-md py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors",
-                  isExpanded || isPinned
-                    ? "px-3 justify-start"
-                    : "px-0 justify-center",
-                )}
-              >
-                <div className='relative'>
-                  <link.icon className='h-5 w-5 flex-shrink-0' />
-                </div>
-                {(isExpanded || isPinned) && (
-                  <span className='ml-3 capitalize'>{link.name}</span>
-                )}
-              </Link>
-            ))}
+            {links.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "flex items-center rounded-md py-2 text-sm font-medium transition-colors",
+                    isActive
+                      ? "bg-blue-600/10 text-blue-600 dark:bg-blue-600/20 dark:text-blue-400"
+                      : "text-foreground hover:bg-accent hover:text-accent-foreground",
+                    isExpanded || isPinned
+                      ? "px-3 justify-start"
+                      : "px-0 justify-center",
+                  )}
+                >
+                  <div className='relative'>
+                    <link.icon className={cn("h-5 w-5 flex-shrink-0", isActive && "text-blue-600 dark:text-blue-400")} />
+                  </div>
+                  {(isExpanded || isPinned) && (
+                    <span className='ml-3 capitalize'>{link.name}</span>
+                  )}
+                </Link>
+              );
+            })}
           </nav>
         </div>
 
