@@ -1,7 +1,7 @@
 "use client";
 
 import { saveReservation } from "@/app/actions/reservation";
-import { getBedrooms } from "@/app/actions/bedrooms";
+import { getTypeBedrooms } from "@/app/actions/roomsType/rooms-type";
 
 import { Button } from "@/components/ui/button";
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
@@ -38,24 +38,7 @@ interface FormReservationProps {
 
 export function FormReservation({ onSubmitSuccess }: FormReservationProps) {
   const { toast } = useToast();
-  const [bedrooms, setBedrooms] = useState<
-    {
-      status: boolean;
-      id: number;
-      createdAt: Date;
-      updatedAt: Date;
-      image: string;
-      typeBedroom: string;
-      description: string;
-      lowSeasonPrice: number;
-      highSeasonPrice: number;
-      numberBedroom: number;
-      seasonsId: number;
-      amenities: string[];
-      capacity: number;
-      slug: string;
-    }[]
-  >([]);
+  const [bedroomsList, setBedroomsList] = useState<any[]>([]);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -73,8 +56,10 @@ export function FormReservation({ onSubmitSuccess }: FormReservationProps) {
 
   useEffect(() => {
     async function fetchBedrooms() {
-      const data = await getBedrooms();
-      setBedrooms(data);
+      const result = await getTypeBedrooms();
+      if (result.success && result.data) {
+        setBedroomsList(result.data);
+      }
     }
     fetchBedrooms();
   }, []);
@@ -207,9 +192,9 @@ export function FormReservation({ onSubmitSuccess }: FormReservationProps) {
                     <option value='' disabled>
                       Selecciona el tipo
                     </option>
-                    {bedrooms.map((room) => (
-                      <option key={room.id} value={room.typeBedroom}>
-                        {room.typeBedroom}
+                    {bedroomsList.map((type: any) => (
+                      <option key={type.id} value={type.nameType}>
+                        {type.nameType}
                       </option>
                     ))}
                   </select>
