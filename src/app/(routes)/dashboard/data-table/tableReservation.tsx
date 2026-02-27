@@ -38,7 +38,6 @@ interface TableReservationProps {
 const TableReservation: React.FC<TableReservationProps> = ({
   reservations = [],
 }) => {
-  const totalReservation = reservations.length;
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("Todo");
   const [currentPage, setCurrentPage] = useState(1);
@@ -104,17 +103,21 @@ const TableReservation: React.FC<TableReservationProps> = ({
         </p>
       </div>
 
-      {/* SECCIÓN SUPERIOR - MANTIENE TODA TU LÓGICA */}
-      <div className='flex flex-col sm:flex-row sm:items-center gap-4 mb-6'>
-        <AddReservation />
-
-        <div className='bg-muted rounded-lg px-4 py-2 border border-border'>
-          <h2 className='text-base sm:text-lg font-semibold text-foreground'>
-            Total Reservaciones: {totalReservation}
-          </h2>
+      {/* ACCIONES Y FILTROS UNIFICADOS REORDENADOS */}
+      <div className='flex flex-col lg:flex-row lg:items-center gap-4 mb-6 bg-muted/10 p-4 rounded-xl border border-border'>
+        <div className='flex-1'>
+          <Filter
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            selectedFilter={selectedFilter}
+            setSelectedFilter={(filter) => {
+              setSelectedFilter(filter);
+              setCurrentPage(1);
+            }}
+          />
         </div>
 
-        <div className='grid grid-cols-2 sm:flex sm:items-center gap-2'>
+        <div className='flex flex-wrap items-center gap-2'>
           <Badge variant={statusVariants.PENDING}>
             {statusLabels.PENDING}: {contadoresEstado.PENDING}
           </Badge>
@@ -125,19 +128,10 @@ const TableReservation: React.FC<TableReservationProps> = ({
             {statusLabels.CANCELLED}: {contadoresEstado.CANCELLED}
           </Badge>
         </div>
-      </div>
 
-      {/* FILTROS */}
-      <div className='mb-6'>
-        <Filter
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          selectedFilter={selectedFilter}
-          setSelectedFilter={(filter) => {
-            setSelectedFilter(filter);
-            setCurrentPage(1);
-          }}
-        />
+        <div className='flex-shrink-0'>
+          <AddReservation />
+        </div>
       </div>
 
       {/* TABLA - MANTIENE TODA TU LÓGICA */}
@@ -317,6 +311,16 @@ const TableReservation: React.FC<TableReservationProps> = ({
               </TableRow>
             )}
           </TableBody>
+          {filteredReservations.length > 0 && (
+            <tfoot className='bg-muted/50 border-t-2 border-border'>
+              <tr className='font-black text-xs uppercase tracking-tighter text-foreground'>
+                <td className='px-6 py-4 text-left' colSpan={13}>
+                  Total Registros:{" "}
+                  <span className='text-primary'>{filteredReservations.length} Reservas</span>
+                </td>
+              </tr>
+            </tfoot>
+          )}
         </Table>
       </div>
 
