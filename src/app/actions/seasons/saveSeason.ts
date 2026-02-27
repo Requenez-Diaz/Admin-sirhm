@@ -3,6 +3,7 @@
 import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { SeasonType } from "@prisma/client";
+import { applyActiveSeasonToBedrooms } from "./applyActiveSeasonToBedrooms";
 
 export type ActionState = { success: boolean; message: string; data?: any };
 
@@ -60,6 +61,13 @@ export async function saveSeason(
         dateEnd,
       },
     });
+
+    // If the created season is currently active, or the user requested it, apply it to all bedrooms
+    const now = new Date();
+    const applyNow = formData.get("applyNow");
+    if (applyNow || (dateStart <= now && now <= dateEnd)) {
+      await applyActiveSeasonToBedrooms();
+    }
 
     revalidatePath("/dashboard/seasons");
     revalidatePath("/dashboard/bedrooms");

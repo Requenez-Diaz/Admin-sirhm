@@ -56,6 +56,7 @@ export function FormSeason({ saveAction, initialData, onSuccess, existingSeasons
     );
 
     const [disabledRanges, setDisabledRanges] = useState<Array<{ from: Date; to: Date }>>([]);
+    const [applyNow, setApplyNow] = useState<boolean>(false);
 
     const initialState: ActionState = { success: false, message: "" };
     const [state, formAction] = React.useActionState<ActionState, FormData>(saveAction, initialState);
@@ -130,14 +131,16 @@ export function FormSeason({ saveAction, initialData, onSuccess, existingSeasons
                             )}
                         </Button>
                     </PopoverTrigger>
-                    <PopoverContent className='w-auto p-0' align='start'>
-                        <Calendar
-                            mode='range'
-                            selected={dateRange as any}
-                            onSelect={(range: any) => setDateRange(range ?? { from: undefined, to: undefined })}
-                            disabled={disabledRanges}
-                            locale={es}
-                        />
+                    <PopoverContent className='w-auto p-0 sm:w-auto' align='start'>
+                        <div className='min-w-[260px] sm:min-w-0 p-2 sm:p-4'>
+                            <Calendar
+                                mode='range'
+                                selected={dateRange as any}
+                                onSelect={(range: any) => setDateRange(range ?? { from: undefined, to: undefined })}
+                                disabled={disabledRanges}
+                                locale={es}
+                            />
+                        </div>
                     </PopoverContent>
                 </Popover>
 
@@ -147,6 +150,17 @@ export function FormSeason({ saveAction, initialData, onSuccess, existingSeasons
             </div>
 
             <div className='pt-4'>
+                <div className='flex items-center gap-2 mb-4'>
+                    <input
+                        id='applyNow'
+                        name='applyNow'
+                        type='checkbox'
+                        checked={applyNow}
+                        onChange={(e) => setApplyNow(e.target.checked)}
+                        className='h-4 w-4'
+                    />
+                    <Label htmlFor='applyNow'>Aplicar esta temporada a todas las habitaciones ahora</Label>
+                </div>
                 <SubmitButton isEditing={!!initialData?.id} />
             </div>
         </form>

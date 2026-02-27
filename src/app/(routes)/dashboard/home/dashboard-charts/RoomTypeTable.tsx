@@ -12,7 +12,7 @@ type Reservation = {
     status: string;
     rooms: number;
     guests: number;
-    arrivalDate: Date | string;
+    arrivalDate: Date | string | null;
 };
 
 type Props = { reservations: Reservation[] };

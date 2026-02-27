@@ -47,9 +47,16 @@ export async function updateSeason(
             };
         }
 
+        const toDateOnly = (d: Date) => {
+            return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+        };
+
+        const existingStart = new Date(existing.dateStart);
+        const existingEnd = new Date(existing.dateEnd);
+
         const datesUnchanged =
-            new Date(existing.dateStart).getTime() === dateStart.getTime() &&
-            new Date(existing.dateEnd).getTime() === dateEnd.getTime();
+            toDateOnly(existingStart) === toDateOnly(dateStart) &&
+            toDateOnly(existingEnd) === toDateOnly(dateEnd);
 
         if (!datesUnchanged) {
             const overlapping = await prisma.seasons.findFirst({

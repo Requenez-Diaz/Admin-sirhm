@@ -21,7 +21,8 @@ export async function saveBedroomsWithUpload(
 ): Promise<ActionState> {
   try {
     const typeBedroomId = Number(formData.get("typeBedroomId"));
-    const seasonsId = Number(formData.get("seasonsId"));
+    const seasonsIdRaw = formData.get("seasonsId");
+    let seasonsId: number | undefined = seasonsIdRaw ? Number(seasonsIdRaw) : undefined;
     const description = String(formData.get("description") || "").trim();
     const lowSeasonPrice = Number(formData.get("lowSeasonPrice"));
     const highSeasonPrice = Number(formData.get("highSeasonPrice"));
@@ -41,11 +42,18 @@ export async function saveBedroomsWithUpload(
       };
     }
 
+    // If no seasonsId provided, try to assign the currently active season (if any)
     if (!seasonsId) {
-      return {
-        success: false,
-        message: "Debes seleccionar una temporada.",
-      };
+      const now = new Date();
+      const activeSeason = await prisma.seasons.findFirst({
+        where: {
+          AND: [
+            { dateStart: { lte: now } },
+            { dateEnd: { gte: now } },
+          ],
+        },
+      });
+      if (activeSeason) seasonsId = activeSeason.id;
     }
 
     if (
@@ -105,7 +113,7 @@ export async function saveBedroomsWithUpload(
         image: imageUrl,
         slug,
         typeBedroomId,
-        seasonsId,
+        seasonsId: seasonsId || undefined,
         galleryImages: galleryData,
       },
       include: { galleryImages: true },

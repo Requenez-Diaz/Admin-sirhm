@@ -34,6 +34,38 @@ export function EditSeason({ season, seasons, open: controlledOpen, onOpenChange
     const setOpen = controlledOnOpenChange !== undefined ? controlledOnOpenChange : setInternalOpen;
 
     return (
+        <>
+            <Dialog open={open} onOpenChange={setOpen}>
+                {showTrigger && (
+                    <DialogTrigger asChild>
+                        <Button variant='ghost' size='sm' className='w-full justify-start gap-2 text-muted-foreground hover:text-primary'>
+                            <Edit2 className='w-4 h-4' />
+                            Editar
+                        </Button>
+                    </DialogTrigger>
+                )}
+
+                <DialogContent className='sm:max-w-md'>
+                    <DialogHeader>
+                        <DialogTitle>Editar Temporada</DialogTitle>
+                    </DialogHeader>
+                    <FormSeason
+                        saveAction={updateSeason}
+                        initialData={{
+                            id: season.id,
+                            nameSeason: season.nameSeason,
+                            dateStart: new Date(season.dateStart),
+                            dateEnd: new Date(season.dateEnd),
+                        }}
+                        existingSeasons={seasons}
+                        onSuccess={() => setOpen(false)}
+                    />
+                </DialogContent>
+            </Dialog>
+        </>
+    );
+
+    return (
         <Dialog open={open} onOpenChange={setOpen}>
             {showTrigger && (
                 <DialogTrigger asChild>
