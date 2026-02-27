@@ -121,8 +121,8 @@ export const getReservationById = async (
           ? Math.max(0, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)))
           : 0;
 
-      const price = d.price ?? 0;
-      const subtotal = price * nights;
+      const subtotal = d.price ?? 0;
+      const price = nights > 0 ? subtotal / nights : subtotal;
 
       if (d.Bedrooms?.id) uniqueBedroomIds.add(d.Bedrooms.id);
       const typeName = d.Bedrooms?.TypeBedrooms?.nameType;
