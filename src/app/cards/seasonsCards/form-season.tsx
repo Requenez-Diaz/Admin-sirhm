@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
     Select,
@@ -12,6 +12,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
+import { cn } from "@/lib/utils";
 import { ActionState } from "@/app/actions/seasons/saveSeason";
 import { SeasonType } from "@prisma/client";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
@@ -131,14 +132,47 @@ export function FormSeason({ saveAction, initialData, onSuccess, existingSeasons
                             )}
                         </Button>
                     </PopoverTrigger>
-                    <PopoverContent className='w-auto p-0 sm:w-auto' align='start'>
-                        <div className='min-w-[260px] sm:min-w-0 p-2 sm:p-4'>
+                    <PopoverContent className='w-fit p-0 shadow-2xl border-2 bg-popover rounded-xl overflow-hidden' align='start'>
+                        <div className='p-2 flex flex-col items-center'>
                             <Calendar
                                 mode='range'
                                 selected={dateRange as any}
                                 onSelect={(range: any) => setDateRange(range ?? { from: undefined, to: undefined })}
                                 disabled={disabledRanges}
                                 locale={es}
+                                weekStartsOn={0}
+                                fixedWeeks
+                                className="p-2"
+                                classNames={{
+                                    month: "space-y-3 w-fit",
+                                    caption: "flex items-center justify-between w-full px-1 py-1 mb-2 relative",
+                                    caption_label: "text-xs font-bold capitalize tracking-tight",
+                                    nav: "flex items-center gap-1",
+                                    nav_button: cn(
+                                        buttonVariants({ variant: "ghost" }),
+                                        "h-6 w-6 p-0 opacity-70 hover:opacity-100 hover:bg-accent rounded-md transition-all"
+                                    ),
+                                    nav_button_previous: "static",
+                                    nav_button_next: "static",
+                                    table: "w-fit border-collapse",
+                                    head_row: "flex justify-between mb-1",
+                                    head_cell: "text-muted-foreground w-7 font-bold text-[0.65rem] uppercase tracking-tighter text-center",
+                                    row: "flex w-full mt-1 justify-between",
+                                    cell: cn(
+                                        "relative p-0 text-center text-[0.7rem] focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent/20 transition-colors",
+                                        "first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md [&:has([aria-selected])]:rounded-md"
+                                    ),
+                                    day: cn(
+                                        buttonVariants({ variant: "ghost" }),
+                                        "h-7 w-7 p-0 font-medium aria-selected:opacity-100 hover:bg-primary/20 transition-all rounded-md"
+                                    ),
+                                    day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground font-bold shadow-sm",
+                                    day_today: "bg-accent text-accent-foreground ring-1 ring-primary/40 font-bold",
+                                    day_outside: "day-outside text-muted-foreground opacity-20 aria-selected:bg-accent/10 aria-selected:text-muted-foreground aria-selected:opacity-20",
+                                    day_disabled: "text-muted-foreground opacity-10 cursor-not-allowed",
+                                    day_range_middle: "aria-selected:bg-accent/20 aria-selected:text-accent-foreground",
+                                    day_hidden: "invisible",
+                                }}
                             />
                         </div>
                     </PopoverContent>
