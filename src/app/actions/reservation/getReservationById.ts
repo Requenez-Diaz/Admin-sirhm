@@ -66,6 +66,8 @@ export const getReservationById = async (
                     imageContent: true,
                   },
                 },
+                lowSeasonPrice: true,
+                highSeasonPrice: true,
               },
             },
             promotion_id: true,
@@ -90,7 +92,6 @@ export const getReservationById = async (
       ? new Date(Math.max(...ends.map((d) => new Date(d).getTime())))
       : null;
 
-
     const guests = details.reduce(
       (acc, d) => acc + (d.guestQuantity ?? 0),
       0
@@ -98,18 +99,6 @@ export const getReservationById = async (
 
     const uniqueBedroomIds = new Set<number>();
     const bedroomNamesSet = new Set<string>();
-
-    const seasons = await prisma.seasons.findMany({
-      orderBy: [
-        { dateStart: 'asc' },
-        { dateEnd: 'asc' },
-      ],
-    });
-
-    const getSeasonForDate = (date: Date) => {
-      const season = seasons.find(s => date >= s.dateStart && date <= s.dateEnd);
-      return season?.nameSeason ?? "N/A";
-    };
 
     // Construir detalles de habitaciones
     const roomDetails: RoomDetailDTO[] = details.map((d) => {
@@ -129,7 +118,15 @@ export const getReservationById = async (
       if (typeName) bedroomNamesSet.add(typeName);
 
       const firstImage = d.Bedrooms?.galleryImages?.[0]?.imageContent ?? null;
-      const seasonName = start ? getSeasonForDate(start) : "N/A";
+
+      // Determinar temporada por precio
+      const lowPrice = d.Bedrooms?.lowSeasonPrice ?? 0;
+      const highPrice = d.Bedrooms?.highSeasonPrice ?? 0;
+
+      let seasonName = "BAJA";
+      if (highPrice > 0 && Math.abs(price - highPrice) < Math.abs(price - lowPrice)) {
+        seasonName = "ALTA";
+      }
 
       return {
         id: d.Bedrooms?.id ?? 0,
@@ -165,7 +162,6 @@ export const getReservationById = async (
     const [firstName, ...lastParts] = username.split(" ");
     const lastName = lastParts.join(" ");
 
-    // Primera imagen para el fallback o vista general si se requiere
     const imageUrl = roomDetails.find(r => r.image)?.image ?? null;
 
     return {
