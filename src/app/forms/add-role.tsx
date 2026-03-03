@@ -88,7 +88,7 @@ export function FormRole() {
 
         <div className='flex justify-end gap-4'>
           <DialogClose asChild>
-            <Button type='button' variant='success' disabled={loading}>
+            <Button type='button' variant='ghost' disabled={loading}>
               <svg
                 xmlns='http://www.w3.org/2000/svg'
                 width='24'
@@ -107,7 +107,7 @@ export function FormRole() {
               Cancelar
             </Button>
           </DialogClose>
-          <Button type='submit' variant='ghost' disabled={loading}>
+          <Button type='submit' variant='success' disabled={loading}>
             <svg
               xmlns='http://www.w3.org/2000/svg'
               width='24'

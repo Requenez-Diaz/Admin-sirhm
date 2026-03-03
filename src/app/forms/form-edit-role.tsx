@@ -61,7 +61,7 @@ export function FormEditRole({ role }: { role: Role | null }) {
 
         <div className='flex justify-end gap-4'>
           <DialogClose asChild>
-            <Button type='button' variant='success'>
+            <Button type='button' variant='ghost'>
               <svg
                 xmlns='http://www.w3.org/2000/svg'
                 width='24'
@@ -83,7 +83,7 @@ export function FormEditRole({ role }: { role: Role | null }) {
           <DialogClose asChild>
             <Button
               type='submit'
-              variant='ghost'
+              variant='success'
               onClick={() => {
                 toast({
                   title: "Habitación actualizada.",

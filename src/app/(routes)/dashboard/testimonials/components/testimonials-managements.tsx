@@ -34,6 +34,7 @@ interface Testimonial {
     id: number;
     username: string;
     email: string;
+    image?: string | null;
   } | null;
   Bedrooms?: {
     id: number;
