@@ -236,7 +236,7 @@ export function FormReservation({ onSubmitSuccess }: FormReservationProps) {
 
         <DialogFooter className='flex justify-end gap-4'>
           <DialogClose asChild>
-            <Button type='button' variant='success'>
+            <Button type='button' variant='ghost'>
               <Icon action='undo' className='mr-2' />
               Cancelar
             </Button>

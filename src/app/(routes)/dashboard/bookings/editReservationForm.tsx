@@ -18,6 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useEffect, useState } from "react";
+import Icon from "@/components/ui/icons/icons";
 
 const FormSchema = z.object({
   name: z.string().trim().min(1, "El nombre es obligatorio."),
@@ -248,7 +249,10 @@ export function FormEditReservation({
 
         <DialogFooter className='pt-4 gap-4'>
           <DialogClose asChild>
-            <Button type='button' variant='ghost'>Cancelar</Button>
+            <Button type='button' variant='ghost'>
+              <Icon action='undo' className='mr-2' />
+              Cancelar
+            </Button>
           </DialogClose>
           <Button type='submit' variant='success'>Actualizar</Button>
         </DialogFooter>

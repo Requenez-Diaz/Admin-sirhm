@@ -7,6 +7,7 @@ import { z } from "zod";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Icon from "@/components/ui/icons/icons";
 import {
   Form,
   FormControl,
@@ -323,10 +324,12 @@ export function EditOfferForm({
         />
 
         <div className='flex justify-end space-x-2'>
-          <Button variant='outline' type='button' onClick={onCancel}>
+          <Button variant='outline' type='button' onClick={onCancel} className="flex items-center gap-2">
+            <Icon action="undo" className="w-4 h-4" />
             Cancelar
           </Button>
-          <Button variant={"success"} type='submit'>
+          <Button variant={"success"} type='submit' className="flex items-center gap-2">
+            <Icon action="save" className="w-4 h-4" />
             Guardar Cambios
           </Button>
         </div>

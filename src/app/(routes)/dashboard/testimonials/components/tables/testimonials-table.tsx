@@ -31,6 +31,7 @@ interface Testimonial {
     id: number;
     username: string;
     email: string;
+    image?: string | null;
   } | null;
   Bedrooms?: {
     id: number;
@@ -103,7 +104,7 @@ export function TestimonialTable({
                 <div className='flex items-center space-x-3'>
                   <Avatar className='h-8 w-8'>
                     <AvatarImage
-                      src={testimonial.avatar || "/placeholder.svg"}
+                      src={testimonial.User?.image || testimonial.avatar || "/placeholder.svg"}
                     />
                     <AvatarFallback className='text-xs'>
                       {testimonial.name

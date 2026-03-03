@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Plus, Loader2, Save, Edit } from "lucide-react";
+import { Plus, Loader2, Edit } from "lucide-react";
+import Icon from "@/components/ui/icons/icons";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -120,24 +121,29 @@ export default function TypeBedroomForm({ initialData }: TypeBedroomFormProps) {
               variant='ghost'
               onClick={() => setOpen(false)}
               disabled={loading}
+              className='flex items-center gap-2'
             >
+              <Icon action='undo' className='w-4 h-4' />
               Cancelar
             </Button>
             <Button
               type='submit'
               variant={"success"}
               disabled={loading}
-              className='min-w-[120px]'
+              className='min-w-[120px] flex items-center gap-2'
             >
               {loading ? (
                 <Loader2 className='w-4 h-4 animate-spin' />
               ) : isEditing ? (
                 <>
-                  <Save className='w-4 h-4 mr-2' />
+                  <Icon action='save' className='w-4 h-4' />
                   Guardar Cambios
                 </>
               ) : (
-                "Crear Tipo"
+                <>
+                  <Icon action='save' className='w-4 h-4' />
+                  Crear Tipo
+                </>
               )}
             </Button>
           </div>

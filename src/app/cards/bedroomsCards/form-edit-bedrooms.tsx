@@ -7,7 +7,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/components/ui/use-toast";
 import { updateBedroom } from "@/app/actions/bedrooms";
-import { Loader2, Save } from "lucide-react";
+import { Loader2, Save, } from "lucide-react";
+import Icon from "@/components/ui/icons/icons";
 import { TypeBedrooms } from "@prisma/client";
 
 import {
@@ -301,13 +302,15 @@ export function FormEditBedrooms({ bedroom, seasons, roomTypes, setOpen }: any) 
         <DialogFooter className='flex flex-row gap-2 pt-4 border-t'>
           <Button
             type='button'
-            variant='outline'
+            variant='ghost'
             className='flex-1'
             onClick={() => setOpen(false)}
             disabled={isPending}
           >
+            <Icon action='undo' className='mr-2' />
             Cancelar
           </Button>
+          
           <Button
             type='submit'
             variant='success'
