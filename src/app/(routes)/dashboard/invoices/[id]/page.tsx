@@ -233,24 +233,40 @@ export default function InvoiceDetailPage({ params }: PageProps) {
       {/* eslint-disable-next-line react/no-unknown-property */}
       <style jsx global>{`
         @media print {
+          /* Hide everything by default */
           body * {
             visibility: hidden;
           }
+          /* Show only the invoice card */
           .invoice-container,
           .invoice-container * {
             visibility: visible;
           }
           .invoice-container {
-            position: absolute;
+            position: fixed;
             left: 0;
             top: 0;
-            width: 80mm !important;
+            width: 100% !important;
+            height: auto !important;
             margin: 0 !important;
-            padding: 5mm !important;
+            padding: 12mm 16mm !important;
             background: white !important;
             color: black !important;
-            font-family: "Courier New", Courier, monospace !important;
+            box-shadow: none !important;
+            border: none !important;
+            font-size: 11pt !important;
           }
+          /* Force black text for readability */
+          .invoice-container h1,
+          .invoice-container h2,
+          .invoice-container h3,
+          .invoice-container p,
+          .invoice-container span,
+          .invoice-container td,
+          .invoice-container th {
+            color: black !important;
+          }
+          /* Hide nav chrome */
           header,
           aside,
           nav,
@@ -260,7 +276,7 @@ export default function InvoiceDetailPage({ params }: PageProps) {
             display: none !important;
           }
           @page {
-            size: 80mm auto;
+            size: A4 portrait;
             margin: 0;
           }
         }

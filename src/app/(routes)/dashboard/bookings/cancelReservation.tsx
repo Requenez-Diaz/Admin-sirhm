@@ -18,8 +18,10 @@ import { useState } from "react";
 
 export function CancellReservation({
   reservationId,
+  isInvoiced,
 }: {
   reservationId: number;
+  isInvoiced?: boolean;
 }) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false); // Controlamos el estado del diálogo
@@ -48,9 +50,16 @@ export function CancellReservation({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="flex w-full items-center gap-2 text-sm px-2 py-1 rounded hover:bg-accent hover:text-accent-foreground transition text-red-600">
+        <button
+          className={`flex w-full items-center gap-2 text-sm px-2 py-1 rounded transition ${isInvoiced
+              ? "text-gray-400 cursor-not-allowed opacity-50"
+              : "hover:bg-accent hover:text-accent-foreground text-red-600"
+            }`}
+          disabled={isInvoiced}
+          title={isInvoiced ? "No se puede cancelar una reserva ya facturada" : "Cancelar reservación"}
+        >
           <Icon action="cancell" className="w-4 h-4 opacity-80" />
-          Cancelar
+          {isInvoiced ? "Facturada (No cancelable)" : "Cancelar"}
         </button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
@@ -72,7 +81,7 @@ export function CancellReservation({
             type="button"
             variant="destructive"
             onClick={handleConfirm}
-            disabled={loading}
+            disabled={loading || isInvoiced}
           >
             {loading ? "Procesando..." : "Si, confirmar"}
           </Button>

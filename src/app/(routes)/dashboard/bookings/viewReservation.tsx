@@ -15,6 +15,9 @@ import Icon from "@/components/ui/icons/icons";
 import { getReservationById } from "@/app/actions/reservation";
 import { Badge } from "@/components/ui/badge";
 import { Status } from "@prisma/client";
+import { useRouter } from "next/navigation";
+import { ReceiptText } from "lucide-react";
+import { ConfirmReservation } from "./confirmReservation";
 
 interface RoomDetail {
   id: number;
@@ -45,6 +48,8 @@ interface Reservation {
   imageUrl?: string | null;
   roomDetails: RoomDetail[];
   totalAmount: number;
+  isInvoiced: boolean;
+  userId: number;
 }
 
 interface ViewReservationProps {
@@ -52,22 +57,22 @@ interface ViewReservationProps {
 }
 
 export function ViewReservation({ reservationId }: ViewReservationProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [reservation, setReservation] = useState<Reservation | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!open) return;
-
-    async function fetchReservation() {
-      setLoading(true);
-      const res = await getReservationById(reservationId);
-      setReservation(res);
-      setLoading(false);
-    }
-
     fetchReservation();
   }, [open, reservationId]);
+
+  const fetchReservation = async (silent = false) => {
+    if (!silent) setLoading(true);
+    const res = await getReservationById(reservationId);
+    setReservation(res as any);
+    if (!silent) setLoading(false);
+  };
 
   const formatDate = (date: string | null | Date | undefined) => {
     if (!date) return "—";
@@ -244,11 +249,41 @@ export function ViewReservation({ reservationId }: ViewReservationProps) {
               </div>
             </div>
 
-            <DialogClose asChild>
-              <Button variant="outline" className="w-full rounded-xl py-6 text-base">
-                Cerrar Detalles
-              </Button>
-            </DialogClose>
+            <div className="flex flex-col sm:flex-row gap-3">
+              {reservation.status === "PENDING" && (
+                <ConfirmReservation
+                  reservationId={reservation.id}
+                  onSuccess={() => fetchReservation(true)}
+                  className="flex-1 inline-flex items-center justify-center whitespace-nowrap rounded-xl text-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-blue-600 text-white shadow hover:bg-blue-700 h-10 py-6"
+                />
+              )}
+
+              {reservation.status === "CONFIRMED" && !reservation.isInvoiced && (
+                <Button
+                  onClick={() => {
+                    setOpen(false);
+                    router.push(`/dashboard/invoices/new?clientId=${reservation.userId}`);
+                  }}
+                  className="flex-1 rounded-xl py-6 text-base bg-amber-600 hover:bg-amber-700 text-white flex items-center gap-2"
+                >
+                  <ReceiptText className="w-5 h-5" /> Generar Factura
+                </Button>
+              )}
+
+              {reservation.isInvoiced && (
+                <div className="flex-1 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-xl py-4 px-2 text-sm text-gray-500 font-medium">
+                  <ReceiptText className="w-4 h-4 mr-2" /> Reservación ya facturada
+                </div>
+              )}
+
+              <DialogClose asChild>
+                <Button variant="outline" className={`rounded-xl py-6 text-base ${reservation.status === "PENDING" || (reservation.status === "CONFIRMED" && !reservation.isInvoiced)
+                    ? "flex-1" : "w-full"
+                  }`}>
+                  Cerrar Detalles
+                </Button>
+              </DialogClose>
+            </div>
 
           </div>
         )}

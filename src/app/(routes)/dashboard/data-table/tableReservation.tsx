@@ -280,6 +280,7 @@ const TableReservation: React.FC<TableReservationProps> = ({
                           >
                             <CancellReservation
                               reservationId={reservation.id}
+                              isInvoiced={reservation.isInvoiced}
                             />
                           </DropdownMenuItem>
                           <DropdownMenuItem

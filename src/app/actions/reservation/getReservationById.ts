@@ -32,6 +32,8 @@ export interface ReservationDTO {
   imageUrl?: string | null;
   roomDetails: RoomDetailDTO[];
   totalAmount: number;
+  isInvoiced: boolean;
+  userId: number;
 }
 
 export const getReservationById = async (
@@ -78,6 +80,18 @@ export const getReservationById = async (
     });
 
     if (!reservation) return null;
+
+    // Check if there's an invoice for this client created at or after the reservation date
+    const invoice = await prisma.invoce.findFirst({
+      where: {
+        clientId: reservation.user_id,
+        date: {
+          gte: reservation.createdAt,
+        },
+      },
+    });
+
+    const isInvoiced = !!invoice;
 
     const details = reservation.ReservationDetails ?? [];
 
@@ -180,7 +194,9 @@ export const getReservationById = async (
       isRead: reservation.isRead,
       imageUrl,
       roomDetails,
-      totalAmount
+      totalAmount,
+      isInvoiced,
+      userId: reservation.user_id,
     };
   } catch (error) {
     console.error("Error al obtener la reservación", error);

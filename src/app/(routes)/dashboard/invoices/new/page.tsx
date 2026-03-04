@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect } from "react";
 import {
   BedDouble,
   UserSearch,
@@ -19,22 +20,48 @@ import { createInvoice } from "@/app/actions/invoices/createInvoices";
 import { getLastReservationByClient } from "@/app/actions/invoices/reservationsForInvoices";
 
 export default function NewInvoicePage() {
+  return (
+    <Suspense fallback={<div className="p-10 text-center"><Loader2 className="animate-spin h-8 w-8 mx-auto" /></div>}>
+      <InvoiceForm />
+    </Suspense>
+  );
+}
+
+function InvoiceForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [clientId, setClientId] = useState("");
   const [clientName, setClientName] = useState(""); // Nuevo estado para nombre
   const [items, setItems] = useState<any[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [loadingRes, setLoadingRes] = useState(false);
 
-  const fetchLastReservation = async () => {
-    if (!clientId && !clientName) {
+  // Auto-load from URL params
+  useEffect(() => {
+    const defaultClientId = searchParams.get("clientId");
+    if (defaultClientId) {
+      setClientId(defaultClientId);
+    }
+  }, [searchParams]);
+
+  // We need a ref to avoid calling it multiple times or on every render
+  useEffect(() => {
+    if (clientId && searchParams.get("clientId") && items.length === 0 && !loadingRes) {
+      fetchLastReservation(clientId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clientId]);
+
+  const fetchLastReservation = async (overrideClientId?: string) => {
+    const idToSearch = overrideClientId || clientId;
+    if (!idToSearch && !clientName) {
       toast.error("Ingresa un ID o un Nombre para buscar");
       return;
     }
 
     setLoadingRes(true);
 
-    const res = await getLastReservationByClient(clientId, clientName);
+    const res = await getLastReservationByClient(idToSearch, clientName);
 
     if (res.success && res.data) {
       const detail = res.data.ReservationDetails[0];
@@ -42,7 +69,7 @@ export default function NewInvoicePage() {
         Math.ceil(
           (new Date(detail.dateEnd).getTime() -
             new Date(detail.dateStart).getTime()) /
-            (1000 * 60 * 60 * 24),
+          (1000 * 60 * 60 * 24),
         ) || 1;
 
       const tipoHab = detail.Bedrooms.TypeBedrooms?.nameType || "Estándar";
@@ -136,7 +163,7 @@ export default function NewInvoicePage() {
           </div>
 
           <Button
-            onClick={fetchLastReservation}
+            onClick={() => fetchLastReservation()}
             disabled={loadingRes}
             variant={"fetch" as any}
             className='w-full font-bold uppercase'

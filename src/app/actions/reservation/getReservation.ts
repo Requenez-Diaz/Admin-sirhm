@@ -18,6 +18,7 @@ export type ReservationRow = {
   departureDate: string | null;
   offerts: string | null;
   totalPrice: number;
+  isInvoiced: boolean;
 };
 
 export const getReservations = async (): Promise<ReservationRow[]> => {
@@ -51,6 +52,12 @@ export const getReservations = async (): Promise<ReservationRow[]> => {
             Promotions: { select: { codePromotions: true } },
           },
         },
+      },
+    });
+
+    const invoices = await prisma.invoce.findMany({
+      where: {
+        clientId: { in: reservations.map((r) => r.user_id) },
       },
     });
 
@@ -96,6 +103,11 @@ export const getReservations = async (): Promise<ReservationRow[]> => {
       // Total Price Calculation (Historic)
       const totalPrice = details.reduce((acc, d) => acc + (d.price ?? 0), 0);
 
+      // Is Invoiced Check
+      const isInvoiced = invoices.some(
+        (inv) => inv.clientId === reservation.user_id && inv.date >= reservation.createdAt
+      );
+
       return {
         id: reservation.id,
         status: reservation.status as BookingStatus,
@@ -108,6 +120,7 @@ export const getReservations = async (): Promise<ReservationRow[]> => {
         departureDate: maxEnd ? maxEnd.toISOString() : null,
         offerts,
         totalPrice,
+        isInvoiced,
       };
     });
 
