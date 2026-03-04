@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/db";
-import { BookingsStatus, NotificationType } from "@prisma/client";
+import { BookingsStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
 export async function confirmReservation(reservationId: number) {
@@ -48,19 +48,6 @@ export async function confirmReservation(reservationId: number) {
         });
       }
     });
-
-    if (newStatus === BookingsStatus.CONFIRMED) {
-      await prisma.notification.create({
-        data: {
-          title: "Reservación Confirmada",
-          message: `Tu habitación ha sido asignada. ¡Te esperamos!`,
-          userId: reservation.user_id,
-          reservationId: reservation.id,
-          type: NotificationType.CONFIRMED,
-          email: reservation.User?.email,
-        },
-      });
-    }
 
     revalidatePath("/dashboard/bookings");
     revalidatePath("/dashboard/bedrooms");

@@ -254,7 +254,10 @@ export function FormEditReservation({
               Cancelar
             </Button>
           </DialogClose>
-          <Button type='submit' variant='success'>Actualizar</Button>
+          <Button type='submit' variant='success'>
+            <Icon action='save' className='mr-2 h-4 w-4' />
+            Actualizar
+          </Button>
         </DialogFooter>
       </form>
     </Form>

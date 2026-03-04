@@ -18,7 +18,6 @@ model User {
   roleName           String
   image              String?
   Comments           Comments[]
-  notifications      Notification[]
   PasswordResetToken PasswordResetToken?
   Reservation        Reservation[]
   role               Role                @relation(fields: [roleName], references: [roleName])
@@ -39,24 +38,8 @@ model Reservation {
   isRead             Boolean              @default(false)
   user_id            Int
   status             BookingsStatus       @default(PENDING)
-  notifications      Notification[]
   User               User                 @relation(fields: [user_id], references: [id])
   ReservationDetails ReservationDetails[]
-}
-
-model Notification {
-  id            Int              @id @default(autoincrement())
-  title         String
-  message       String
-  email         String
-  isRead        Boolean          @default(false)
-  createdAt     DateTime         @default(now())
-  userId        Int
-  reservationId Int?
-  type          NotificationType
-  userImage     String?
-  reservation   Reservation?     @relation(fields: [reservationId], references: [id])
-  user          User             @relation(fields: [userId], references: [id])
 }
 
 model testimonials {
@@ -254,12 +237,6 @@ model ReservationDetails {
   Bedrooms       Bedrooms    @relation(fields: [bedrooms_id], references: [id])
   Promotions     Promotions? @relation(fields: [promotion_id], references: [id])
   Reservation    Reservation @relation(fields: [reservation_id], references: [id])
-}
-
-enum NotificationType {
-  CREATED
-  CONFIRMED
-  CANCELLED
 }
 
 enum BookingsStatus {
