@@ -12,7 +12,7 @@ export const updateBedroom = async (data: {
   numberBedroom: number;
   capacity: number;
   status: string;
-  seasonsId: number;
+  seasonsId: number | null;
 }) => {
   const {
     bedroomsId,

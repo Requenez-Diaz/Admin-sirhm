@@ -45,6 +45,8 @@ export function FormBedrooms({ saveAction, roomTypes, seasons }: FormBedroomsPro
   const [mimeType, setMimeType] = useState("");
   const [fileName, setFileName] = useState("");
   const { toast } = useToast();
+  const now = new Date();
+  const activeSeasons = seasons.filter(s => new Date(s.dateEnd) >= now);
 
   const initialState: ActionState = { success: false, message: "" };
   const [state, formAction] = useFormState<ActionState, FormData>(
@@ -185,7 +187,8 @@ export function FormBedrooms({ saveAction, roomTypes, seasons }: FormBedroomsPro
                 <SelectValue placeholder='Selecciona una temporada' />
               </SelectTrigger>
               <SelectContent>
-                {seasons.map((season) => (
+                <SelectItem value='none'>Ninguna</SelectItem>
+                {activeSeasons.map((season) => (
                   <SelectItem key={season.id} value={season.id.toString()}>
                     {season.nameSeason} ({new Date(season.dateStart).toLocaleDateString()} - {new Date(season.dateEnd).toLocaleDateString()})
                   </SelectItem>
@@ -194,7 +197,7 @@ export function FormBedrooms({ saveAction, roomTypes, seasons }: FormBedroomsPro
             </Select>
             {!seasonsId && (
               <p className='text-sm text-destructive'>
-                Debes seleccionar una temporada para continuar
+                Selecciona una temporada o &quot;Ninguna&quot; para continuar
               </p>
             )}
             <input type='hidden' name='seasonsId' value={seasonsId} />
