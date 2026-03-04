@@ -22,7 +22,7 @@ export async function saveBedroomsWithUpload(
   try {
     const typeBedroomId = Number(formData.get("typeBedroomId"));
     const seasonsIdRaw = formData.get("seasonsId");
-    let seasonsId: number | undefined = seasonsIdRaw ? Number(seasonsIdRaw) : undefined;
+    let seasonsId: number | undefined = seasonsIdRaw && seasonsIdRaw !== "none" ? Number(seasonsIdRaw) : undefined;
     const description = String(formData.get("description") || "").trim();
     const lowSeasonPrice = Number(formData.get("lowSeasonPrice"));
     const highSeasonPrice = Number(formData.get("highSeasonPrice"));
@@ -113,7 +113,7 @@ export async function saveBedroomsWithUpload(
         image: imageUrl,
         slug,
         typeBedroomId,
-        seasonsId: seasonsId || undefined,
+        seasonsId: seasonsId || null,
         galleryImages: galleryData,
       },
       include: { galleryImages: true },

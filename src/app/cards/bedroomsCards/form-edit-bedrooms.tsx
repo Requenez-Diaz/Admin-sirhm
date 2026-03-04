@@ -59,9 +59,12 @@ export function FormEditBedrooms({ bedroom, seasons, roomTypes, setOpen }: any) 
       numberBedroom: bedroom.numberBedroom,
       capacity: bedroom.capacity,
       status: bedroom.status ? "1" : "0",
-      seasonsId: bedroom.seasonsId?.toString() ?? "",
+      seasonsId: bedroom.seasonsId?.toString() ?? "none",
     },
   });
+
+  const now = new Date();
+  const activeSeasons = seasons.filter((s: any) => new Date(s.dateEnd) >= now);
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setIsPending(true);
@@ -70,7 +73,7 @@ export function FormEditBedrooms({ bedroom, seasons, roomTypes, setOpen }: any) 
         ...data,
         typeBedroomId: Number(data.typeBedroomId),
         bedroomsId: bedroom.id.toString(),
-        seasonsId: Number(data.seasonsId),
+        seasonsId: data.seasonsId === "none" ? null : Number(data.seasonsId),
       });
 
       if (res.success) {
@@ -248,7 +251,8 @@ export function FormEditBedrooms({ bedroom, seasons, roomTypes, setOpen }: any) 
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent className='dark:bg-slate-950'>
-                    {seasons.map((s: any) => (
+                    <SelectItem value='none'>Ninguna</SelectItem>
+                    {activeSeasons.map((s: any) => (
                       <SelectItem key={s.id} value={s.id.toString()}>
                         {s.nameSeason} ({new Date(s.dateStart).toLocaleDateString()} - {new Date(s.dateEnd).toLocaleDateString()})
                       </SelectItem>
@@ -310,7 +314,7 @@ export function FormEditBedrooms({ bedroom, seasons, roomTypes, setOpen }: any) 
             <Icon action='undo' className='mr-2' />
             Cancelar
           </Button>
-          
+
           <Button
             type='submit'
             variant='success'
