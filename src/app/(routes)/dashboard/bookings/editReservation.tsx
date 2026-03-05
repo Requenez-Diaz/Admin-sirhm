@@ -15,9 +15,10 @@ import { getReservationById } from "@/app/actions/reservation/getReservationsFor
 
 interface EditReservationProps {
   reservationId: number;
+  disabled?: boolean;
 }
 
-export function EditReservation({ reservationId }: EditReservationProps) {
+export function EditReservation({ reservationId, disabled }: EditReservationProps) {
   // Usamos 'any' o un tipo extendido porque la respuesta de getReservationById
   // incluye User y ReservationDetails
   const [reservationData, setReservationData] = useState<any | null>(null);
@@ -41,10 +42,17 @@ export function EditReservation({ reservationId }: EditReservationProps) {
         if (open) loadData();
       }}
     >
-      <DialogTrigger asChild>
-        <button className="flex items-center gap-2 text-sm px-2 py-1 rounded hover:bg-accent hover:text-accent-foreground transition">
+      <DialogTrigger asChild disabled={disabled}>
+        <button
+          className={`flex items-center gap-2 text-sm px-2 py-1 rounded transition ${disabled
+              ? "text-gray-400 cursor-not-allowed opacity-50"
+              : "hover:bg-accent hover:text-accent-foreground"
+            }`}
+          disabled={disabled}
+          title={disabled ? "No se puede editar una reservación confirmada" : "Editar reservación"}
+        >
           <Icon action="edit" className="w-4 h-4 opacity-80" />
-          Editar
+          {disabled ? "Editar (Confirmada)" : "Editar"}
         </button>
       </DialogTrigger>
 
@@ -73,9 +81,9 @@ export function EditReservation({ reservationId }: EditReservationProps) {
             reservationDetails={
               reservationData.ReservationDetails?.[0]
                 ? {
-                    ...reservationData.ReservationDetails[0],
-                    Reservation: reservationData, // Le adjuntamos el padre para que el form vea al User
-                  }
+                  ...reservationData.ReservationDetails[0],
+                  Reservation: reservationData, // Le adjuntamos el padre para que el form vea al User
+                }
                 : null
             }
           />

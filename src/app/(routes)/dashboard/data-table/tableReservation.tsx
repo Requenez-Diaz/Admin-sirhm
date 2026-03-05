@@ -266,14 +266,16 @@ const TableReservation: React.FC<TableReservationProps> = ({
                           <DropdownMenuLabel>
                             Acciones de Reserva
                           </DropdownMenuLabel>
-                          <DropdownMenuItem
-                            asChild
-                            onSelect={(e) => e.preventDefault()}
-                          >
-                            <ConfirmReservation
-                              reservationId={reservation.id}
-                            />
-                          </DropdownMenuItem>
+                          {reservation.status === "PENDING" && (
+                            <DropdownMenuItem
+                              asChild
+                              onSelect={(e) => e.preventDefault()}
+                            >
+                              <ConfirmReservation
+                                reservationId={reservation.id}
+                              />
+                            </DropdownMenuItem>
+                          )}
                           <DropdownMenuItem
                             asChild
                             onSelect={(e) => e.preventDefault()}
@@ -287,7 +289,10 @@ const TableReservation: React.FC<TableReservationProps> = ({
                             asChild
                             onSelect={(e) => e.preventDefault()}
                           >
-                            <EditReservation reservationId={reservation.id} />
+                            <EditReservation
+                              reservationId={reservation.id}
+                              disabled={reservation.status === "CONFIRMED"}
+                            />
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             asChild
