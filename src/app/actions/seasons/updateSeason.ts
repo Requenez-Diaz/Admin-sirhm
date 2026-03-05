@@ -38,6 +38,16 @@ export async function updateSeason(
             };
         }
 
+        const todayLocal = new Date();
+        todayLocal.setHours(0, 0, 0, 0);
+
+        if (dateEnd < todayLocal) {
+            return {
+                success: false,
+                message: "No puedes aplicar una temporada que ya pasó. Solo se permiten fechas actuales o futuras.",
+            };
+        }
+
         // if dates changed, validate overlapping seasons excluding current record
         const existing = await prisma.seasons.findUnique({ where: { id } });
         if (!existing) {

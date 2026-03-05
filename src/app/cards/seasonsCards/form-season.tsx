@@ -138,7 +138,10 @@ export function FormSeason({ saveAction, initialData, onSuccess, existingSeasons
                                 mode='range'
                                 selected={dateRange as any}
                                 onSelect={(range: any) => setDateRange(range ?? { from: undefined, to: undefined })}
-                                disabled={disabledRanges}
+                                disabled={[
+                                    ...disabledRanges,
+                                    { before: new Date(new Date().setHours(0, 0, 0, 0)) }
+                                ]}
                                 locale={es}
                                 weekStartsOn={0}
                                 fixedWeeks

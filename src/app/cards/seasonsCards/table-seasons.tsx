@@ -22,6 +22,7 @@ import {
     MoreHorizontal,
     CalendarDays,
     Search,
+    Pencil,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AddSeason } from "./add-season";
@@ -114,12 +115,14 @@ export default function TableSeasons({ seasons }: { seasons: any[] }) {
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align='end' className='w-40'>
                                                 <DropdownMenuLabel>Opciones</DropdownMenuLabel>
-                                                <DropdownMenuItem onClick={() => setEditingSeason(season)}>
-                                                    <div className="flex items-center gap-2">
-                                                        <MoreHorizontal className='w-4 h-4' />
-                                                        Editar
-                                                    </div>
-                                                </DropdownMenuItem>
+                                                {new Date(season.dateEnd) >= new Date(new Date().setHours(0, 0, 0, 0)) && (
+                                                    <DropdownMenuItem onClick={() => setEditingSeason(season)}>
+                                                        <div className="flex items-center gap-2">
+                                                            <Pencil className='w-4 h-4' />
+                                                            Editar
+                                                        </div>
+                                                    </DropdownMenuItem>
+                                                )}
                                                 <DropdownMenuItem
                                                     onSelect={(e) => e.preventDefault()}
                                                     className='p-0'
