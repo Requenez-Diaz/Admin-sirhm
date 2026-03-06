@@ -23,6 +23,7 @@ import {
   Sun,
   CalendarDays,
   ReceiptText,
+  Search,
 } from "lucide-react";
 
 const links = [
@@ -71,6 +72,11 @@ const links = [
     name: "Temporadas",
     href: "/dashboard/seasons",
     icon: CalendarDays,
+  },
+  {
+    name: "Disponibilidad",
+    href: "/dashboard/availability",
+    icon: Search,
   },
 ];
 
