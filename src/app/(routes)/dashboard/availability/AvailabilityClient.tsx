@@ -81,88 +81,101 @@ export default function AvailabilityClient({ roomTypes }: Props) {
     const todayStr = new Date().toISOString().split("T")[0];
 
     return (
-        <div className="p-4 space-y-6">
-            {/* CABECERA ESTILO DASHBOARD */}
-            <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
-                    <CalendarSearch className="h-6 w-6 text-blue-600" />
-                    <h1 className="text-2xl font-black tracking-tight">
-                        Consulta de Disponibilidad
+        <div className="p-8 space-y-10 max-w-6xl mx-auto">
+            {/* CABECERA ENTERPRISE */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div className="space-y-1">
+                    <div className="flex items-center gap-2 text-blue-600 mb-1">
+                        <CalendarSearch className="h-5 w-5" />
+                        <span className="text-xs font-bold uppercase tracking-widest">Buscador</span>
+                    </div>
+                    <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+                        Disponibilidad de Habitaciones
                     </h1>
+                    <p className="text-slate-500 text-sm">
+                        Gestione y consulte el inventario de habitaciones disponibles en tiempo real.
+                    </p>
                 </div>
-                <p className="text-slate-500 text-sm font-medium">
-                    Verifica qué habitaciones están libres para un rango de fechas específico.
-                </p>
             </div>
 
-            {/* BARRA DE FILTROS ESTILO DASHBOARD */}
-            <div className="rounded-xl border shadow-sm p-6 space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                    <div className="space-y-2">
-                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Entrada</label>
-                        <Input
-                            type="date"
-                            min={todayStr}
-                            value={checkIn}
-                            onChange={(e) => {
-                                setCheckIn(e.target.value);
-                                if (checkOut && e.target.value >= checkOut) setCheckOut("");
-                            }}
-                        />
-                    </div>
+            {/* BARRA DE FILTROS ENTERPRISE */}
+            <div className="bg-white dark:bg-slate-950 rounded-xl border shadow-sm overflow-hidden">
+                <div className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Fecha de Entrada</label>
+                            <Input
+                                type="date"
+                                min={todayStr}
+                                value={checkIn}
+                                onChange={(e) => {
+                                    setCheckIn(e.target.value);
+                                    if (checkOut && e.target.value >= checkOut) setCheckOut("");
+                                }}
+                                className="h-11 rounded-lg border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 focus:bg-white dark:focus:bg-slate-950 transition-all font-medium"
+                            />
+                        </div>
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Salida</label>
-                        <Input
-                            type="date"
-                            min={checkIn || todayStr}
-                            value={checkOut}
-                            onChange={(e) => setCheckOut(e.target.value)}
-                        />
-                    </div>
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Fecha de Salida</label>
+                            <Input
+                                type="date"
+                                min={checkIn || todayStr}
+                                value={checkOut}
+                                onChange={(e) => setCheckOut(e.target.value)}
+                                className="h-11 rounded-lg border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 focus:bg-white dark:focus:bg-slate-950 transition-all font-medium"
+                            />
+                        </div>
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Categoría</label>
-                        <Select value={typeId} onValueChange={setTypeId}>
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Todas las habitaciones" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Todas las habitaciones</SelectItem>
-                                {roomTypes.map((t) => (
-                                    <SelectItem key={t.id} value={String(t.id)}>
-                                        {t.nameType}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Categoría</label>
+                            <Select value={typeId} onValueChange={setTypeId}>
+                                <SelectTrigger className="h-11 rounded-lg border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 focus:bg-white dark:focus:bg-slate-950 transition-all font-medium">
+                                    <SelectValue placeholder="Todas" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Todas las categorías</SelectItem>
+                                    {roomTypes.map((t) => (
+                                        <SelectItem key={t.id} value={String(t.id)}>
+                                            {t.nameType}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
 
-                    <div className="flex gap-2">
-                        <Button
-                            onClick={handleSearch}
-                            disabled={isPending}
-                            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold"
-                        >
-                            <Search className="h-4 w-4 mr-2" />
-                            {isPending ? "Buscando..." : "Buscar"}
-                        </Button>
-
-                        {searched && (
+                        <div className="flex gap-2">
                             <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={clearFilters}
-                                className="text-slate-500 hover:text-slate-900"
+                                onClick={handleSearch}
+                                disabled={isPending}
+                                className="flex-1 h-11 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:bg-blue-600 dark:hover:bg-blue-500 dark:hover:text-white transition-all font-semibold rounded-lg shadow-sm"
                             >
-                                <RotateCcw className="h-4 w-4" />
+                                {isPending ? (
+                                    <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
+                                ) : (
+                                    <Search className="h-4 w-4 mr-2" />
+                                )}
+                                {isPending ? "Buscando..." : "Buscar Disponibilidad"}
                             </Button>
-                        )}
+
+                            {searched && (
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={clearFilters}
+                                    className="h-11 w-11 rounded-lg border-slate-200 dark:border-slate-800 text-slate-400 hover:text-slate-900 hover:bg-slate-50 transition-all"
+                                >
+                                    <RotateCcw className="h-4 w-4" />
+                                </Button>
+                            )}
+                        </div>
                     </div>
                 </div>
 
                 {error && (
-                    <p className="text-xs text-red-500 font-bold">{error}</p>
+                    <div className="px-6 py-3 bg-red-50 dark:bg-red-950/20 border-t border-red-100 dark:border-red-900/30">
+                        <p className="text-xs text-red-600 dark:text-red-400 font-semibold">{error}</p>
+                    </div>
                 )}
             </div>
 
