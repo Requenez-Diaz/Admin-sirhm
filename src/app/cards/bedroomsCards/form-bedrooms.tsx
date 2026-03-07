@@ -246,17 +246,20 @@ export function FormBedrooms({ saveAction, roomTypes, seasons }: FormBedroomsPro
           </div>
 
           <div className='space-y-2'>
-            <Label className='text-base'>Estado</Label>
+            <Label className='text-base'>Estado de la Habitación</Label>
             <Select value={statusValue} onValueChange={setStatusValue}>
               <SelectTrigger className='h-11'>
                 <SelectValue placeholder='Selecciona estado' />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='1'>Activo</SelectItem>
-                <SelectItem value='0'>Inactivo</SelectItem>
+                <SelectItem value='1'>ACTIVA (Disponible)</SelectItem>
+                <SelectItem value='0'>INACTIVA (Ocupada)</SelectItem>
               </SelectContent>
             </Select>
             <input type='hidden' name='status' value={statusValue} />
+            <p className='text-[11px] text-muted-foreground leading-tight'>
+              Nota: Las reservaciones también marcan la habitación como ocupada automáticamente.
+            </p>
           </div>
         </div>
 

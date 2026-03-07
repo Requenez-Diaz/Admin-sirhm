@@ -41,8 +41,22 @@ export default function TableBedrooms({ bedrooms, seasons, roomTypes }: any) {
       const matchesSearch =
         typeName.toLowerCase().includes(search.toLowerCase()) ||
         b.numberBedroom.toString().includes(search);
+
+      // Lógica dinámica para el filtro de estado
+      const now = new Date();
+      const isReservedNow = b.ReservationDetails?.some((rd: any) => {
+        const start = new Date(rd.dateStart);
+        const end = new Date(rd.dateEnd);
+        return now >= start && now < end;
+      });
+
+      let currentStatus = "disponible";
+      if (!b.status) currentStatus = "mantenimiento";
+      else if (isReservedNow) currentStatus = "ocupada";
+
       const matchesStatus =
-        statusFilter === "all" ? true : String(b.status) === statusFilter;
+        statusFilter === "all" ? true : currentStatus === statusFilter;
+
       return matchesSearch && matchesStatus;
     });
   }, [bedrooms, search, statusFilter]);
@@ -74,17 +88,18 @@ export default function TableBedrooms({ bedrooms, seasons, roomTypes }: any) {
             <DropdownMenuTrigger asChild>
               <Button
                 variant='outline'
-                className={`w-[140px] justify-between ${
-                  statusFilter === "all"
-                    ? "bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:text-white"
-                    : ""
-                }`}
+                className={`w-[140px] justify-between ${statusFilter === "all"
+                  ? "bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:text-white"
+                  : ""
+                  }`}
               >
                 {statusFilter === "all"
                   ? "Todos"
-                  : statusFilter === "true"
+                  : statusFilter === "disponible"
                     ? "Disponibles"
-                    : "Ocupadas"}
+                    : statusFilter === "ocupada"
+                      ? "Ocupadas"
+                      : "Mantenimiento"}
                 <ChevronDown className='ml-2 h-4 w-4 opacity-50' />
               </Button>
             </DropdownMenuTrigger>
@@ -92,11 +107,14 @@ export default function TableBedrooms({ bedrooms, seasons, roomTypes }: any) {
               <DropdownMenuItem onClick={() => setStatusFilter("all")}>
                 Todos
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setStatusFilter("true")}>
-                Disponibles
+              <DropdownMenuItem onClick={() => setStatusFilter("disponible")}>
+                Disponibles Hoy
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setStatusFilter("false")}>
-                Ocupadas
+              <DropdownMenuItem onClick={() => setStatusFilter("ocupada")}>
+                Ocupadas Hoy
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter("mantenimiento")}>
+                Fuera de Servicio
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -158,16 +176,45 @@ export default function TableBedrooms({ bedrooms, seasons, roomTypes }: any) {
                 </TableCell>
 
                 <TableCell>
-                  <Badge
-                    variant='outline'
-                    className={
-                      bedroom.status
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/20"
-                        : "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/20"
+                  {(() => {
+                    const now = new Date();
+                    const isReservedNow = bedroom.ReservationDetails?.some((rd: any) => {
+                      const start = new Date(rd.dateStart);
+                      const end = new Date(rd.dateEnd);
+                      return now >= start && now < end;
+                    });
+
+                    if (!bedroom.status) {
+                      return (
+                        <Badge
+                          variant='outline'
+                          className="bg-slate-50 text-slate-700 border-slate-300 dark:bg-slate-900/40 dark:text-slate-300"
+                        >
+                          ⛔ Fuera de Servicio
+                        </Badge>
+                      );
                     }
-                  >
-                    {bedroom.status ? "✓ Disponible" : "● Ocupada"}
-                  </Badge>
+
+                    if (isReservedNow) {
+                      return (
+                        <Badge
+                          variant='outline'
+                          className="bg-red-50 text-red-700 border-red-200 dark:bg-red-950/20"
+                        >
+                          ● Ocupada Hoy
+                        </Badge>
+                      );
+                    }
+
+                    return (
+                      <Badge
+                        variant='outline'
+                        className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/20"
+                      >
+                        ✓ Disponible Hoy
+                      </Badge>
+                    );
+                  })()}
                 </TableCell>
                 <TableCell className='text-right'>
                   <DropdownMenu>

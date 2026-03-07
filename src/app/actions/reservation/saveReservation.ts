@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/db";
-import { Status } from "@prisma/client";
+import { BookingsStatus, Status } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
 export const saveReservation = async (data: {
@@ -15,8 +15,6 @@ export const saveReservation = async (data: {
   departureDate: Date;
 }) => {
   const {
-    name,
-    lastName,
     email,
     bedroomsType,
     guests,
@@ -25,66 +23,125 @@ export const saveReservation = async (data: {
     departureDate,
   } = data;
 
-  const roomLimits: { [key: string]: number } = {
-    "Habitación con abanico": 4,
-    "Con aire acondicionado": 2,
-    "Doble con abanico": 8,
-    "Doble con aire acondicionado": 12,
-  };
+  // Normalizar fechas a 00:00:00 para evitar problemas de precisión y zonas horarias
+  const normArrivalDate = new Date(arrivalDate);
+  normArrivalDate.setHours(0, 0, 0, 0);
+  const normDepartureDate = new Date(departureDate);
+  normDepartureDate.setHours(0, 0, 0, 0);
 
   try {
-    const existingReservations = await prisma.reservation.count({
+    // 1. Obtener todas las habitaciones del tipo solicitado
+    const bedrooms = await prisma.bedrooms.findMany({
       where: {
-        bedroomsType: bedroomsType,
-        arrivalDate: {
-          lte: departureDate,
-        },
-        departureDate: {
-          gte: arrivalDate,
-        },
+        TypeBedrooms: {
+          nameType: bedroomsType
+        }
       },
+      include: {
+        TypeBedrooms: true
+      }
     });
 
-    if (existingReservations + rooms > roomLimits[bedroomsType]) {
-      console.log(
-        `No hay suficientes habitaciones disponibles del tipo ${bedroomsType}.`
-      );
+    if (bedrooms.length === 0) {
       return {
         success: false,
-        message: `No hay suficientes habitaciones disponibles del tipo ${bedroomsType}.`,
+        message: `No se encontraron habitaciones del tipo "${bedroomsType}".`,
       };
     }
 
-    await prisma.reservation.create({
-      data: {
-        name,
-        lastName,
-        email,
-        bedroomsType,
-        guests,
-        rooms,
-        arrivalDate,
-        departureDate,
-        status: Status.PENDING,
-        user: {
-          connect: {
-            email: email,
-          },
-        },
+    // 2. Buscar cuáles de esas habitaciones están ocupadas en el rango de fechas
+    // Lógica de solapamiento estándar: (start1 < end2) AND (end1 > start2)
+    const overlappingDetails = await prisma.reservationDetails.findMany({
+      where: {
+        bedrooms_id: { in: bedrooms.map(b => b.id) },
+        status: { in: [Status.PENDING, Status.CONFIRMED] },
+        dateStart: { lt: normDepartureDate },
+        dateEnd: { gt: normArrivalDate },
       },
+      select: { bedrooms_id: true, dateEnd: true }
+    });
+
+    const occupiedRoomIds = new Set(overlappingDetails.map(d => d.bedrooms_id));
+    const availableRooms = bedrooms.filter(b => !occupiedRoomIds.has(b.id));
+
+    // 3. Validar si hay suficientes habitaciones físicas disponibles
+    if (availableRooms.length < rooms) {
+      // Calcular la próxima fecha disponible basándose en cuándo se libera alguna habitación
+      let nextAvailableDate: Date | null = null;
+      if (overlappingDetails.length > 0) {
+        const sortedDates = overlappingDetails
+          .map(r => new Date(r.dateEnd))
+          .sort((a, b) => a.getTime() - b.getTime());
+        nextAvailableDate = sortedDates[0];
+      }
+
+      return {
+        success: false,
+        message: `Disponibilidad insuficiente. Solo quedan ${availableRooms.length} habitaciones de tipo "${bedroomsType}" para estas fechas.`,
+        nextAvailableDate,
+      };
+    }
+
+    // 4. Crear la reservación y sus detalles de forma atómica
+    const result = await prisma.$transaction(async (tx) => {
+      // 4a. Buscar o crear el usuario
+      let user = await tx.user.findUnique({ where: { email } });
+      if (!user) {
+        // Si no existe, lo creamos con datos básicos (asumiendo que viene de un flujo de invitados)
+        // Nota: En un sistema real, esto podría requerir más lógica de registro
+        user = await tx.user.create({
+          data: {
+            email,
+            username: email.split('@')[0] + "_" + Math.floor(Math.random() * 1000),
+            password: "password_placeholder", // Debería manejarse mejor
+            roleName: "User", // Asumiendo rol base
+          }
+        });
+      }
+
+      // 4b. Crear la cabecera de la Reservación
+      const reservation = await tx.reservation.create({
+        data: {
+          user_id: user.id,
+          status: BookingsStatus.PENDING,
+          isRead: false,
+        }
+      });
+
+      // 4c. Crear los detalles para cada habitación solicitada
+      // Repartimos los huéspedes equitativamente o según capacidad (aquí lógica simple)
+      const guestsPerRoom = Math.ceil(guests / rooms);
+
+      const detailsData = availableRooms.slice(0, rooms).map((room) => ({
+        reservation_id: reservation.id,
+        bedrooms_id: room.id,
+        dateStart: arrivalDate,
+        dateEnd: departureDate,
+        status: Status.PENDING,
+        price: room.lowSeasonPrice, // Podría mejorarse con lógica de temporadas
+        guestQuantity: guestsPerRoom,
+      }));
+
+      await tx.reservationDetails.createMany({
+        data: detailsData
+      });
+
+      return reservation;
     });
 
     revalidatePath("/dashboard/bookings");
+    revalidatePath("/dashboard/bedrooms");
 
     return {
       success: true,
       message: "La reserva se registró correctamente.",
+      data: result,
     };
   } catch (error) {
     console.error("Error al guardar la reserva:", error);
     return {
       success: false,
-      message: "Error al guardar la reserva.",
+      message: "Error al guardar la reserva. Verifica que el tipo de habitación sea válido.",
     };
   }
 };

@@ -109,15 +109,15 @@ export function FormEditBedrooms({ bedroom, seasons, roomTypes, setOpen }: any) 
       >
         {/* CONTENEDOR CON SCROLL PARA MÓVIL */}
         <div className='space-y-6 overflow-y-auto max-h-[60vh] md:max-h-[65vh] pr-2 scrollbar-thin'>
-          {/* SECCIÓN DE ESTADO (RESPONSIVE & COLOR) */}
+          {/* SECCIÓN DE ESTADO OPERATIVO (AUTOMATIZADO) */}
           <div className='p-4 rounded-xl border-2 border-dashed bg-muted/20'>
             <FormField
               control={form.control}
               name='status'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className='font-bold'>
-                    Disponibilidad Actual
+                  <FormLabel className='font-bold flex items-center gap-2'>
+                    Estado de la Habitación
                   </FormLabel>
                   <Select
                     onValueChange={field.onChange}
@@ -127,7 +127,7 @@ export function FormEditBedrooms({ bedroom, seasons, roomTypes, setOpen }: any) 
                       <SelectTrigger
                         className={`h-12 font-bold transition-all ${field.value === "1"
                           ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400"
-                          : "border-red-500 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400"
+                          : "border-red-400 bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-400"
                           }`}
                       >
                         <SelectValue placeholder='Estado' />
@@ -139,8 +139,8 @@ export function FormEditBedrooms({ bedroom, seasons, roomTypes, setOpen }: any) 
                         className='text-emerald-600 dark:text-emerald-400 font-bold focus:bg-emerald-50 dark:focus:bg-emerald-900/30'
                       >
                         <div className='flex items-center gap-2'>
-                          <span className='h-2 w-2 rounded-full bg-emerald-500 animate-pulse' />
-                          DISPONIBLE (Libre)
+                          <span className='h-2 w-2 rounded-full bg-emerald-500' />
+                          ACTIVA (Disponible)
                         </div>
                       </SelectItem>
                       <SelectItem
@@ -148,15 +148,14 @@ export function FormEditBedrooms({ bedroom, seasons, roomTypes, setOpen }: any) 
                         className='text-red-600 dark:text-red-400 font-bold focus:bg-red-50 dark:focus:bg-red-900/30'
                       >
                         <div className='flex items-center gap-2'>
-                          <span className='h-2 w-2 rounded-full bg-red-500' />
-                          OCUPADA (Check-out)
+                          <span className='h-2 w-2 rounded-full bg-red-400' />
+                          INACTIVA (Ocupada)
                         </div>
                       </SelectItem>
                     </SelectContent>
                   </Select>
                   <FormDescription className='text-[11px] leading-tight mt-1'>
-                    Cambia a (Disponible) solo cuando la limpieza haya
-                    terminado.
+                    Nota: Las reservaciones también marcan la habitación como ocupada automáticamente.
                   </FormDescription>
                 </FormItem>
               )}

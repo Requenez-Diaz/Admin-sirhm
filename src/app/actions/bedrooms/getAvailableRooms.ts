@@ -22,14 +22,23 @@ export async function getAvailableRooms(
     typeBedroomId?: number
 ): Promise<AvailableRoom[]> {
     try {
+        const parseSafeDate = (d: string | Date) => {
+            const iso = typeof d === 'string' ? d : new Date(d).toISOString();
+            const [y, m, day] = iso.split('T')[0].split('-').map(Number);
+            return new Date(y, m - 1, day, 0, 0, 0, 0);
+        };
+
+        const normCheckIn = parseSafeDate(checkIn);
+        const normCheckOut = parseSafeDate(checkOut);
+
         // IDs de habitaciones que tienen al menos un ReservationDetail activo
         // (Cualquier estado que NO sea CANCELLED, incluyendo PENDING y CONFIRMED)
         // que se solapa con el rango [checkIn, checkOut)
         const busyDetails = await prisma.reservationDetails.findMany({
             where: {
                 status: { not: "CANCELLED" },
-                dateStart: { lt: checkOut },
-                dateEnd: { gt: checkIn },
+                dateStart: { lt: normCheckOut },
+                dateEnd: { gt: normCheckIn },
             },
             select: { bedrooms_id: true },
         });
@@ -39,6 +48,7 @@ export async function getAvailableRooms(
         const bedrooms = await prisma.bedrooms.findMany({
             where: {
                 id: { notIn: busyIds.length > 0 ? busyIds : [-1] },
+                status: true, // SOLUCIÓN: Solo mostrar habitaciones activas
                 ...(typeBedroomId ? { typeBedroomId } : {}),
             },
             include: {

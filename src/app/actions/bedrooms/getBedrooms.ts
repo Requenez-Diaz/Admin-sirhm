@@ -9,6 +9,11 @@ export const getBedrooms = async () => {
         TypeBedrooms: true,
         Seasons: true,
         galleryImages: true,
+        ReservationDetails: {
+          where: {
+            status: { not: "CANCELLED" },
+          }
+        }
       },
     });
     return bedrooms;

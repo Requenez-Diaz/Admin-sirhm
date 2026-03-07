@@ -37,23 +37,13 @@ export async function confirmReservation(reservationId: number) {
         where: { id: reservationId },
         data: { status: newStatus },
       });
-
-      if (newStatus === BookingsStatus.CONFIRMED) {
-        const bedroomIds = reservation.ReservationDetails.map(
-          (d) => d.bedrooms_id,
-        );
-        await tx.bedrooms.updateMany({
-          where: { id: { in: bedroomIds } },
-          data: { status: false },
-        });
-      }
     });
 
     revalidatePath("/dashboard/bookings");
     revalidatePath("/dashboard/bedrooms");
     return {
       success: true,
-      message: "Reserva confirmada y habitación ocupada.",
+      message: "Reserva confirmada exitosamente.",
     };
   } catch (error) {
     console.error(error);
