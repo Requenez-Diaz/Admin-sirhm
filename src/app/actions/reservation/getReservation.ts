@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from "@/lib/db";
+import { calculateDuration } from "./calculateDuration";
 
 // Tipo de estado de booking para el cliente
 type BookingStatus = "PENDING" | "CONFIRMED" | "CANCELLED";
@@ -101,7 +102,10 @@ export const getReservations = async (): Promise<ReservationRow[]> => {
       const offerts = promoSet.size ? Array.from(promoSet).join(", ") : null;
 
       // Total Price Calculation (Historic)
-      const totalPrice = details.reduce((acc, d) => acc + (d.price ?? 0), 0);
+      const totalPrice = details.reduce((acc, d) => {
+        const nights = calculateDuration(d.dateStart, d.dateEnd);
+        return acc + ((d.price ?? 0) * (nights || 1));
+      }, 0);
 
       // Is Invoiced Check
       const isInvoiced = invoices.some(
