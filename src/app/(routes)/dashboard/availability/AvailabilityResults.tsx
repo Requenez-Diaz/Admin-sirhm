@@ -160,7 +160,10 @@ export default function AvailabilityResults({
                                     asChild
                                     className="w-full h-11 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 hover:bg-slate-900 hover:text-white dark:hover:bg-slate-100 dark:hover:text-slate-900 transition-all font-bold rounded-lg group/btn shadow-sm"
                                 >
-                                    <Link href="/dashboard/bookings" className="flex items-center justify-center gap-2">
+                                    <Link
+                                        href={`/dashboard/bookings?action=new&typeName=${encodeURIComponent(room.typeName || '')}&checkIn=${checkIn}&checkOut=${checkOut}`}
+                                        className="flex items-center justify-center gap-2"
+                                    >
                                         <span>RESERVAR AHORA</span>
                                         <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
                                     </Link>

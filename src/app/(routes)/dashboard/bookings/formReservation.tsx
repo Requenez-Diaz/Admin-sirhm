@@ -19,6 +19,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const FormSchema = z.object({
@@ -38,7 +39,14 @@ interface FormReservationProps {
 
 export function FormReservation({ onSubmitSuccess }: FormReservationProps) {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
   const [bedroomsList, setBedroomsList] = useState<any[]>([]);
+
+  // Extraer valores iniciales desde la URL (si venimos del recomendador de disponibilidad)
+  const queryAction = searchParams.get('action');
+  const queryTypeName = searchParams.get('typeName') || "";
+  const queryCheckIn = searchParams.get('checkIn') || "";
+  const queryCheckOut = searchParams.get('checkOut') || "";
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -48,11 +56,28 @@ export function FormReservation({ onSubmitSuccess }: FormReservationProps) {
       email: "",
       guests: 1,
       rooms: 1,
-      bedroomsType: "",
-      arrivalDate: "",
-      departureDate: "",
+      bedroomsType: queryAction === 'new' ? queryTypeName : "",
+      arrivalDate: queryAction === 'new' ? queryCheckIn : "",
+      departureDate: queryAction === 'new' ? queryCheckOut : "",
     },
   });
+
+  // Si los parámetros de búsqueda cambian (ej. el modal ya estaba "montado" pero la ruta cambió), 
+  // actualizamos el estado del formulario con reset() para que se reflejen visualmente
+  useEffect(() => {
+    if (searchParams.get('action') === 'new') {
+      const typeName = searchParams.get('typeName') || "";
+      const checkIn = searchParams.get('checkIn') || "";
+      const checkOut = searchParams.get('checkOut') || "";
+
+      form.reset({
+        ...form.getValues(),
+        bedroomsType: typeName,
+        arrivalDate: checkIn,
+        departureDate: checkOut
+      });
+    }
+  }, [searchParams, form]);
 
   useEffect(() => {
     async function fetchBedrooms() {
