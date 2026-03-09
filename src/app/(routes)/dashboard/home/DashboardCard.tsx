@@ -10,7 +10,7 @@ interface DashboardCardProps {
   description?: string;
   icon: React.ReactNode;
   href?: string;
-  type?: "users" | "rooms" | "reservations" | "services" | "occupied";
+  type?: "users" | "rooms" | "reservations" | "occupied";
   extraContent?: React.ReactNode;
 }
 
@@ -19,7 +19,6 @@ export function DashboardCard({ title, value, description, icon, href, type, ext
     users: { icon: "text-green-500", hover: "hover:bg-green-100 dark:hover:bg-green-900/20" },
     rooms: { icon: "text-purple-500", hover: "hover:bg-purple-100 dark:hover:bg-purple-900/20" },
     reservations: { icon: "text-blue-500", hover: "hover:bg-blue-100 dark:hover:bg-blue-900/20" },
-    services: { icon: "text-yellow-500", hover: "hover:bg-yellow-100 dark:hover:bg-yellow-900/20" },
     occupied: { icon: "text-red-500", hover: "hover:bg-red-100 dark:hover:bg-red-900/20" },
   };
 
