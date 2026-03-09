@@ -34,7 +34,13 @@ export const updateReservation = async (data: {
       return { success: false, message: "No se encontró la reservación." };
     }
 
-    const bedroom = await prisma.bedrooms.findFirst({
+    // Normalizar fechas a 00:00:00
+    const normArrivalDate = new Date(arrivalDate);
+    normArrivalDate.setHours(0, 0, 0, 0);
+    const normDepartureDate = new Date(departureDate);
+    normDepartureDate.setHours(0, 0, 0, 0);
+
+    const bedroom = await prisma.bedroom.findFirst({
       where: {
         TypeBedrooms: {
           nameType: bedroomsType
@@ -60,8 +66,8 @@ export const updateReservation = async (data: {
         where: { reservation_id: parseInt(reservationId) },
         data: {
           guestQuantity: parseInt(guests),
-          dateStart: new Date(arrivalDate),
-          dateEnd: new Date(departureDate),
+          dateStart: normArrivalDate,
+          dateEnd: normDepartureDate,
           bedrooms_id: bedroom.id,
         },
       }),

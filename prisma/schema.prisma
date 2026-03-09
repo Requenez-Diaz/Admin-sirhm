@@ -21,9 +21,9 @@ model User {
   image              String?
   PasswordResetToken PasswordResetToken?
   Reservation        Reservation[]
+  Testimonial        Testimonial[]
   role               Role                @relation(fields: [roleName], references: [roleName])
   UserImage          UserImage?
-  Testimonial        Testimonial[]
 }
 
 model Role {
@@ -99,9 +99,9 @@ model Bedroom {
   updatedAt          DateTime             @updatedAt
   slug               String               @unique
   typeBedroomId      Int?
-  galleryImages      BedroomImages[]
   Season             Season?              @relation(fields: [seasonsId], references: [id])
   TypeBedrooms       TypeBedrooms?        @relation(fields: [typeBedroomId], references: [id])
+  galleryImages      BedroomImages[]
   BedroomsPromotions BedroomsPromotion[]
   ReservationDetails ReservationDetails[]
   Testimonial        Testimonial[]

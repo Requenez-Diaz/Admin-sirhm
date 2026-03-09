@@ -31,7 +31,7 @@ export const saveReservation = async (data: {
 
   try {
     // 1. Obtener todas las habitaciones del tipo solicitado
-    const bedrooms = await prisma.bedrooms.findMany({
+    const bedrooms = await prisma.bedroom.findMany({
       where: {
         TypeBedrooms: {
           nameType: bedroomsType
@@ -115,8 +115,8 @@ export const saveReservation = async (data: {
       const detailsData = availableRooms.slice(0, rooms).map((room) => ({
         reservation_id: reservation.id,
         bedrooms_id: room.id,
-        dateStart: arrivalDate,
-        dateEnd: departureDate,
+        dateStart: normArrivalDate,
+        dateEnd: normDepartureDate,
         status: Status.PENDING,
         price: room.lowSeasonPrice, // Podría mejorarse con lógica de temporadas
         guestQuantity: guestsPerRoom,
