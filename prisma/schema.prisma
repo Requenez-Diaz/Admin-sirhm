@@ -12,6 +12,8 @@ model User {
   id                 Int                 @id @default(autoincrement())
   email              String              @unique
   username           String              @unique
+  lastName           String
+  numberPhone        Int
   password           String
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
@@ -42,27 +44,27 @@ model Reservation {
 }
 
 model Testimonial {
-  id         Int       @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   name       String
   avatar     String
   comment    String
   location   String
   rating     Int
-  createdAt  DateTime  @default(now())
+  createdAt  DateTime @default(now())
   updatedAt  DateTime
   bedroomId  Int?
   userId     Int?
-  isApproved Boolean   @default(false)
-  Bedrooms   Bedrooms? @relation(fields: [bedroomId], references: [id])
-  User       User?     @relation(fields: [userId], references: [id])
+  isApproved Boolean  @default(false)
+  Bedrooms   Bedroom? @relation(fields: [bedroomId], references: [id])
+  User       User?    @relation(fields: [userId], references: [id])
 }
 
-model Seasons {
+model Season {
   id         Int          @id @default(autoincrement())
   dateStart  DateTime
   dateEnd    DateTime
   nameSeason SeasonType   @default(BAJA)
-  Bedrooms   Bedrooms[]
+  Bedrooms   Bedroom[]
   Promotions Promotions[]
 }
 
@@ -82,7 +84,7 @@ model InvoceDetail {
   Invoice  Invoice @relation(fields: [invoceId], references: [id])
 }
 
-model Bedrooms {
+model Bedroom {
   id                 Int                  @id @default(autoincrement())
   description        String
   lowSeasonPrice     Int
@@ -98,9 +100,9 @@ model Bedrooms {
   slug               String               @unique
   typeBedroomId      Int?
   galleryImages      BedroomImages[]
-  Seasons            Seasons?             @relation(fields: [seasonsId], references: [id])
+  Season             Season?              @relation(fields: [seasonsId], references: [id])
   TypeBedrooms       TypeBedrooms?        @relation(fields: [typeBedroomId], references: [id])
-  BedroomsPromotions BedroomsPromotions[]
+  BedroomsPromotions BedroomsPromotion[]
   ReservationDetails ReservationDetails[]
   Testimonial        Testimonial[]
 }
@@ -113,16 +115,16 @@ model BedroomImages {
   fileName     String
   mimeType     String
   imageContent String?
-  bedroom      Bedrooms @relation(fields: [bedroomId], references: [id])
+  bedroom      Bedroom  @relation(fields: [bedroomId], references: [id])
 }
 
 model TypeBedrooms {
-  id          Int        @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   nameType    String
   description String
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  Bedrooms    Bedrooms[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  Bedrooms    Bedroom[]
 }
 
 model UserImage {
@@ -142,16 +144,16 @@ model Promotions {
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   seasonId           Int
-  BedroomsPromotions BedroomsPromotions[]
-  seasons            Seasons              @relation(fields: [seasonId], references: [id])
+  BedroomsPromotions BedroomsPromotion[]
+  seasons            Season               @relation(fields: [seasonId], references: [id])
   ReservationDetails ReservationDetails[]
 }
 
-model BedroomsPromotions {
+model BedroomsPromotion {
   id          Int        @id @default(autoincrement())
   bedroomId   Int
   promotionId Int
-  bedroom     Bedrooms   @relation(fields: [bedroomId], references: [id])
+  bedroom     Bedroom    @relation(fields: [bedroomId], references: [id])
   promotion   Promotions @relation(fields: [promotionId], references: [id])
 
   @@unique([bedroomId, promotionId])
@@ -181,7 +183,7 @@ model ReservationDetails {
   created_at     DateTime    @default(now())
   bedrooms_id    Int
   guestQuantity  Int
-  Bedrooms       Bedrooms    @relation(fields: [bedrooms_id], references: [id])
+  Bedrooms       Bedroom     @relation(fields: [bedrooms_id], references: [id])
   Promotions     Promotions? @relation(fields: [promotion_id], references: [id])
   Reservation    Reservation @relation(fields: [reservation_id], references: [id])
 }
