@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { InvoiceActions } from "./components/deleteInvoices";
 
 export default async function InvoicesPage() {
-  const invoices = await prisma.invoce.findMany({
+  const invoices = await prisma.invoice.findMany({
     include: { invoceDetails: true },
     orderBy: { id: "desc" },
   });

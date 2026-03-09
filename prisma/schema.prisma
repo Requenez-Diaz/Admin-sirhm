@@ -67,20 +67,20 @@ model Seasons {
   Promotions Promotions[]
 }
 
-model Invoce {
+model Invoice {
   id            Int             @id @default(autoincrement())
   clientId      Int
   date          DateTime
-  invoceDetails invoceDetails[]
+  invoceDetails InvoceDetails[]
 }
 
-model invoceDetails {
-  id       Int    @id @default(autoincrement())
+model InvoceDetails {
+  id       Int     @id @default(autoincrement())
   invoceId Int
   item     String
   price    Int
   amount   Int
-  invoce   Invoce @relation(fields: [invoceId], references: [id])
+  Invoice  Invoice @relation(fields: [invoceId], references: [id])
 }
 
 model Bedrooms {

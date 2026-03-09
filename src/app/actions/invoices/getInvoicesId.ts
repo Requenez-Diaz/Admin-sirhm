@@ -6,7 +6,7 @@ export async function getFullInvoiceDetail(id: string) {
   try {
     const invoiceId = parseInt(id);
 
-    const invoice = await prisma.invoce.findUnique({
+    const invoice = await prisma.invoice.findUnique({
       where: { id: invoiceId },
       include: { invoceDetails: true },
     });

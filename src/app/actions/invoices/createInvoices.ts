@@ -7,7 +7,7 @@ export async function createInvoice(data: { clientId: number; items: any[] }) {
   try {
     const newInvoice = await prisma.$transaction(async (tx) => {
       // Creamos la factura en la tabla 'Invoce'
-      const invoice = await tx.invoce.create({
+      const invoice = await tx.invoice.create({
         data: {
           clientId: data.clientId,
           date: new Date(),

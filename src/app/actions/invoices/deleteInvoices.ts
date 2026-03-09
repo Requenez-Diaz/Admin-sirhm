@@ -11,7 +11,7 @@ export async function deleteInvoice(id: number) {
         where: { invoceId: id },
       });
       // 2. Borrar la factura
-      await tx.invoce.delete({
+      await tx.invoice.delete({
         where: { id },
       });
     });

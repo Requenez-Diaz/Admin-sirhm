@@ -10,7 +10,7 @@ export async function updateInvoice(
   try {
     await prisma.$transaction(async (tx) => {
       // 1. Actualizamos el cliente o la fecha de la factura principal
-      await tx.invoce.update({
+      await tx.invoice.update({
         where: { id },
         data: {
           clientId: data.clientId,

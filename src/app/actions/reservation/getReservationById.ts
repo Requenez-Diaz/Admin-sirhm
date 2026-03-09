@@ -37,7 +37,7 @@ export interface ReservationDTO {
 }
 
 export const getReservationById = async (
-  id: number
+  id: number,
 ): Promise<ReservationDTO | null> => {
   try {
     const reservation = await prisma.reservation.findUnique({
@@ -82,7 +82,7 @@ export const getReservationById = async (
     if (!reservation) return null;
 
     // Check if there's an invoice for this client created at or after the reservation date
-    const invoice = await prisma.invoce.findFirst({
+    const invoice = await prisma.invoice.findFirst({
       where: {
         clientId: reservation.user_id,
         date: {
@@ -106,10 +106,7 @@ export const getReservationById = async (
       ? new Date(Math.max(...ends.map((d) => new Date(d).getTime())))
       : null;
 
-    const guests = details.reduce(
-      (acc, d) => acc + (d.guestQuantity ?? 0),
-      0
-    );
+    const guests = details.reduce((acc, d) => acc + (d.guestQuantity ?? 0), 0);
 
     const uniqueBedroomIds = new Set<number>();
     const bedroomNamesSet = new Set<string>();
@@ -121,7 +118,12 @@ export const getReservationById = async (
 
       const nights =
         start && end
-          ? Math.max(0, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)))
+          ? Math.max(
+              0,
+              Math.ceil(
+                (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
+              ),
+            )
           : 0;
 
       const subtotal = d.price ?? 0;
@@ -138,7 +140,10 @@ export const getReservationById = async (
       const highPrice = d.Bedrooms?.highSeasonPrice ?? 0;
 
       let seasonName = "BAJA";
-      if (highPrice > 0 && Math.abs(price - highPrice) < Math.abs(price - lowPrice)) {
+      if (
+        highPrice > 0 &&
+        Math.abs(price - highPrice) < Math.abs(price - lowPrice)
+      ) {
         seasonName = "ALTA";
       }
 
@@ -151,7 +156,7 @@ export const getReservationById = async (
         image: firstImage,
         nights: nights,
         subtotal: subtotal,
-        seasonName: seasonName
+        seasonName: seasonName,
       };
     });
 
@@ -165,9 +170,7 @@ export const getReservationById = async (
       if (code) promoSet.add(code);
     });
 
-    const offerts = promoSet.size
-      ? Array.from(promoSet).join(", ")
-      : null;
+    const offerts = promoSet.size ? Array.from(promoSet).join(", ") : null;
 
     const promotionId =
       details.find((d) => d.promotion_id != null)?.promotion_id ?? null;
@@ -176,7 +179,7 @@ export const getReservationById = async (
     const [firstName, ...lastParts] = username.split(" ");
     const lastName = lastParts.join(" ");
 
-    const imageUrl = roomDetails.find(r => r.image)?.image ?? null;
+    const imageUrl = roomDetails.find((r) => r.image)?.image ?? null;
 
     return {
       id: reservation.id,

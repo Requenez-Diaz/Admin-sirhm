@@ -56,7 +56,7 @@ export const getReservations = async (): Promise<ReservationRow[]> => {
       },
     });
 
-    const invoices = await prisma.invoce.findMany({
+    const invoices = await prisma.invoice.findMany({
       where: {
         clientId: { in: reservations.map((r) => r.user_id) },
       },
@@ -66,7 +66,9 @@ export const getReservations = async (): Promise<ReservationRow[]> => {
       const details = reservation.ReservationDetails ?? [];
 
       // Extract and filter dates
-      const starts = details.map((d) => d.dateStart).filter((d): d is Date => !!d);
+      const starts = details
+        .map((d) => d.dateStart)
+        .filter((d): d is Date => !!d);
       const ends = details.map((d) => d.dateEnd).filter((d): d is Date => !!d);
 
       const minStart = starts.length
@@ -78,7 +80,10 @@ export const getReservations = async (): Promise<ReservationRow[]> => {
         : null;
 
       // Calculate totals
-      const guests = details.reduce((acc, d) => acc + (d.guestQuantity ?? 0), 0);
+      const guests = details.reduce(
+        (acc, d) => acc + (d.guestQuantity ?? 0),
+        0,
+      );
 
       const uniqueBedroomIds = new Set<number>();
       const bedroomTypesSet = new Set<string>();
@@ -104,12 +109,14 @@ export const getReservations = async (): Promise<ReservationRow[]> => {
       // Total Price Calculation (Historic)
       const totalPrice = details.reduce((acc, d) => {
         const nights = calculateDuration(d.dateStart, d.dateEnd);
-        return acc + ((d.price ?? 0) * (nights || 1));
+        return acc + (d.price ?? 0) * (nights || 1);
       }, 0);
 
       // Is Invoiced Check
       const isInvoiced = invoices.some(
-        (inv) => inv.clientId === reservation.user_id && inv.date >= reservation.createdAt
+        (inv) =>
+          inv.clientId === reservation.user_id &&
+          inv.date >= reservation.createdAt,
       );
 
       return {
