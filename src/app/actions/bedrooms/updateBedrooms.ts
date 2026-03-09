@@ -29,7 +29,7 @@ export const updateBedroom = async (data: {
   const active = status === "1";
 
   try {
-    await prisma.bedrooms.update({
+    await prisma.bedroom.update({
       where: {
         id: parseInt(bedroomsId),
       },

@@ -25,16 +25,16 @@ export async function deleteBedrooms(formData: FormData) {
       // await tx.bedroomsPromotions.deleteMany({ where: { bedroomId: id } });
 
       // 2) Eliminar la habitación
-      await tx.bedrooms.delete({ where: { id } });
+      await tx.bedroom.delete({ where: { id } });
 
       // 3) Renumerar numberBedroom
-      const bedrooms = await tx.bedrooms.findMany({
+      const bedrooms = await tx.bedroom.findMany({
         orderBy: { numberBedroom: "asc" },
         select: { id: true },
       });
 
       for (let i = 0; i < bedrooms.length; i++) {
-        await tx.bedrooms.update({
+        await tx.bedroom.update({
           where: { id: bedrooms[i].id },
           data: { numberBedroom: i + 1 },
         });

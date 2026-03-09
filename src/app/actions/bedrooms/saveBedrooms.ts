@@ -22,7 +22,10 @@ export async function saveBedroomsWithUpload(
   try {
     const typeBedroomId = Number(formData.get("typeBedroomId"));
     const seasonsIdRaw = formData.get("seasonsId");
-    let seasonsId: number | undefined = seasonsIdRaw && seasonsIdRaw !== "none" ? Number(seasonsIdRaw) : undefined;
+    let seasonsId: number | undefined =
+      seasonsIdRaw && seasonsIdRaw !== "none"
+        ? Number(seasonsIdRaw)
+        : undefined;
     const description = String(formData.get("description") || "").trim();
     const lowSeasonPrice = Number(formData.get("lowSeasonPrice"));
     const highSeasonPrice = Number(formData.get("highSeasonPrice"));
@@ -45,12 +48,9 @@ export async function saveBedroomsWithUpload(
     // If no seasonsId provided, try to assign the currently active season (if any)
     if (!seasonsId) {
       const now = new Date();
-      const activeSeason = await prisma.seasons.findFirst({
+      const activeSeason = await prisma.season.findFirst({
         where: {
-          AND: [
-            { dateStart: { lte: now } },
-            { dateEnd: { gte: now } },
-          ],
+          AND: [{ dateStart: { lte: now } }, { dateEnd: { gte: now } }],
         },
       });
       if (activeSeason) seasonsId = activeSeason.id;
@@ -76,7 +76,7 @@ export async function saveBedroomsWithUpload(
       return { success: false, message: "El tipo de habitación no es válido." };
     }
 
-    const exists = await prisma.bedrooms.findFirst({
+    const exists = await prisma.bedroom.findFirst({
       where: { numberBedroom },
     });
     if (exists) {
@@ -92,17 +92,17 @@ export async function saveBedroomsWithUpload(
     const galleryData =
       imageUrl && mimeType && fileName
         ? {
-          create: [
-            {
-              imageContent: imageUrl,
-              mimeType,
-              fileName,
-            },
-          ],
-        }
+            create: [
+              {
+                imageContent: imageUrl,
+                mimeType,
+                fileName,
+              },
+            ],
+          }
         : undefined;
 
-    const created = await prisma.bedrooms.create({
+    const created = await prisma.bedroom.create({
       data: {
         description,
         lowSeasonPrice,

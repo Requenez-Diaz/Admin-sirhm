@@ -9,17 +9,14 @@ export async function applyActiveSeasonToBedrooms(): Promise<ActionState> {
   try {
     const now = new Date();
 
-    const activeSeason = await prisma.seasons.findFirst({
+    const activeSeason = await prisma.season.findFirst({
       where: {
-        AND: [
-          { dateStart: { lte: now } },
-          { dateEnd: { gte: now } },
-        ],
+        AND: [{ dateStart: { lte: now } }, { dateEnd: { gte: now } }],
       },
     });
 
     if (activeSeason) {
-      await prisma.bedrooms.updateMany({
+      await prisma.bedroom.updateMany({
         data: { seasonsId: activeSeason.id },
       });
 
@@ -33,7 +30,7 @@ export async function applyActiveSeasonToBedrooms(): Promise<ActionState> {
     }
 
     // If no active season, clear seasonsId to null for all bedrooms
-    await prisma.bedrooms.updateMany({
+    await prisma.bedroom.updateMany({
       data: { seasonsId: null },
     });
 
@@ -41,7 +38,8 @@ export async function applyActiveSeasonToBedrooms(): Promise<ActionState> {
 
     return {
       success: true,
-      message: "No hay temporada activa. Se removió la temporada de las habitaciones.",
+      message:
+        "No hay temporada activa. Se removió la temporada de las habitaciones.",
     };
   } catch (error) {
     console.error("Error al aplicar temporada activa a habitaciones:", error);

@@ -20,7 +20,9 @@ export async function saveSeason(
       return new Date(y, m - 1, d);
     };
 
-    const dateStart = parseDateLocal(formData.get("dateStart") as string | null);
+    const dateStart = parseDateLocal(
+      formData.get("dateStart") as string | null,
+    );
     const dateEnd = parseDateLocal(formData.get("dateEnd") as string | null);
 
     if (!nameSeason || !dateStart || !dateEnd) {
@@ -43,17 +45,15 @@ export async function saveSeason(
     if (dateEnd < todayLocal) {
       return {
         success: false,
-        message: "No puedes aplicar una temporada que ya pasó. Solo se permiten fechas actuales o futuras.",
+        message:
+          "No puedes aplicar una temporada que ya pasó. Solo se permiten fechas actuales o futuras.",
       };
     }
 
     // validate overlapping seasons
-    const overlapping = await prisma.seasons.findFirst({
+    const overlapping = await prisma.season.findFirst({
       where: {
-        AND: [
-          { dateStart: { lte: dateEnd } },
-          { dateEnd: { gte: dateStart } },
-        ],
+        AND: [{ dateStart: { lte: dateEnd } }, { dateEnd: { gte: dateStart } }],
       },
     });
 
@@ -64,7 +64,7 @@ export async function saveSeason(
       };
     }
 
-    const created = await prisma.seasons.create({
+    const created = await prisma.season.create({
       data: {
         nameSeason,
         dateStart,

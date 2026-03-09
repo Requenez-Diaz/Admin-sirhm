@@ -7,11 +7,17 @@ export default async function HabitacionesPage() {
   // Realizamos las consultas en el servidor
   const [bedrooms, seasons, roomTypes] = await Promise.all([
     getBedrooms(),
-    prisma.seasons.findMany({
-      orderBy: { dateStart: 'asc' },
+    prisma.season.findMany({
+      orderBy: { dateStart: "asc" },
     }),
     getTypeBedrooms(),
   ]);
 
-  return <TableBedrooms bedrooms={bedrooms} seasons={seasons} roomTypes={roomTypes} />;
+  return (
+    <TableBedrooms
+      bedrooms={bedrooms}
+      seasons={seasons}
+      roomTypes={roomTypes}
+    />
+  );
 }
