@@ -58,14 +58,6 @@ model testimonials {
   User       User?     @relation(fields: [userId], references: [id])
 }
 
-model Services {
-  id          String             @id @default(uuid())
-  nameService String
-  description String
-  price       Int
-  bookings    bookingsServices[]
-}
-
 model Seasons {
   id         Int          @id @default(autoincrement())
   dateStart  DateTime
@@ -73,15 +65,6 @@ model Seasons {
   nameSeason SeasonType   @default(BAJA)
   Bedrooms   Bedrooms[]
   Promotions Promotions[]
-}
-
-model bookingsServices {
-  id         String    @id @default(uuid())
-  bookingId  Int
-  serviceId  Int
-  price      Int
-  servicesId String?
-  services   Services? @relation(fields: [servicesId], references: [id])
 }
 
 model Invoce {
