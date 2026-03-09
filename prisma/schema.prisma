@@ -22,7 +22,7 @@ model User {
   Reservation        Reservation[]
   role               Role                @relation(fields: [roleName], references: [roleName])
   UserImage          UserImage?
-  testimonials       testimonials[]
+  Testimonial        Testimonial[]
 }
 
 model Role {
@@ -42,7 +42,7 @@ model Reservation {
   ReservationDetails ReservationDetails[]
 }
 
-model testimonials {
+model Testimonial {
   id         Int       @id @default(autoincrement())
   name       String
   avatar     String
@@ -104,7 +104,7 @@ model Bedrooms {
   BedroomsPromotions BedroomsPromotions[]
   Comments           Comments[]
   ReservationDetails ReservationDetails[]
-  testimonials       testimonials[]
+  Testimonial        Testimonial[]
 }
 
 model BedroomImages {
