@@ -7,7 +7,7 @@ export async function deleteInvoice(id: number) {
   try {
     await prisma.$transaction(async (tx) => {
       // 1. Borrar detalles primero
-      await tx.invoceDetails.deleteMany({
+      await tx.invoceDetail.deleteMany({
         where: { invoceId: id },
       });
       // 2. Borrar la factura

@@ -15,9 +15,9 @@ export default async function EditInvoicePage({ params }: PageProps) {
     return notFound();
   }
 
-  const invoice = await prisma.invoce.findUnique({
+  const invoice = await prisma.invoice.findUnique({
     where: { id: id },
-    include: { invoceDetails: true },
+    include: { invoceDetail: true },
   });
 
   if (!invoice) notFound();

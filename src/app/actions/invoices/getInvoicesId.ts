@@ -8,7 +8,7 @@ export async function getFullInvoiceDetail(id: string) {
 
     const invoice = await prisma.invoice.findUnique({
       where: { id: invoiceId },
-      include: { invoceDetails: true },
+      include: { invoceDetail: true },
     });
 
     if (!invoice) return { success: false, error: "Factura no encontrada" };
@@ -33,7 +33,7 @@ export async function getFullInvoiceDetail(id: string) {
       },
     });
 
-    const total = invoice.invoceDetails.reduce(
+    const total = invoice.invoceDetail.reduce(
       (acc, item) => acc + item.price * item.amount,
       0,
     );

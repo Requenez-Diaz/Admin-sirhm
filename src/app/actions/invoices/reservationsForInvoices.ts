@@ -8,7 +8,7 @@ export async function getLastReservationByClient(
 ) {
   try {
     const whereCondition: any = {
-      status: "CONFIRMED", // Solo facturar si está confirmada
+      status: "CONFIRMED",
     };
 
     if (clientId) {

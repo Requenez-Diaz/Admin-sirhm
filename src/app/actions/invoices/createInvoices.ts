@@ -11,7 +11,7 @@ export async function createInvoice(data: { clientId: number; items: any[] }) {
         data: {
           clientId: data.clientId,
           date: new Date(),
-          invoceDetails: {
+          invoceDetail: {
             create: data.items.map((i) => ({
               item: i.item,
               price: Math.round(i.price),

@@ -7,7 +7,7 @@ import { InvoiceActions } from "./components/deleteInvoices";
 
 export default async function InvoicesPage() {
   const invoices = await prisma.invoice.findMany({
-    include: { invoceDetails: true },
+    include: { invoceDetail: true },
     orderBy: { id: "desc" },
   });
 
@@ -44,7 +44,7 @@ export default async function InvoicesPage() {
           </thead>
           <tbody className='divide-y'>
             {invoices.map((inv) => {
-              const total = inv.invoceDetails.reduce(
+              const total = inv.invoceDetail.reduce(
                 (acc, item) => acc + item.price * item.amount,
                 0,
               );

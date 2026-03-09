@@ -21,7 +21,13 @@ import { getLastReservationByClient } from "@/app/actions/invoices/reservationsF
 
 export default function NewInvoicePage() {
   return (
-    <Suspense fallback={<div className="p-10 text-center"><Loader2 className="animate-spin h-8 w-8 mx-auto" /></div>}>
+    <Suspense
+      fallback={
+        <div className='p-10 text-center'>
+          <Loader2 className='animate-spin h-8 w-8 mx-auto' />
+        </div>
+      }
+    >
       <InvoiceForm />
     </Suspense>
   );
@@ -31,7 +37,7 @@ function InvoiceForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [clientId, setClientId] = useState("");
-  const [clientName, setClientName] = useState(""); // Nuevo estado para nombre
+  const [clientName, setClientName] = useState("");
   const [items, setItems] = useState<any[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [loadingRes, setLoadingRes] = useState(false);
@@ -44,12 +50,15 @@ function InvoiceForm() {
     }
   }, [searchParams]);
 
-  // We need a ref to avoid calling it multiple times or on every render
   useEffect(() => {
-    if (clientId && searchParams.get("clientId") && items.length === 0 && !loadingRes) {
+    if (
+      clientId &&
+      searchParams.get("clientId") &&
+      items.length === 0 &&
+      !loadingRes
+    ) {
       fetchLastReservation(clientId);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientId]);
 
   const fetchLastReservation = async (overrideClientId?: string) => {
@@ -69,7 +78,7 @@ function InvoiceForm() {
         Math.ceil(
           (new Date(detail.dateEnd).getTime() -
             new Date(detail.dateStart).getTime()) /
-          (1000 * 60 * 60 * 24),
+            (1000 * 60 * 60 * 24),
         ) || 1;
 
       const tipoHab = detail.Bedrooms.TypeBedrooms?.nameType || "Estándar";
@@ -136,7 +145,7 @@ function InvoiceForm() {
                 value={clientId}
                 onChange={(e) => {
                   setClientId(e.target.value);
-                  if (e.target.value) setClientName(""); // Limpia el nombre si escribes ID
+                  if (e.target.value) setClientName("");
                 }}
               />
             </div>
@@ -154,7 +163,7 @@ function InvoiceForm() {
                   value={clientName}
                   onChange={(e) => {
                     setClientName(e.target.value);
-                    if (e.target.value) setClientId(""); // Limpia el ID si escribes nombre
+                    if (e.target.value) setClientId("");
                   }}
                 />
                 <User className='absolute left-3 top-2.5 h-4 w-4 text-muted-foreground' />
@@ -177,7 +186,6 @@ function InvoiceForm() {
         </CardContent>
       </Card>
 
-      {/* RESULTADO DE FACTURA (Tus estilos originales) */}
       {items.length > 0 && (
         <Card className='border-primary/20 bg-primary/5 shadow-2xl animate-in fade-in zoom-in-95 duration-300'>
           <CardContent className='p-8 space-y-6'>

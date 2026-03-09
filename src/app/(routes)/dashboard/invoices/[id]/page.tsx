@@ -155,7 +155,7 @@ export default function InvoiceDetailPage({ params }: PageProps) {
                   </tr>
                 </thead>
                 <tbody className='divide-y divide-border/50'>
-                  {data.invoceDetails.map((item: any) => (
+                  {data.invoceDetail.map((item: any) => (
                     <tr
                       key={item.id}
                       className='hover:bg-muted/20 transition-colors'

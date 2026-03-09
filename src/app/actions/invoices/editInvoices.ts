@@ -19,12 +19,12 @@ export async function updateInvoice(
       });
 
       // 2. Eliminamos los detalles anteriores para evitar duplicidad o conflictos
-      await tx.invoceDetails.deleteMany({
+      await tx.invoceDetail.deleteMany({
         where: { invoceId: id },
       });
 
       // 3. Insertamos los nuevos detalles editados
-      await tx.invoceDetails.createMany({
+      await tx.invoceDetail.createMany({
         data: data.items.map((i) => ({
           invoceId: id,
           item: i.item,
