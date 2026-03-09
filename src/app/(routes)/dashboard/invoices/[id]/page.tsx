@@ -130,15 +130,13 @@ export default function InvoiceDetailPage({ params }: PageProps) {
                     dateStyle: "long",
                   })}
                 </p>
-                {data.reservation?.ReservationDetails?.[0] && (
-                  <div className='flex justify-start md:justify-end'>
-                    <Badge className='bg-primary text-primary-foreground font-bold uppercase text-[10px]'>
-                      Habitación #
-                      {
-                        data.reservation.ReservationDetails[0].Bedrooms
-                          .numberBedroom
-                      }
-                    </Badge>
+                {data.reservation?.ReservationDetails?.length > 0 && (
+                  <div className='flex flex-wrap justify-start md:justify-end gap-1'>
+                    {data.reservation.ReservationDetails.map((det: any, idx: number) => (
+                      <Badge key={idx} className='bg-primary text-primary-foreground font-bold uppercase text-[10px]'>
+                        Habitación #{det.Bedrooms.numberBedroom}
+                      </Badge>
+                    ))}
                   </div>
                 )}
               </div>

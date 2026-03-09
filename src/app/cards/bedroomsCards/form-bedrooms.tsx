@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import ImageUpload from "./upload-file";
-import { TypeBedrooms, Seasons } from "@prisma/client";
+import { TypeBedrooms, Season } from "@prisma/client";
 
 type ActionState = { success: boolean; message: string };
 
@@ -33,7 +33,7 @@ interface FormBedroomsProps {
     formData: FormData
   ) => Promise<ActionState>;
   roomTypes: TypeBedrooms[];
-  seasons: Seasons[];
+  seasons: Season[];
 }
 
 export function FormBedrooms({ saveAction, roomTypes, seasons }: FormBedroomsProps) {

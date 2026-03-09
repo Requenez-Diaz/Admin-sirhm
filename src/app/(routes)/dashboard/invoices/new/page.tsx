@@ -73,27 +73,30 @@ function InvoiceForm() {
     const res = await getLastReservationByClient(idToSearch, clientName);
 
     if (res.success && res.data) {
-      const detail = res.data.ReservationDetails[0];
-      const noches =
-        Math.ceil(
-          (new Date(detail.dateEnd).getTime() -
-            new Date(detail.dateStart).getTime()) /
+      const allItems = res.data.ReservationDetails.map((detail: any) => {
+        const noches =
+          Math.ceil(
+            (new Date(detail.dateEnd).getTime() -
+              new Date(detail.dateStart).getTime()) /
             (1000 * 60 * 60 * 24),
-        ) || 1;
+          ) || 1;
 
-      const tipoHab = detail.Bedrooms.TypeBedrooms?.nameType || "Estándar";
-      const precioReserva = detail.Bedrooms.lowSeasonPrice || 0;
+        const tipoHab = detail.Bedrooms.TypeBedrooms?.nameType || "Estándar";
 
-      setClientId(res.data.user_id.toString());
+        // El campo 'price' ya es el subtotal (Precio * Noches) según nuestra estandarización
+        const subtotalReserva = detail.price || 0;
+        const precioPorNoche = noches > 0 ? subtotalReserva / noches : subtotalReserva;
 
-      setItems([
-        {
+        return {
           item: `ESTANCIA: HAB #${detail.Bedrooms.numberBedroom} (${tipoHab})`,
-          price: precioReserva,
+          price: precioPorNoche,
           amount: noches,
           type: tipoHab,
-        },
-      ]);
+        };
+      });
+
+      setClientId(res.data.user_id.toString());
+      setItems(allItems);
       toast.success(
         `Reserva encontrada: ${res.data.User?.username || "Cliente"}`,
       );
@@ -197,36 +200,54 @@ function InvoiceForm() {
                 >
                   Reserva Confirmada
                 </Badge>
-                <h2 className='text-xl font-bold'>{items[0].item}</h2>
-                <div className='flex items-center gap-2 text-muted-foreground text-sm'>
-                  <BedDouble className='h-4 w-4' />
-                  <span>Tipo: {items[0].type}</span>
-                </div>
+                {items.length === 1 ? (
+                  <>
+                    <h2 className='text-xl font-bold'>{items[0].item}</h2>
+                    <div className='flex items-center gap-2 text-muted-foreground text-sm'>
+                      <BedDouble className='h-4 w-4' />
+                      <span>Tipo: {items[0].type}</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <h2 className='text-xl font-bold uppercase'>Varias Habitaciones ({items.length})</h2>
+                    <div className='flex flex-col gap-1'>
+                      {items.map((it: any, idx: number) => (
+                        <div key={idx} className='flex items-center gap-2 text-muted-foreground text-xs'>
+                          <BedDouble className='h-3 w-3' />
+                          <span>{it.item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
               <div className='text-right'>
                 <p className='text-xs font-bold uppercase text-muted-foreground'>
                   Total a Pagar
                 </p>
                 <p className='text-3xl font-black text-primary'>
-                  C$ {(items[0].price * items[0].amount).toLocaleString()}
+                  C$ {items.reduce((acc, i) => acc + i.price * i.amount, 0).toLocaleString()}
                 </p>
               </div>
             </div>
 
             <Separator className='bg-primary/20 h-[1px]' />
 
-            <div className='grid grid-cols-2 gap-4 text-sm'>
-              <div className='p-4 rounded-lg bg-background/50 border'>
-                <p className='text-muted-foreground'>Precio por Noche</p>
-                <p className='font-bold text-foreground'>
-                  C$ {items[0].price.toLocaleString()}
-                </p>
+            {items.length === 1 && (
+              <div className='grid grid-cols-2 gap-4 text-sm'>
+                <div className='p-4 rounded-lg bg-background/50 border'>
+                  <p className='text-muted-foreground'>Precio por Noche</p>
+                  <p className='font-bold text-foreground'>
+                    C$ {items[0].price.toLocaleString()}
+                  </p>
+                </div>
+                <div className='p-4 rounded-lg bg-background/50 border'>
+                  <p className='text-muted-foreground'>Cant. Noches</p>
+                  <p className='font-bold text-foreground'>{items[0].amount}</p>
+                </div>
               </div>
-              <div className='p-4 rounded-lg bg-background/50 border'>
-                <p className='text-muted-foreground'>Cant. Noches</p>
-                <p className='font-bold text-foreground'>{items[0].amount}</p>
-              </div>
-            </div>
+            )}
 
             <Button
               className='w-full py-6 text-lg font-bold uppercase tracking-widest'

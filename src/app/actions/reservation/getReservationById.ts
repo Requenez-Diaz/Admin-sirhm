@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/db";
 import { BookingsStatus } from "@prisma/client";
+import { calculateDuration } from "./calculateDuration";
 
 export interface RoomDetailDTO {
   id: number;
@@ -116,15 +117,7 @@ export const getReservationById = async (
       const start = d.dateStart ? new Date(d.dateStart) : minStart;
       const end = d.dateEnd ? new Date(d.dateEnd) : maxEnd;
 
-      const nights =
-        start && end
-          ? Math.max(
-              0,
-              Math.ceil(
-                (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
-              ),
-            )
-          : 0;
+      const nights = calculateDuration(start, end);
 
       const subtotal = d.price ?? 0;
       const price = nights > 0 ? subtotal / nights : subtotal;

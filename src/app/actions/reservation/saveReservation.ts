@@ -3,6 +3,7 @@
 import prisma from "@/lib/db";
 import { BookingsStatus, Status } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { calculateDuration } from "./calculateDuration";
 
 export const saveReservation = async (data: {
   name: string;
@@ -112,15 +113,20 @@ export const saveReservation = async (data: {
       // Repartimos los huéspedes equitativamente o según capacidad (aquí lógica simple)
       const guestsPerRoom = Math.ceil(guests / rooms);
 
-      const detailsData = availableRooms.slice(0, rooms).map((room) => ({
-        reservation_id: reservation.id,
-        bedrooms_id: room.id,
-        dateStart: normArrivalDate,
-        dateEnd: normDepartureDate,
-        status: Status.PENDING,
-        price: room.lowSeasonPrice, // Podría mejorarse con lógica de temporadas
-        guestQuantity: guestsPerRoom,
-      }));
+      const nights = calculateDuration(normArrivalDate, normDepartureDate);
+
+      const detailsData = availableRooms.slice(0, rooms).map((room) => {
+        const subtotalPerRoom = (room.lowSeasonPrice ?? 0) * (nights || 1);
+        return {
+          reservation_id: reservation.id,
+          bedrooms_id: room.id,
+          dateStart: normArrivalDate,
+          dateEnd: normDepartureDate,
+          status: Status.PENDING,
+          price: subtotalPerRoom, // Guardamos el subtotal (Noches * Precio)
+          guestQuantity: guestsPerRoom,
+        };
+      });
 
       await tx.reservationDetails.createMany({
         data: detailsData

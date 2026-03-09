@@ -29,14 +29,14 @@ export async function getReservationReport(
     // Ajustamos el "end" para que sea el final del día si existe
     const adjustedEnd = end
       ? new Date(
-          end.getFullYear(),
-          end.getMonth(),
-          end.getDate(),
-          23,
-          59,
-          59,
-          999,
-        )
+        end.getFullYear(),
+        end.getMonth(),
+        end.getDate(),
+        23,
+        59,
+        59,
+        999,
+      )
       : null;
 
     const reservations = await prisma.reservation.findMany({
@@ -44,17 +44,17 @@ export async function getReservationReport(
         status: "CONFIRMED", // Normalmente solo contamos las confirmadas en reportes de ingresos
         ...(start || adjustedEnd
           ? {
-              ReservationDetails: {
-                some: {
-                  AND: [
-                    ...(start ? [{ dateEnd: { gt: start } }] : []),
-                    ...(adjustedEnd
-                      ? [{ dateStart: { lt: adjustedEnd } }]
-                      : []),
-                  ],
-                },
+            ReservationDetails: {
+              some: {
+                AND: [
+                  ...(start ? [{ dateEnd: { gt: start } }] : []),
+                  ...(adjustedEnd
+                    ? [{ dateStart: { lt: adjustedEnd } }]
+                    : []),
+                ],
               },
-            }
+            },
+          }
           : {}),
       },
       include: {

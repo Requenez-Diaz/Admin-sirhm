@@ -10,16 +10,16 @@ import {
 } from "@/components/ui/dialog";
 import Icon from "@/components/ui/icons/icons";
 import { FormEditBedrooms } from "./form-edit-bedrooms";
-import { Seasons, Bedrooms, BedroomImages, TypeBedrooms } from "@prisma/client";
+import { Season, Bedroom, BedroomImages, TypeBedrooms } from "@prisma/client";
 import { useState } from "react";
 
-type BedroomsWithImages = Bedrooms & {
+type BedroomsWithImages = Bedroom & {
   galleryImages: BedroomImages[];
 };
 
 interface EditBedroomsProps {
   bedroom: BedroomsWithImages;
-  seasons: Seasons[];
+  seasons: Season[];
   roomTypes: TypeBedrooms[];
 }
 

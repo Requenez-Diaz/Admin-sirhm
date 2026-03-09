@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { calculateDuration } from "./calculateDuration";
 
 export const updateReservation = async (data: {
   reservationId: string;
@@ -52,26 +53,32 @@ export const updateReservation = async (data: {
       return { success: false, message: "El tipo de habitación no es válido." };
     }
 
-    await prisma.$transaction([
-      prisma.user.update({
+    await prisma.$transaction(async (tx) => {
+      // 1. Actualizar datos del usuario
+      await tx.user.update({
         where: { id: reservation.user_id },
         data: {
           username: name,
           email: email,
         },
-      }),
+      });
 
+      // 2. Calcular nuevas noches y subtotal
+      const nights = calculateDuration(normArrivalDate, normDepartureDate);
+      const subtotal = (bedroom.lowSeasonPrice ?? 0) * (nights || 1);
 
-      prisma.reservationDetails.updateMany({
+      // 3. Actualizar todos los detalles de la reservación
+      await tx.reservationDetails.updateMany({
         where: { reservation_id: parseInt(reservationId) },
         data: {
           guestQuantity: parseInt(guests),
           dateStart: normArrivalDate,
           dateEnd: normDepartureDate,
           bedrooms_id: bedroom.id,
+          price: subtotal, // Guardamos el subtotal (Noches * Precio)
         },
-      }),
-    ]);
+      });
+    });
 
     revalidatePath("/dashboard/bookings");
     return {
