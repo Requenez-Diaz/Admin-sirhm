@@ -4,8 +4,8 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 const parseSafeDate = (d: string | Date) => {
-  const iso = typeof d === 'string' ? d : new Date(d).toISOString();
-  const [y, m, day] = iso.split('T')[0].split('-').map(Number);
+  const iso = typeof d === "string" ? d : new Date(d).toISOString();
+  const [y, m, day] = iso.split("T")[0].split("-").map(Number);
   return new Date(y, m - 1, day, 0, 0, 0, 0);
 };
 
@@ -21,27 +21,41 @@ export async function getReservationReport(
   endDate?: string,
 ) {
   try {
-    const totalRoomsCount = await prisma.bedrooms.count();
+    const totalRoomsCount = await prisma.bedroom.count();
 
     const start = startDate ? parseSafeDate(startDate) : null;
     const end = endDate ? parseSafeDate(endDate) : null;
 
     // Ajustamos el "end" para que sea el final del día si existe
-    const adjustedEnd = end ? new Date(end.getFullYear(), end.getMonth(), end.getDate(), 23, 59, 59, 999) : null;
+    const adjustedEnd = end
+      ? new Date(
+          end.getFullYear(),
+          end.getMonth(),
+          end.getDate(),
+          23,
+          59,
+          59,
+          999,
+        )
+      : null;
 
     const reservations = await prisma.reservation.findMany({
       where: {
         status: "CONFIRMED", // Normalmente solo contamos las confirmadas en reportes de ingresos
-        ...(start || adjustedEnd ? {
-          ReservationDetails: {
-            some: {
-              AND: [
-                ...(start ? [{ dateEnd: { gt: start } }] : []),
-                ...(adjustedEnd ? [{ dateStart: { lt: adjustedEnd } }] : []),
-              ]
+        ...(start || adjustedEnd
+          ? {
+              ReservationDetails: {
+                some: {
+                  AND: [
+                    ...(start ? [{ dateEnd: { gt: start } }] : []),
+                    ...(adjustedEnd
+                      ? [{ dateStart: { lt: adjustedEnd } }]
+                      : []),
+                  ],
+                },
+              },
             }
-          }
-        } : {})
+          : {}),
       },
       include: {
         User: true,
@@ -55,13 +69,10 @@ export async function getReservationReport(
     let globalTotalRevenue = 0;
     const uniqueOccupiedRooms = new Set();
     const reservationsList = reservations.map((res) => {
-      const totalMontoReserva = res.ReservationDetails.reduce(
-        (acc, d) => {
-          const nights = calculateDuration(d.dateStart, d.dateEnd);
-          return acc + (d.price * (nights || 1)); // Si es 0 noches (mismo día), contamos 1 o según lógica negocio
-        },
-        0,
-      );
+      const totalMontoReserva = res.ReservationDetails.reduce((acc, d) => {
+        const nights = calculateDuration(d.dateStart, d.dateEnd);
+        return acc + d.price * (nights || 1); // Si es 0 noches (mismo día), contamos 1 o según lógica negocio
+      }, 0);
       globalTotalRevenue += totalMontoReserva;
       res.ReservationDetails.forEach((d) =>
         uniqueOccupiedRooms.add(d.bedrooms_id),
