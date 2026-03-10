@@ -23,7 +23,7 @@ export function MenuDrop() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="relative h-10 w-10 rounded-full focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-transform duration-200 hover:scale-105"
+          className="relative h-10 w-10 rounded-full overflow-hidden focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-transform duration-200 hover:scale-105 p-0"
         >
           {/* No pasamos userId */}
           <AvatarNavigations />
@@ -34,7 +34,7 @@ export function MenuDrop() {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
-              {session.data?.user?.name || session.data?.user?.username}
+              {session.data?.user?.name || session.data?.user?.name}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
               {session.data?.user?.email}

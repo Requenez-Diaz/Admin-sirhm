@@ -31,7 +31,7 @@ const AvatarNavigations = () => {
     : "U";
 
   return (
-    <Avatar className="w-12 h-12">
+    <Avatar className="w-9 h-9">
       {userImageSrc ? (
         <AvatarImage src={userImageSrc} alt="User Avatar" />
       ) : (
