@@ -10,6 +10,7 @@ export type ReservationRow = {
   id: number;
   status: BookingStatus;
   userName: string;
+  lastName: string;
   email: string | null;
   guests: number;
   rooms: number;
@@ -115,10 +116,15 @@ export const getReservations = async (): Promise<ReservationRow[]> => {
           inv.date >= reservation.createdAt,
       );
 
+      const fullName = reservation.User?.username ?? "";
+      const [firstName, ...lastParts] = fullName.split(" ");
+      const lastName = lastParts.join(" ");
+
       return {
         id: reservation.id,
         status: reservation.status as BookingStatus,
-        userName: reservation.User?.username ?? "Usuario desconocido",
+        userName: firstName || fullName || "Usuario desconocido",
+        lastName: lastName || "—",
         email: reservation.User?.email ?? null,
         guests,
         rooms,

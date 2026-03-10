@@ -11,11 +11,11 @@ import {
 import Icon from "@/components/ui/icons/icons";
 import { FormBedrooms } from "./form-bedrooms";
 import { saveBedroomsWithUpload } from "@/app/actions/bedrooms/saveBedrooms";
-import { TypeBedrooms, Seasons } from "@prisma/client";
+import { TypeBedrooms, Season } from "@prisma/client";
 
 interface AddBedroomsProps {
   roomTypes: TypeBedrooms[];
-  seasons: Seasons[];
+  seasons: Season[];
 }
 
 export function AddBedrooms({ roomTypes, seasons }: AddBedroomsProps) {

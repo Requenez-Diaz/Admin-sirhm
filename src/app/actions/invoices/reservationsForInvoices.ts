@@ -3,7 +3,7 @@
 import prisma from "@/lib/db";
 
 export async function getLastReservationByClient(
-  clientId?: string,
+  reservationId?: string,
   clientName?: string,
 ) {
   try {
@@ -11,8 +11,8 @@ export async function getLastReservationByClient(
       status: "CONFIRMED",
     };
 
-    if (clientId) {
-      whereCondition.user_id = parseInt(clientId);
+    if (reservationId) {
+      whereCondition.id = parseInt(reservationId);
     } else if (clientName) {
       whereCondition.User = {
         username: {

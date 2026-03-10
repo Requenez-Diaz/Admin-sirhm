@@ -36,33 +36,34 @@ export default function NewInvoicePage() {
 function InvoiceForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [clientId, setClientId] = useState("");
+  const [reservationId, setReservationId] = useState("");
   const [clientName, setClientName] = useState("");
+  const [clientId, setClientId] = useState<number | null>(null);
   const [items, setItems] = useState<any[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [loadingRes, setLoadingRes] = useState(false);
 
   // Auto-load from URL params
   useEffect(() => {
-    const defaultClientId = searchParams.get("clientId");
-    if (defaultClientId) {
-      setClientId(defaultClientId);
+    const defaultReservationId = searchParams.get("reservationId");
+    if (defaultReservationId) {
+      setReservationId(defaultReservationId);
     }
   }, [searchParams]);
 
   useEffect(() => {
     if (
-      clientId &&
-      searchParams.get("clientId") &&
+      reservationId &&
+      searchParams.get("reservationId") &&
       items.length === 0 &&
       !loadingRes
     ) {
-      fetchLastReservation(clientId);
+      fetchLastReservation(reservationId);
     }
-  }, [clientId]);
+  }, [reservationId]);
 
-  const fetchLastReservation = async (overrideClientId?: string) => {
-    const idToSearch = overrideClientId || clientId;
+  const fetchLastReservation = async (overrideReservationId?: string) => {
+    const idToSearch = overrideReservationId || reservationId;
     if (!idToSearch && !clientName) {
       toast.error("Ingresa un ID o un Nombre para buscar");
       return;
@@ -95,7 +96,8 @@ function InvoiceForm() {
         };
       });
 
-      setClientId(res.data.user_id.toString());
+      setReservationId(res.data.id.toString());
+      setClientId(res.data.user_id);
       setItems(allItems);
       toast.success(
         `Reserva encontrada: ${res.data.User?.username || "Cliente"}`,
@@ -110,7 +112,7 @@ function InvoiceForm() {
   const handleFinalSave = async () => {
     if (items.length === 0 || !clientId) return;
     setIsSaving(true);
-    const result = await createInvoice({ clientId: parseInt(clientId), items });
+    const result = await createInvoice({ clientId, items });
     if (result.success) {
       router.push(`/dashboard/invoices/${result.id}`);
     } else {
@@ -139,15 +141,15 @@ function InvoiceForm() {
             {/* INPUT ID */}
             <div className='space-y-2'>
               <label className='text-[10px] font-bold uppercase opacity-60 pl-1'>
-                Por ID Cliente
+                Por ID Reservación
               </label>
               <Input
                 type='number'
-                placeholder='Ej: 15'
+                placeholder='Ej: 4'
                 className='bg-background border-input'
-                value={clientId}
+                value={reservationId}
                 onChange={(e) => {
-                  setClientId(e.target.value);
+                  setReservationId(e.target.value);
                   if (e.target.value) setClientName("");
                 }}
               />
@@ -166,7 +168,10 @@ function InvoiceForm() {
                   value={clientName}
                   onChange={(e) => {
                     setClientName(e.target.value);
-                    if (e.target.value) setClientId("");
+                    if (e.target.value) {
+                      setReservationId("");
+                      setClientId(null);
+                    }
                   }}
                 />
                 <User className='absolute left-3 top-2.5 h-4 w-4 text-muted-foreground' />
