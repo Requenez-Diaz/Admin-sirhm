@@ -9,47 +9,43 @@ const parseSafeDate = (d: string | Date) => {
   return new Date(y, m - 1, day, 0, 0, 0, 0);
 };
 
-
-
 export async function getReservationReport(
   startDate?: string,
   endDate?: string,
 ) {
   try {
     const totalRoomsCount = await prisma.bedroom.count();
-
     const start = startDate ? parseSafeDate(startDate) : null;
     const end = endDate ? parseSafeDate(endDate) : null;
 
-    // Ajustamos el "end" para que sea el final del día si existe
     const adjustedEnd = end
       ? new Date(
-        end.getFullYear(),
-        end.getMonth(),
-        end.getDate(),
-        23,
-        59,
-        59,
-        999,
-      )
+          end.getFullYear(),
+          end.getMonth(),
+          end.getDate(),
+          23,
+          59,
+          59,
+          999,
+        )
       : null;
 
     const reservations = await prisma.reservation.findMany({
       where: {
-        status: "CONFIRMED", // Normalmente solo contamos las confirmadas en reportes de ingresos
+        status: "CONFIRMED",
         ...(start || adjustedEnd
           ? {
-            ReservationDetails: {
-              some: {
-                AND: [
-                  ...(start ? [{ dateEnd: { gt: start } }] : []),
-                  ...(adjustedEnd
-                    ? [{ dateStart: { lt: adjustedEnd } }]
-                    : []),
-                ],
+              ReservationDetails: {
+                some: {
+                  AND: [
+                    ...(adjustedEnd
+                      ? [{ dateStart: { lte: adjustedEnd } }]
+                      : []),
+                    ...(start ? [{ dateEnd: { gte: start } }] : []),
+                  ],
+                },
               },
-            },
-          }
+            }
           : {}),
       },
       include: {
@@ -63,17 +59,28 @@ export async function getReservationReport(
 
     let globalTotalRevenue = 0;
     const uniqueOccupiedRooms = new Set();
-    const reservationsList = reservations.map((res) => {
-      const totalMontoReserva = res.ReservationDetails.reduce((acc, d) => {
-        return acc + (d.price ?? 0);
-      }, 0);
+
+    const data = reservations.map((res) => {
+      const totalMontoReserva = res.ReservationDetails.reduce(
+        (acc, d) => acc + (d.price ?? 0),
+        0,
+      );
       globalTotalRevenue += totalMontoReserva;
       res.ReservationDetails.forEach((d) =>
         uniqueOccupiedRooms.add(d.bedrooms_id),
       );
+
+      const firstDetail = res.ReservationDetails[0];
+      const estancia = firstDetail
+        ? `${new Date(firstDetail.dateStart).toLocaleDateString("es-ES")} - ${new Date(firstDetail.dateEnd).toLocaleDateString("es-ES")}`
+        : "N/A";
+
       return {
         id: res.id,
-        fecha: res.createdAt.toISOString(),
+        fecha: res.createdAt
+          ? new Date(res.createdAt).toISOString()
+          : new Date().toISOString(),
+        estancia: estancia,
         cliente: res.User?.username || "N/A",
         email: res.User?.email || "N/A",
         monto: totalMontoReserva,
@@ -85,7 +92,7 @@ export async function getReservationReport(
 
     return {
       success: true,
-      data: reservationsList,
+      data,
       metrics: {
         ingresosTotales: globalTotalRevenue,
         tasaOcupacion:
@@ -93,7 +100,6 @@ export async function getReservationReport(
             ? ((uniqueOccupiedRooms.size / totalRoomsCount) * 100).toFixed(1)
             : "0",
         totalReservas: reservations.length,
-        conteoOcupadas: uniqueOccupiedRooms.size,
       },
     };
   } catch (error) {
