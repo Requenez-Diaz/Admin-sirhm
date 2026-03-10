@@ -4,7 +4,7 @@ import prisma from "@/lib/db";
 
 export const getAllBedrooomToPromotions = async () => {
   try {
-    const bedrooms = await prisma.bedrooms.findMany({
+    const bedrooms = await prisma.bedroom.findMany({
       include: {
         TypeBedrooms: true,
       },

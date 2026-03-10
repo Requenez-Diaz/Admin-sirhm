@@ -9,12 +9,7 @@ const parseSafeDate = (d: string | Date) => {
   return new Date(y, m - 1, day, 0, 0, 0, 0);
 };
 
-const calculateDuration = (start: Date, end: Date): number => {
-  const s = new Date(start.getFullYear(), start.getMonth(), start.getDate());
-  const e = new Date(end.getFullYear(), end.getMonth(), end.getDate());
-  const msPerDay = 1000 * 60 * 60 * 24;
-  return Math.max(Math.round((e.getTime() - s.getTime()) / msPerDay), 0);
-};
+
 
 export async function getReservationReport(
   startDate?: string,
@@ -70,8 +65,7 @@ export async function getReservationReport(
     const uniqueOccupiedRooms = new Set();
     const reservationsList = reservations.map((res) => {
       const totalMontoReserva = res.ReservationDetails.reduce((acc, d) => {
-        const nights = calculateDuration(d.dateStart, d.dateEnd);
-        return acc + d.price * (nights || 1); // Si es 0 noches (mismo día), contamos 1 o según lógica negocio
+        return acc + (d.price ?? 0);
       }, 0);
       globalTotalRevenue += totalMontoReserva;
       res.ReservationDetails.forEach((d) =>
