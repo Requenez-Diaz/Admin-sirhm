@@ -9,6 +9,8 @@ export type AvailableRoom = {
     capacity: number;
     lowSeasonPrice: number;
     highSeasonPrice: number;
+    price: number;
+    activeSeason: string;
     amenities: string[];
     image: string;
     slug: string;
@@ -30,6 +32,15 @@ export async function getAvailableRooms(
 
         const normCheckIn = parseSafeDate(checkIn);
         const normCheckOut = parseSafeDate(checkOut);
+
+        // Identificamos la temporada activa a partir de la fecha de entrada
+        const activeSeasonModel = await prisma.season.findFirst({
+            where: {
+                dateStart: { lte: normCheckIn },
+                dateEnd: { gte: normCheckIn },
+            },
+        });
+        const activeSeasonName = activeSeasonModel ? activeSeasonModel.nameSeason : "BAJA";
 
         // IDs de habitaciones que tienen al menos un ReservationDetail activo
         // (Cualquier estado que NO sea CANCELLED, incluyendo PENDING y CONFIRMED)
@@ -57,19 +68,24 @@ export async function getAvailableRooms(
             orderBy: { numberBedroom: "asc" },
         });
 
-        return bedrooms.map((b) => ({
-            id: b.id,
-            numberBedroom: b.numberBedroom,
-            description: b.description,
-            capacity: b.capacity,
-            lowSeasonPrice: b.lowSeasonPrice,
-            highSeasonPrice: b.highSeasonPrice,
-            amenities: b.amenities,
-            image: b.image,
-            slug: b.slug,
-            typeName: b.TypeBedrooms?.nameType ?? null,
-            typeDescription: b.TypeBedrooms?.description ?? null,
-        }));
+        return bedrooms.map((b) => {
+            const currentPrice = activeSeasonName === "ALTA" ? b.highSeasonPrice : b.lowSeasonPrice;
+            return {
+                id: b.id,
+                numberBedroom: b.numberBedroom,
+                description: b.description,
+                capacity: b.capacity,
+                lowSeasonPrice: b.lowSeasonPrice,
+                highSeasonPrice: b.highSeasonPrice,
+                price: currentPrice,
+                activeSeason: activeSeasonName,
+                amenities: b.amenities,
+                image: b.image,
+                slug: b.slug,
+                typeName: b.TypeBedrooms?.nameType ?? null,
+                typeDescription: b.TypeBedrooms?.description ?? null,
+            };
+        });
     } catch (error) {
         console.error("Error al obtener habitaciones disponibles:", error);
         return [];

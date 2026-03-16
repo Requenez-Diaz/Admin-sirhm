@@ -115,8 +115,18 @@ export const saveReservation = async (data: {
 
       const nights = calculateDuration(normArrivalDate, normDepartureDate);
 
+      // Determinar temporada activa para la fecha de llegada
+      const activeSeasonModel = await tx.season.findFirst({
+        where: {
+          dateStart: { lte: normArrivalDate },
+          dateEnd: { gte: normArrivalDate },
+        },
+      });
+      const activeSeasonName = activeSeasonModel ? activeSeasonModel.nameSeason : "BAJA";
+
       const detailsData = availableRooms.slice(0, rooms).map((room) => {
-        const subtotalPerRoom = (room.lowSeasonPrice ?? 0) * (nights || 1);
+        const currentPrice = activeSeasonName === "ALTA" ? room.highSeasonPrice : room.lowSeasonPrice;
+        const subtotalPerRoom = (currentPrice ?? 0) * (nights || 1);
         return {
           reservation_id: reservation.id,
           bedrooms_id: room.id,

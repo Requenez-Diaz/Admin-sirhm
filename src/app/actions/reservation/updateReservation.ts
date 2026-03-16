@@ -65,7 +65,18 @@ export const updateReservation = async (data: {
 
       // 2. Calcular nuevas noches y subtotal
       const nights = calculateDuration(normArrivalDate, normDepartureDate);
-      const subtotal = (bedroom.lowSeasonPrice ?? 0) * (nights || 1);
+
+      // Determinar temporada activa para la fecha de llegada
+      const activeSeasonModel = await tx.season.findFirst({
+        where: {
+          dateStart: { lte: normArrivalDate },
+          dateEnd: { gte: normArrivalDate },
+        },
+      });
+      const activeSeasonName = activeSeasonModel ? activeSeasonModel.nameSeason : "BAJA";
+
+      const currentPrice = activeSeasonName === "ALTA" ? bedroom.highSeasonPrice : bedroom.lowSeasonPrice;
+      const subtotal = (currentPrice ?? 0) * (nights || 1);
 
       // 3. Actualizar todos los detalles de la reservación
       await tx.reservationDetails.updateMany({

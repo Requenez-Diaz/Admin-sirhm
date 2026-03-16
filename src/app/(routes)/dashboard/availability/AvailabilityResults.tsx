@@ -127,7 +127,7 @@ export default function AvailabilityResults({
                                 <div className="text-right">
                                     <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Desde</span>
                                     <span className="text-lg font-bold text-slate-900 dark:text-slate-100">
-                                        C${room.lowSeasonPrice.toLocaleString("es-MX")}
+                                        C${room.price.toLocaleString("es-MX")}
                                     </span>
                                 </div>
                             </div>
