@@ -3,7 +3,7 @@
 import React from 'react';
 
 import {
-  User, KeyRound, LogOut, ImageIcon, Bell,
+  User, KeyRound, LogOut, ImageIcon,
   Palette, Clock, HelpCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,7 +14,6 @@ export type SettingsTab =
   | 'general'
   | 'security'
   | 'avatar'
-  | 'notifications'
   | 'preferences'
   | 'activity'
   | 'support';
@@ -56,7 +55,6 @@ export function ProfileNavigation({ activeTab, onTabChange }: ProfileNavigationP
         <NavLink tab="general" icon={<User className="h-5 w-5" />} label="General" />
         <NavLink tab="avatar" icon={<ImageIcon className="h-5 w-5" />} label="Foto de Perfil" />
         <NavLink tab="security" icon={<KeyRound className="h-5 w-5" />} label="Seguridad" />
-        <NavLink tab="notifications" icon={<Bell className="h-5 w-5" />} label="Notificaciones" />
         <NavLink tab="preferences" icon={<Palette className="h-5 w-5" />} label="Preferencias" />
         <NavLink tab="activity" icon={<Clock className="h-5 w-5" />} label="Actividad" />
         <NavLink tab="support" icon={<HelpCircle className="h-5 w-5" />} label="Soporte" />

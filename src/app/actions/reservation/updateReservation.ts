@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { calculateDuration } from "./calculateDuration";
 
 export const updateReservation = async (data: {
   reservationId: string;
@@ -17,35 +18,77 @@ export const updateReservation = async (data: {
   const {
     reservationId,
     name,
-    lastName,
     email,
     bedroomsType,
     guests,
-    rooms,
     arrivalDate,
     departureDate,
   } = data;
 
-  if (!reservationId) {
-    console.error("No se encontró la reservación");
-    return { success: false, message: "No se encontró la reservación." };
-  }
-
   try {
-    await prisma.reservation.update({
+    const reservation = await prisma.reservation.findUnique({
+      where: { id: parseInt(reservationId) },
+      include: { ReservationDetails: true }
+    });
+
+    if (!reservation) {
+      return { success: false, message: "No se encontró la reservación." };
+    }
+
+    // Normalizar fechas a 00:00:00
+    const normArrivalDate = new Date(arrivalDate);
+    normArrivalDate.setHours(0, 0, 0, 0);
+    const normDepartureDate = new Date(departureDate);
+    normDepartureDate.setHours(0, 0, 0, 0);
+
+    const bedroom = await prisma.bedroom.findFirst({
       where: {
-        id: parseInt(reservationId),
-      },
-      data: {
-        name,
-        lastName,
-        email,
-        bedroomsType,
-        guests: parseInt(guests),
-        rooms: parseInt(rooms),
-        arrivalDate: new Date(arrivalDate),
-        departureDate: new Date(departureDate),
-      },
+        TypeBedrooms: {
+          nameType: bedroomsType
+        }
+      }
+    });
+
+    if (!bedroom) {
+      return { success: false, message: "El tipo de habitación no es válido." };
+    }
+
+    await prisma.$transaction(async (tx) => {
+      // 1. Actualizar datos del usuario
+      await tx.user.update({
+        where: { id: reservation.user_id },
+        data: {
+          username: name,
+          email: email,
+        },
+      });
+
+      // 2. Calcular nuevas noches y subtotal
+      const nights = calculateDuration(normArrivalDate, normDepartureDate);
+
+      // Determinar temporada activa para la fecha de llegada
+      const activeSeasonModel = await tx.season.findFirst({
+        where: {
+          dateStart: { lte: normArrivalDate },
+          dateEnd: { gte: normArrivalDate },
+        },
+      });
+      const activeSeasonName = activeSeasonModel ? activeSeasonModel.nameSeason : "BAJA";
+
+      const currentPrice = activeSeasonName === "ALTA" ? bedroom.highSeasonPrice : bedroom.lowSeasonPrice;
+      const subtotal = (currentPrice ?? 0) * (nights || 1);
+
+      // 3. Actualizar todos los detalles de la reservación
+      await tx.reservationDetails.updateMany({
+        where: { reservation_id: parseInt(reservationId) },
+        data: {
+          guestQuantity: parseInt(guests),
+          dateStart: normArrivalDate,
+          dateEnd: normDepartureDate,
+          bedrooms_id: bedroom.id,
+          price: subtotal, // Guardamos el subtotal (Noches * Precio)
+        },
+      });
     });
 
     revalidatePath("/dashboard/bookings");
@@ -55,6 +98,6 @@ export const updateReservation = async (data: {
     };
   } catch (error) {
     console.error("Error al actualizar la reservación: ", error);
-    return { success: false, message: "Error al actualizar la reservación." };
+    return { success: false, message: "Error interno al actualizar." };
   }
 };

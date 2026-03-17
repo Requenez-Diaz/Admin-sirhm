@@ -1,7 +1,7 @@
 "use client";
 
 import { saveReservation } from "@/app/actions/reservation";
-import { getBedrooms } from "@/app/actions/bedrooms";
+import { getTypeBedrooms } from "@/app/actions/roomsType/rooms-type";
 
 import { Button } from "@/components/ui/button";
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
@@ -19,6 +19,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const FormSchema = z.object({
@@ -38,24 +39,14 @@ interface FormReservationProps {
 
 export function FormReservation({ onSubmitSuccess }: FormReservationProps) {
   const { toast } = useToast();
-  const [bedrooms, setBedrooms] = useState<
-    {
-      status: boolean;
-      id: number;
-      createdAt: Date;
-      updatedAt: Date;
-      image: string;
-      typeBedroom: string;
-      description: string;
-      lowSeasonPrice: number;
-      highSeasonPrice: number;
-      numberBedroom: number;
-      seasonsId: number;
-      amenities: string[];
-      capacity: number;
-      slug: string;
-    }[]
-  >([]);
+  const searchParams = useSearchParams();
+  const [bedroomsList, setBedroomsList] = useState<any[]>([]);
+
+  // Extraer valores iniciales desde la URL (si venimos del recomendador de disponibilidad)
+  const queryAction = searchParams.get('action');
+  const queryTypeName = searchParams.get('typeName') || "";
+  const queryCheckIn = searchParams.get('checkIn') || "";
+  const queryCheckOut = searchParams.get('checkOut') || "";
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -65,16 +56,35 @@ export function FormReservation({ onSubmitSuccess }: FormReservationProps) {
       email: "",
       guests: 1,
       rooms: 1,
-      bedroomsType: "",
-      arrivalDate: "",
-      departureDate: "",
+      bedroomsType: queryAction === 'new' ? queryTypeName : "",
+      arrivalDate: queryAction === 'new' ? queryCheckIn : "",
+      departureDate: queryAction === 'new' ? queryCheckOut : "",
     },
   });
 
+  // Si los parámetros de búsqueda cambian (ej. el modal ya estaba "montado" pero la ruta cambió), 
+  // actualizamos el estado del formulario con reset() para que se reflejen visualmente
+  useEffect(() => {
+    if (searchParams.get('action') === 'new') {
+      const typeName = searchParams.get('typeName') || "";
+      const checkIn = searchParams.get('checkIn') || "";
+      const checkOut = searchParams.get('checkOut') || "";
+
+      form.reset({
+        ...form.getValues(),
+        bedroomsType: typeName,
+        arrivalDate: checkIn,
+        departureDate: checkOut
+      });
+    }
+  }, [searchParams, form]);
+
   useEffect(() => {
     async function fetchBedrooms() {
-      const data = await getBedrooms();
-      setBedrooms(data);
+      const result = await getTypeBedrooms();
+      if (result.success && result.data) {
+        setBedroomsList(result.data);
+      }
     }
     fetchBedrooms();
   }, []);
@@ -207,9 +217,9 @@ export function FormReservation({ onSubmitSuccess }: FormReservationProps) {
                     <option value='' disabled>
                       Selecciona el tipo
                     </option>
-                    {bedrooms.map((room) => (
-                      <option key={room.id} value={room.typeBedroom}>
-                        {room.typeBedroom}
+                    {bedroomsList.map((type: any) => (
+                      <option key={type.id} value={type.nameType}>
+                        {type.nameType}
                       </option>
                     ))}
                   </select>
@@ -251,7 +261,7 @@ export function FormReservation({ onSubmitSuccess }: FormReservationProps) {
 
         <DialogFooter className='flex justify-end gap-4'>
           <DialogClose asChild>
-            <Button type='button' variant='success'>
+            <Button type='button' variant='ghost'>
               <Icon action='undo' className='mr-2' />
               Cancelar
             </Button>

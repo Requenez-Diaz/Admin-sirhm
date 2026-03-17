@@ -9,37 +9,19 @@ export default {
     Credentials({
       authorize: async (credentials) => {
         const { data, success } = loginSchema.safeParse(credentials);
+        if (!success) return null;
 
-        if (!success) {
-          throw new Error("Credenciales incorrectas");
-        }
-
-        // Buscar usuario en la BD
         const user = await prisma.user.findUnique({
-          where: {
-            email: data.email,
-          },
-          include: {
-            role: true,
-          },
+          where: { email: data.email },
         });
 
-        if (!user || !user.password) {
-          throw new Error("Usuario no encontrado");
-        }
+        if (!user || !user.password) return null;
 
-        // Validar contraseña
         const isValid = await bcrypt.compare(data.password, user.password);
-        if (!isValid) {
-          throw new Error("Contraseña incorrecta");
-        }
+        if (!isValid) return null;
 
-        // ⚠️ Restricción de roles (si aplica)
-        if (user.roleName !== "Admin") {
-          throw new Error("Usuario no autorizado");
-        }
+        if (user.roleName !== "Admin") return null;
 
-        // ✅ IMPORTANTE: convertir id numérico a string
         return {
           id: user.id.toString(),
           email: user.email,

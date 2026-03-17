@@ -10,7 +10,7 @@ import { ProfileNavigation, SettingsTab } from '@/sidebar/components/profile/Pro
 import { getUserImage } from '@/app/actions/profile/getUserImage';
 import { UploadFile } from '@/app/actions/profile/uploadFile';
 
-import { NotificationsTab } from '@/sidebar/components/profile/NotificationsTab';
+
 import { PreferencesTab } from '@/sidebar/components/profile/PreferencesTab';
 import { ActivityTab } from '@/sidebar/components/profile/ActivityTab';
 import { SupportTab } from '@/sidebar/components/profile/SupportTab';
@@ -123,7 +123,7 @@ export default function Page() {
 
                 {activeTab === 'security' && <SecurityTab onPasswordSubmit={handlePasswordSubmit} />}
 
-                {activeTab === 'notifications' && <NotificationsTab />}
+
 
                 {activeTab === 'preferences' && <PreferencesTab />}
 

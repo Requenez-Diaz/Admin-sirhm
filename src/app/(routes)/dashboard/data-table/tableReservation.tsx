@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState } from "react";
 import {
   Table,
@@ -22,7 +23,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, CalendarCheck2 } from "lucide-react"; // Solo agregamos el icono
 import { Button } from "@/components/ui/button";
 import Pagination from "./pagination";
 import { ViewReservation } from "../bookings/viewReservation";
@@ -37,22 +38,10 @@ interface TableReservationProps {
 const TableReservation: React.FC<TableReservationProps> = ({
   reservations = [],
 }) => {
-  const totalReservation = reservations.length;
-
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("Todo");
   const [currentPage, setCurrentPage] = useState(1);
   const reservationsPerPage = 10;
-
-  const contadoresEstado: Record<BookingStatus, number> = {
-    PENDING: 0,
-    CONFIRMED: 0,
-    CANCELLED: 0,
-  };
-
-  reservations.forEach((res) => {
-    contadoresEstado[res.status]++;
-  });
 
   const statusVariants: Record<BookingStatus, BadgeProps["variant"]> = {
     PENDING: "info",
@@ -68,53 +57,67 @@ const TableReservation: React.FC<TableReservationProps> = ({
 
   const filteredReservations = reservations.filter((res) => {
     const term = searchTerm.toLowerCase();
+    const userName = (res.userName ?? "").toLowerCase();
+    const email = (res.email ?? "").toLowerCase();
+    const statusLabel = statusLabels[res.status];
+    const matchesStatus =
+      selectedFilter === "Todo" || statusLabel === selectedFilter;
+    const matchesSearch = userName.includes(term) || email.includes(term);
+    return matchesStatus && matchesSearch;
+  });
 
-    if (selectedFilter === "Todo") return true;
+  const contadoresEstado: Record<BookingStatus, number> = {
+    PENDING: 0,
+    CONFIRMED: 0,
+    CANCELLED: 0,
+  };
 
-    if (selectedFilter === "Nombre") {
-      return (res.userName ?? "").toLowerCase().includes(term);
-    }
-
-    if (selectedFilter === "Apellido") {
-      return (res.userName ?? "").toLowerCase().includes(term);
-    }
-
-    if (selectedFilter === "Estado") {
-      return statusLabels[res.status].toLowerCase().includes(term);
-    }
-
-    if (selectedFilter === "Email") {
-      return (res.email ?? "").toLowerCase().includes(term);
-    }
-
-    return true;
+  reservations.forEach((res) => {
+    contadoresEstado[res.status]++;
   });
 
   const indexOfLastReservation = currentPage * reservationsPerPage;
   const indexOfFirstReservation = indexOfLastReservation - reservationsPerPage;
   const currentReservations = filteredReservations.slice(
     indexOfFirstReservation,
-    indexOfLastReservation
+    indexOfLastReservation,
   );
 
   const totalPages = Math.ceil(
-    filteredReservations.length / reservationsPerPage
+    filteredReservations.length / reservationsPerPage,
   );
-
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
-    <div className='overflow-x-auto p-4'>
-      <div className='flex flex-col sm:flex-row sm:items-center gap-4 mb-4'>
-        <AddReservation />
+    <div className='overflow-x-auto p-4 space-y-6'>
+      <div className='flex flex-col gap-1'>
+        <div className='flex items-center gap-2 text-slate-900 dark:text-slate-100'>
+          <CalendarCheck2 className='h-6 w-6 text-black dark:text-white' />
+          <h1 className='text-2xl font-black tracking-tight uppercase'>
+            Control de Reservaciones
+          </h1>
+        </div>
+        <p className='text-slate-500 text-sm italic'>
+          Gestión centralizada de reservas, estados de pago y disponibilidad de
+          clientes.
+        </p>
+      </div>
 
-        <div className='bg-gray-200 rounded-lg px-4 py-2'>
-          <h2 className='text-base sm:text-lg font-semibold text-gray-800'>
-            Total Reservaciones: {totalReservation}
-          </h2>
+      {/* ACCIONES Y FILTROS UNIFICADOS REORDENADOS */}
+      <div className='flex flex-col lg:flex-row lg:items-center gap-4 mb-6 bg-muted/10 p-4 rounded-xl border border-border'>
+        <div className='flex-1'>
+          <Filter
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            selectedFilter={selectedFilter}
+            setSelectedFilter={(filter) => {
+              setSelectedFilter(filter);
+              setCurrentPage(1);
+            }}
+          />
         </div>
 
-        <div className='grid grid-cols-2 sm:flex sm:items-center gap-2'>
+        <div className='flex flex-wrap items-center gap-2'>
           <Badge variant={statusVariants.PENDING}>
             {statusLabels.PENDING}: {contadoresEstado.PENDING}
           </Badge>
@@ -125,183 +128,215 @@ const TableReservation: React.FC<TableReservationProps> = ({
             {statusLabels.CANCELLED}: {contadoresEstado.CANCELLED}
           </Badge>
         </div>
+
+        <div className='flex-shrink-0'>
+          <AddReservation />
+        </div>
       </div>
 
-      <div className='mb-4'>
-        <Filter
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          selectedFilter={selectedFilter}
-          setSelectedFilter={setSelectedFilter}
-        />
-      </div>
-
-      <div className='overflow-x-auto'>
-        <Table className='min-w-full border border-gray-200'>
-          <TableHeader>
-            <TableRow className='bg-gray-100'>
-              <TableHead className='w-12 text-xs sm:text-sm'>ID</TableHead>
-              <TableHead className='text-xs sm:text-sm'>Nombre</TableHead>
-              <TableHead className='hidden sm:table-cell text-xs sm:text-sm'>
+      {/* TABLA - MANTIENE TODA TU LÓGICA */}
+      <div className='rounded-md border border-border overflow-hidden bg-background'>
+        <Table className='min-w-full'>
+          <TableHeader className='bg-muted/50'>
+            <TableRow className='hover:bg-transparent border-border'>
+              <TableHead className='w-12 text-xs sm:text-sm text-foreground font-bold'>
+                ID
+              </TableHead>
+              <TableHead className='text-xs sm:text-sm text-foreground font-bold'>
+                Nombre
+              </TableHead>
+              <TableHead className='hidden sm:table-cell text-xs sm:text-sm text-foreground font-bold'>
                 Apellido
               </TableHead>
-              <TableHead className='hidden md:table-cell text-xs sm:text-sm'>
+              <TableHead className='hidden md:table-cell text-xs sm:text-sm text-foreground font-bold'>
                 Email
               </TableHead>
-              <TableHead className='text-xs sm:text-sm'>Estado</TableHead>
-              <TableHead className='hidden sm:table-cell text-xs sm:text-sm'>
+              <TableHead className='text-xs sm:text-sm text-foreground font-bold'>
+                Estado
+              </TableHead>
+              <TableHead className='hidden sm:table-cell text-xs sm:text-sm text-foreground font-bold text-center'>
                 Huéspedes
               </TableHead>
-              <TableHead className='hidden sm:table-cell text-xs sm:text-sm'>
+              <TableHead className='hidden sm:table-cell text-xs sm:text-sm text-foreground font-bold text-center'>
                 Habitaciones
               </TableHead>
-              <TableHead className='text-xs sm:text-sm'>
-                Tipo de Habitación
+              <TableHead className='text-xs sm:text-sm text-foreground font-bold'>
+                Tipo
               </TableHead>
-              <TableHead className='text-xs sm:text-sm'>Estancia</TableHead>
-              <TableHead className='text-xs sm:text-sm'>
+              <TableHead className='text-xs sm:text-sm text-foreground font-bold'>
+                Estancia
+              </TableHead>
+              <TableHead className='text-xs sm:text-sm text-foreground font-bold text-right'>
                 Llegada - Salida
               </TableHead>
-              <TableHead className='text-xs sm:text-sm'>Ofertas</TableHead>
-              <TableHead className='text-xs sm:text-sm'>Acciones</TableHead>
+              <TableHead className='text-xs sm:text-sm text-foreground font-bold text-right'>
+                Ofertas
+              </TableHead>
+              <TableHead className='text-xs sm:text-sm text-foreground font-bold text-right'>
+                Total
+              </TableHead>
+              <TableHead className='text-xs sm:text-sm text-foreground font-bold text-right'>
+                Acciones
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {currentReservations.map((reservation) => {
-              // Convierte ISO a Date
-              const arrival = reservation.arrivalDate
-                ? new Date(reservation.arrivalDate)
-                : null;
-              const departure = reservation.departureDate
-                ? new Date(reservation.departureDate)
-                : null;
+            {currentReservations.length > 0 ? (
+              currentReservations.map((reservation) => {
+                const arrival = reservation.arrivalDate
+                  ? new Date(reservation.arrivalDate)
+                  : null;
+                const departure = reservation.departureDate
+                  ? new Date(reservation.departureDate)
+                  : null;
+                const duration = calculateDuration(arrival, departure);
+                const durationLabel = duration === 1 ? "noche" : "noches";
 
-              const duration = calculateDuration(arrival, departure);
-              const durationLabel = duration === 1 ? "noche" : "noches";
+                const [firstName, ...lastParts] = (
+                  reservation.userName ?? ""
+                ).split(" ");
+                const lastName = lastParts.join(" ");
 
-              const [firstName, ...lastParts] = (
-                reservation.userName ?? ""
-              ).split(" ");
-              const lastName = lastParts.join(" ");
+                return (
+                  <TableRow
+                    key={reservation.id}
+                    className='border-border hover:bg-muted/30 transition-colors'
+                  >
+                    <TableCell className='text-xs sm:text-sm font-medium'>
+                      {reservation.id}
+                    </TableCell>
+                    <TableCell className='text-xs sm:text-sm'>
+                      {firstName || "—"}
+                    </TableCell>
+                    <TableCell className='hidden sm:table-cell text-xs sm:text-sm'>
+                      {lastName || "—"}
+                    </TableCell>
+                    <TableCell className='hidden md:table-cell text-xs sm:text-sm'>
+                      {reservation.email ?? "—"}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={statusVariants[reservation.status]}>
+                        {statusLabels[reservation.status]}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className='hidden sm:table-cell text-center'>
+                      {reservation.guests}
+                    </TableCell>
+                    <TableCell className='hidden sm:table-cell text-center'>
+                      {reservation.rooms}
+                    </TableCell>
 
-              return (
-                <TableRow key={reservation.id} className='border-b'>
-                  <TableCell className='text-xs sm:text-sm'>
-                    {reservation.id}
-                  </TableCell>
+                    <TableCell className='text-xs sm:text-sm'>
+                      {reservation.bedroomsType || "—"}
+                    </TableCell>
 
-                  <TableCell className='text-xs sm:text-sm'>
-                    {firstName || reservation.userName || "—"}
-                  </TableCell>
-
-                  <TableCell className='hidden sm:table-cell text-xs sm:text-sm'>
-                    {lastName || "—"}
-                  </TableCell>
-
-                  <TableCell className='hidden md:table-cell text-xs sm:text-sm'>
-                    {reservation.email ?? "—"}
-                  </TableCell>
-
-                  <TableCell className='text-xs sm:text-sm'>
-                    <Badge variant={statusVariants[reservation.status]}>
-                      {statusLabels[reservation.status]}
-                    </Badge>
-                  </TableCell>
-
-                  <TableCell className='hidden sm:table-cell text-xs sm:text-sm'>
-                    {reservation.guests}
-                  </TableCell>
-
-                  <TableCell className='hidden sm:table-cell text-xs sm:text-sm'>
-                    {reservation.rooms}
-                  </TableCell>
-
-                  <TableCell className='text-xs sm:text-sm'>
-                    {reservation.bedroomsType || "—"}
-                  </TableCell>
-
-                  <TableCell className='text-xs sm:text-sm text-right'>
-                    {duration} {durationLabel}
-                  </TableCell>
-
-                  <TableCell className='text-xs sm:text-sm text-right'>
-                    {arrival
-                      ? arrival.toLocaleDateString("es-ES", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "2-digit",
-                        })
-                      : "—"}{" "}
-                    -{" "}
-                    {departure
-                      ? departure.toLocaleDateString("es-ES", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "2-digit",
-                        })
-                      : "—"}
-                  </TableCell>
-
-                  <TableCell className='text-xs sm:text-sm text-right'>
-                    {reservation.offerts ?? "N/A"}
-                  </TableCell>
-
-                  <TableCell className='flex flex-wrap gap-2 text-xs sm:text-sm'>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant='ghost' className='h-8 w-8 p-0'>
-                          <span className='sr-only'>Open menu</span>
-                          <MoreHorizontal />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        align='end'
-                        className='flex flex-col'
-                      >
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
-                        <DropdownMenuItem
-                          onSelect={(e) => e.preventDefault()}
-                          asChild
-                        >
-                          <ConfirmReservation reservationId={reservation.id} />
-                        </DropdownMenuItem>
-
-                        <DropdownMenuItem
-                          onSelect={(e) => e.preventDefault()}
-                          asChild
-                        >
-                          <CancellReservation reservationId={reservation.id} />
-                        </DropdownMenuItem>
-
-                        <DropdownMenuItem
-                          onSelect={(e) => e.preventDefault()}
-                          asChild
-                        >
-                          <EditReservation reservationId={reservation.id} />
-                        </DropdownMenuItem>
-
-                        <DropdownMenuItem
-                          onSelect={(e) => e.preventDefault()}
-                          asChild
-                        >
-                          <ViewReservation reservationId={reservation.id} />
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+                    <TableCell className='text-xs sm:text-sm text-right whitespace-nowrap'>
+                      {duration} {durationLabel}
+                    </TableCell>
+                    <TableCell className='text-xs sm:text-sm text-right whitespace-nowrap font-mono text-muted-foreground'>
+                      {arrival?.toLocaleDateString("es-ES", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "2-digit",
+                      }) || "—"}{" "}
+                      -{" "}
+                      {departure?.toLocaleDateString("es-ES", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "2-digit",
+                      }) || "—"}
+                    </TableCell>
+                    <TableCell className='text-xs sm:text-sm text-right font-medium'>
+                      {reservation.offerts ?? "N/A"}
+                    </TableCell>
+                    <TableCell className='text-xs sm:text-sm text-right font-bold text-primary'>
+                      C$ {Math.floor(reservation.totalPrice)}
+                    </TableCell>
+                    <TableCell className='text-right'>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant='ghost'
+                            className='h-8 w-8 p-0 hover:bg-muted'
+                          >
+                            <MoreHorizontal className='h-4 w-4' />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align='end' className='w-52'>
+                          <DropdownMenuLabel>
+                            Acciones de Reserva
+                          </DropdownMenuLabel>
+                          {reservation.status === "PENDING" && (
+                            <DropdownMenuItem
+                              asChild
+                              onSelect={(e) => e.preventDefault()}
+                            >
+                              <ConfirmReservation
+                                reservationId={reservation.id}
+                              />
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem
+                            asChild
+                            onSelect={(e) => e.preventDefault()}
+                          >
+                            <CancellReservation
+                              reservationId={reservation.id}
+                              isInvoiced={reservation.isInvoiced}
+                            />
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            asChild
+                            onSelect={(e) => e.preventDefault()}
+                          >
+                            <EditReservation
+                              reservationId={reservation.id}
+                              disabled={reservation.status === "CONFIRMED"}
+                            />
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            asChild
+                            onSelect={(e) => e.preventDefault()}
+                          >
+                            <ViewReservation reservationId={reservation.id} />
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={13}
+                  className='text-center py-12 text-muted-foreground'
+                >
+                  No se encontraron reservaciones que coincidan con los filtros.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
+          {filteredReservations.length > 0 && (
+            <tfoot className='bg-muted/50 border-t-2 border-border'>
+              <tr className='font-black text-xs uppercase tracking-tighter text-foreground'>
+                <td className='px-6 py-4 text-left' colSpan={13}>
+                  Total Registros:{" "}
+                  <span className='text-primary'>{filteredReservations.length} Reservas</span>
+                </td>
+              </tr>
+            </tfoot>
+          )}
         </Table>
       </div>
 
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={paginate}
-      />
+      <div className='mt-6'>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={paginate}
+        />
+      </div>
     </div>
   );
 };

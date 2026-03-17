@@ -4,7 +4,7 @@ import prisma from "@/lib/db";
 
 export const getAllSeasons = async () => {
   try {
-    const seasons = await prisma.seasons.findMany({
+    const seasons = await prisma.season.findMany({
       select: {
         id: true,
         nameSeason: true,

@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { jsPDF } from "jspdf";
 import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
-import { getHistoricReservations } from "@/app/actions/reservation/getHistoricReservations";
 import { getBedrooms } from "@/app/actions/bedrooms";
 import PDFReportHeader from "./PdfReportHeader";
 import PDFReservationSummary from "./PDFReservationSummary";
@@ -27,7 +26,7 @@ interface PDFReportGenerateProps {
 }
 
 const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) => {
-  const [reservations, setReservations] = useState<any[]>([]);
+  const [reservations] = useState<any[]>([]);
   const [showDialog, setShowDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState("");
   const [dialogType, setDialogType] = useState<"info" | "warning" | "success">("info");
@@ -38,17 +37,6 @@ const PDFReportGenerate: React.FC<PDFReportGenerateProps> = ({ month, year }) =>
     session?.user?.role === "Admin"
       ? session?.user?.name || "Administrador"
       : "Usuario no autorizado";
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const data = await getHistoricReservations();
-        setReservations(data);
-      } catch (error) {
-        console.error("Error cargando historial:", error);
-      }
-    })();
-  }, []);
 
   const openDialog = (message: string, type: "info" | "warning" | "success" = "info") => {
     setDialogMessage(message);

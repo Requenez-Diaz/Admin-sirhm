@@ -13,8 +13,8 @@ import {
 import { deleteBedrooms } from "@/app/actions/bedrooms/deleteBedrooms";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import Icon from "@/components/ui/icons/icons";
 import * as React from "react";
+import { Trash } from "lucide-react";
 
 export function DeleteBedrooms({ bedroomsId }: { bedroomsId: number }) {
   const { toast } = useToast();
@@ -22,9 +22,10 @@ export function DeleteBedrooms({ bedroomsId }: { bedroomsId: number }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant='destructive'>
-          <Icon action='delete' />
-        </Button>
+        <button className='flex items-center gap-2 text-sm px-2 py-1 rounded hover:bg-accent hover:text-accent-foreground transition'>
+          <Trash className='w-4 h-4 opacity-80' />
+          Eliminar
+        </button>
       </DialogTrigger>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>

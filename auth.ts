@@ -1,28 +1,30 @@
 import NextAuth from "next-auth";
-import authConfig from "./auth.config";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { prisma } from "@/lib/db";
+import prisma from "@/lib/db";
+import authConfig from "./auth.config";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
-  ...authConfig,
-
   session: { strategy: "jwt" },
+  ...authConfig,
   callbacks: {
-    jwt({ token, user }) {
+    async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.role = user.role;
+        token.id = user.id ?? "";
+        token.role = (user as any).role;
       }
       return token;
     },
-
-    session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id;
-        session.user.role = token.role;
+    async session({ session, token }) {
+      if (session.user && token) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as any;
       }
       return session;
     },
+  },
+  pages: {
+    signIn: "/sign-in",
+    error: "/sign-in",
   },
 });

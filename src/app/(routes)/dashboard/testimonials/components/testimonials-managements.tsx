@@ -34,6 +34,7 @@ interface Testimonial {
     id: number;
     username: string;
     email: string;
+    image?: string | null;
   } | null;
   Bedrooms?: {
     id: number;
@@ -72,11 +73,13 @@ export function TestimonialManagement() {
       const result = await getAllTestimonialsForAdmin();
       if (result.success && result.testimonials) {
         // Convertimos createdAt y updatedAt a string
-        const mappedTestimonials: Testimonial[] = result.testimonials.map(t => ({
-          ...t,
-          createdAt: t.createdAt.toISOString(),
-          updatedAt: t.updatedAt.toISOString(),
-        }));
+        const mappedTestimonials: Testimonial[] = result.testimonials.map(
+          (t) => ({
+            ...t,
+            createdAt: t.createdAt.toISOString(),
+            updatedAt: t.updatedAt.toISOString(),
+          }),
+        );
         setTestimonials(mappedTestimonials);
       } else {
         toast({
@@ -101,13 +104,14 @@ export function TestimonialManagement() {
       const result = await getTestimonialStats();
       if (result.success) {
         // Aseguramos que stats siempre tenga un valor
-        setStats(result.stats ?? { total: 0, pending: 0, approved: 0, rejected: 0 });
+        setStats(
+          result.stats ?? { total: 0, pending: 0, approved: 0, rejected: 0 },
+        );
       }
     } catch (error) {
       console.error("Error loading stats:", error);
     }
   };
-
 
   const handleApprove = async (id: number) => {
     try {
@@ -214,7 +218,7 @@ export function TestimonialManagement() {
           t.User?.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
           t.User?.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
           t.comment.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          t.location.toLowerCase().includes(searchTerm.toLowerCase())
+          t.location.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 

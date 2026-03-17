@@ -5,6 +5,7 @@ import { getBedrooms } from "@/app/actions/bedrooms";
 import { findManyUsers } from "@/app/actions/users";
 import RoomTypeTable from "./dashboard-charts/RoomTypeTable";
 import ReportDashboard from "./dashboard-charts/ReportDashboard";
+import SyncSeasonsOnClient from "../SyncSeasonsOnClient";
 
 export default async function DashboardPage() {
   const reservations = await getReservations();
@@ -23,9 +24,8 @@ export default async function DashboardPage() {
 
   return (
     <div>
+      <SyncSeasonsOnClient />
       <h1 className="text-2xl font-bold mb-6">Panel de Control</h1>
-
-      {/* Grid actualizado: se adapta automáticamente */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <DashboardCard
           title="Total Usuarios"

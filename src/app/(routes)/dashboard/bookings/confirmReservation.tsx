@@ -14,10 +14,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import Icon from "@/components/ui/icons/icons";
+import { useState } from 'react';
 import { confirmReservation } from "@/app/actions/reservation";
 
-export function ConfirmReservation({ reservationId }: { reservationId: number }) {
+export function ConfirmReservation({
+    reservationId,
+    className,
+    onSuccess,
+}: {
+    reservationId: number;
+    className?: string;
+    onSuccess?: () => void;
+}) {
     const { toast } = useToast();
+    const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -28,6 +38,8 @@ export function ConfirmReservation({ reservationId }: { reservationId: number })
                 title: "Reservación confirmada.",
                 description: result.message,
             });
+            setConfirmDialogOpen(false);
+            onSuccess?.();
         } else {
             toast({
                 title: "Error",
@@ -38,10 +50,10 @@ export function ConfirmReservation({ reservationId }: { reservationId: number })
     };
 
     return (
-        <Dialog>
+        <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
             <DialogTrigger asChild>
                 <button
-                    className="flex items-center gap-2 text-sm px-2 py-1 rounded hover:bg-accent hover:text-accent-foreground transition"
+                    className={className || "flex items-center gap-2 text-sm px-2 py-1 rounded hover:bg-accent hover:text-accent-foreground transition"}
                 >
                     <Icon action="accept" className="w-4 h-4 opacity-80" />
                     Confirmar
@@ -59,7 +71,7 @@ export function ConfirmReservation({ reservationId }: { reservationId: number })
 
                     <DialogFooter className="flex flex-wrap justify-between pt-4 gap-4">
                         <DialogClose asChild>
-                            <Button type="button" variant="success">
+                            <Button type="button" variant="ghost">
                                 <Icon action='undo' className="mr-2" />
                                 Cancelar
                             </Button>
@@ -67,7 +79,7 @@ export function ConfirmReservation({ reservationId }: { reservationId: number })
                         <DialogClose asChild>
                             <Button
                                 type="submit"
-                                variant="ghost"
+                                variant="success"
                             >
                                 <Icon action='accept' className="mr-2" />
                                 Acceptar

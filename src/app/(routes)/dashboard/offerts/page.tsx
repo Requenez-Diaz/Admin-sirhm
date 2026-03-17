@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
 import { OfferForm } from "./components";
 import { OffersTable } from "./tables/offert-table";
+import Icon from "@/components/ui/icons/icons";
 
 export default function OffertsPage() {
   const [showForm, setShowForm] = useState(false);
@@ -17,9 +16,9 @@ export default function OffertsPage() {
         <Button
           onClick={() => setShowForm(!showForm)}
           className='flex items-center gap-2'
-          variant='outline'
+          variant='success'
         >
-          <PlusCircle className='h-4 w-4' />
+          <Icon action={showForm ? "undo" : "plus"} className='h-4 w-4' />
           {showForm ? "Ver Listado" : "Crear Oferta"}
         </Button>
       </div>

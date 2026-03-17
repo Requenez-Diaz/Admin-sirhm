@@ -1,8 +1,9 @@
-import React from "react";
+"use client";
+
+import React, { useMemo, useState } from "react";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -11,114 +12,240 @@ import {
 import { EditBedrooms } from "@/app/cards/bedroomsCards/edit-bedrooms";
 import { AddBedrooms } from "@/app/cards/bedroomsCards/add-bedrooms";
 import { DeleteBedrooms } from "@/app/cards/bedroomsCards/delete-beedrooms";
-import { Badge, BadgeProps } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
+import {
+  MoreHorizontal,
+  Users,
+  ArrowDownCircle,
+  ArrowUpCircle,
+  ChevronDown,
+  BedDouble,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-interface Bedroom {
-  id: number;
-  typeBedroom: string;
-  description: string;
-  lowSeasonPrice: number;
-  highSeasonPrice: number;
-  status: boolean;
-  capacity: number;
-  amenities: string[];
-  numberBedroom: number;
-  seasonsId: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export default function TableBedrooms({ bedrooms, seasons, roomTypes }: any) {
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
-interface TableBedroomsProps {
-  bedrooms: Bedroom[];
-}
+  const filtered = useMemo(() => {
+    return bedrooms.filter((b: any) => {
+      const typeName = b.TypeBedrooms?.nameType || b.typeBedroom || "";
+      const matchesSearch =
+        typeName.toLowerCase().includes(search.toLowerCase()) ||
+        b.numberBedroom.toString().includes(search);
 
-const TableBedrooms: React.FC<TableBedroomsProps> = ({ bedrooms }) => {
-  const totalBedrooms = bedrooms.length;
+      // Lógica dinámica para el filtro de estado
+      const now = new Date();
+      const isReservedNow = b.ReservationDetails?.some((rd: any) => {
+        const start = new Date(rd.dateStart);
+        const end = new Date(rd.dateEnd);
+        return now >= start && now < end;
+      });
 
-  const statusVariants: Record<string, BadgeProps["variant"]> = {
-    true: "success",
-    false: "destructive",
-  };
+      let currentStatus = "disponible";
+      if (!b.status) currentStatus = "mantenimiento";
+      else if (isReservedNow) currentStatus = "ocupada";
 
-  const statusLabels: Record<string, string> = {
-    true: "Activo",
-    false: "Inactivo",
-  };
+      const matchesStatus =
+        statusFilter === "all" ? true : currentStatus === statusFilter;
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [bedrooms, search, statusFilter]);
 
   return (
-    <div className='overflow-x-auto'>
-      <div className='flex justify-start mb-4'>
-        <AddBedrooms />
+    <div className='p-4 space-y-6'>
+      {/* CABECERA AGREGADA */}
+      <div className='flex flex-col gap-1'>
+        <div className='flex items-center gap-2 text-slate-900 dark:text-slate-100'>
+          <BedDouble className='h-6 w-6 text-blue-600' />
+          <h1 className='text-2xl font-black tracking-tight'>
+            Gestión de Habitaciones
+          </h1>
+        </div>
+        <p className='text-slate-500 text-sm'>
+          Administra las unidades, tipos de habitación, capacidades y tarifas
+          por temporada.
+        </p>
       </div>
-      <form>
-        <Table className='min-w-full'>
-          <TableCaption className='text-lg font-semibold my-4'>
-            Total habitaciones:{" "}
-            <span className='text-black'>{totalBedrooms}</span>
-          </TableCaption>
-          <TableHeader>
+
+      <div className='flex flex-col md:flex-row justify-between items-start md:items-center gap-4'>
+        <div className='flex flex-1 gap-2 w-full md:max-w-md'>
+          <Input
+            placeholder='Buscar por tipo o N°...'
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant='outline'
+                className={`w-[140px] justify-between ${statusFilter === "all"
+                  ? "bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:text-white"
+                  : ""
+                  }`}
+              >
+                {statusFilter === "all"
+                  ? "Todos"
+                  : statusFilter === "disponible"
+                    ? "Disponibles"
+                    : statusFilter === "ocupada"
+                      ? "Ocupadas"
+                      : "Mantenimiento"}
+                <ChevronDown className='ml-2 h-4 w-4 opacity-50' />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='start' className='w-[140px]'>
+              <DropdownMenuItem onClick={() => setStatusFilter("all")}>
+                Todos
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter("disponible")}>
+                Disponibles Hoy
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter("ocupada")}>
+                Ocupadas Hoy
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter("mantenimiento")}>
+                Fuera de Servicio
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <AddBedrooms roomTypes={roomTypes} seasons={seasons} />
+      </div>
+
+      <div className='rounded-xl border shadow-sm overflow-hidden'>
+        <Table>
+          <TableHeader className='bg-muted/50'>
             <TableRow>
-              <TableHead className='w-[50px]'>ID</TableHead>
-              <TableHead className='w-[100px]'>Tipo</TableHead>
-              <TableHead className='w-[100px]'>Descripción</TableHead>
-              <TableHead className='w-[100px]'>Temp. baja</TableHead>
-              <TableHead className='w-[100px]'>Temp. alta</TableHead>
-              <TableHead className='w-[100px]'>Capacidad</TableHead>
-              <TableHead className='w-[100px]'>Estado</TableHead>
-              <TableHead className='w-[100px]'>N° Habitación</TableHead>
-              <TableHead className='w-[150px] text-right'>
-                Fecha de creación
+              <TableHead className='w-[80px]'>N° Hab.</TableHead>
+              <TableHead>Tipo / Descripción</TableHead>
+              <TableHead className='text-center'>Capacidad</TableHead>
+              <TableHead className='text-center'>
+                Tarifas (Baja / Alta)
               </TableHead>
-              <TableHead className='w-[150px] text-right'>
-                Fecha de actualización
-              </TableHead>
-              <TableHead className='w-[100px] text-right'>Acciones</TableHead>
+              <TableHead>Estado</TableHead>
+              <TableHead className='text-right'>Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {bedrooms.map((bedroom, index) => (
-              <TableRow key={index}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell className='font-medium'>
-                  {bedroom.typeBedroom}
+            {filtered.map((bedroom: any) => (
+              <TableRow
+                key={bedroom.id}
+                className='hover:bg-muted/30 transition-colors'
+              >
+                <TableCell className='font-mono font-bold text-center'>
+                  {bedroom.numberBedroom}
                 </TableCell>
-                <TableCell>{bedroom.description}</TableCell>
-                <TableCell>{bedroom.lowSeasonPrice}</TableCell>
-                <TableCell>{bedroom.highSeasonPrice}</TableCell>
-                <TableCell>{bedroom.capacity}</TableCell>
                 <TableCell>
-                  <Badge variant={statusVariants[bedroom.status.toString()]}>
-                    {statusLabels[bedroom.status.toString()]}
-                  </Badge>
-                </TableCell>
-                <TableCell>{bedroom.numberBedroom}</TableCell>
-                <TableCell className='text-right'>
-                  {new Date(bedroom.createdAt).toLocaleDateString("es-ES", {
-                    year: "numeric",
-                    month: "2-digit",
-                    day: "2-digit",
-                  })}
-                </TableCell>
-                <TableCell className='text-right'>
-                  {new Date(bedroom.updatedAt).toLocaleDateString("es-ES", {
-                    year: "numeric",
-                    month: "2-digit",
-                    day: "2-digit",
-                  })}
-                </TableCell>
-                <TableCell className='text-right flex items-center'>
-                  <div className='flex justify-between gap-3 mr-2'>
-                    <EditBedrooms bedroomId={bedroom.id} />
-                    <DeleteBedrooms bedroomsId={bedroom.id} />
+                  <div className='font-semibold'>
+                    {bedroom.TypeBedrooms?.nameType || bedroom.typeBedroom}
                   </div>
+                  <div className='text-xs text-muted-foreground truncate max-w-[180px]'>
+                    {bedroom.description}
+                  </div>
+                </TableCell>
+                <TableCell className='text-center'>
+                  <div className='flex items-center justify-center gap-1'>
+                    <Users className='w-3 h-3 text-muted-foreground' />{" "}
+                    {bedroom.capacity}
+                  </div>
+                </TableCell>
+
+                <TableCell className='text-center'>
+                  <div className='flex flex-col items-center gap-1'>
+                    <div className='flex items-center gap-1 text-emerald-600 font-medium text-sm'>
+                      <ArrowDownCircle className='w-3 h-3' />
+                      C$
+                      {Number(bedroom.lowSeasonPrice).toLocaleString()}
+                    </div>
+                    <div className='flex items-center gap-1 text-orange-600 font-medium text-sm border-t border-border pt-1'>
+                      <ArrowUpCircle className='w-3 h-3' />
+                      C$
+                      {Number(bedroom.highSeasonPrice).toLocaleString()}
+                    </div>
+                  </div>
+                </TableCell>
+
+                <TableCell>
+                  {(() => {
+                    const now = new Date();
+                    const isReservedNow = bedroom.ReservationDetails?.some((rd: any) => {
+                      const start = new Date(rd.dateStart);
+                      const end = new Date(rd.dateEnd);
+                      return now >= start && now < end;
+                    });
+
+                    if (!bedroom.status) {
+                      return (
+                        <Badge
+                          variant='outline'
+                          className="bg-slate-50 text-slate-700 border-slate-300 dark:bg-slate-900/40 dark:text-slate-300"
+                        >
+                          ⛔ Fuera de Servicio
+                        </Badge>
+                      );
+                    }
+
+                    if (isReservedNow) {
+                      return (
+                        <Badge
+                          variant='outline'
+                          className="bg-red-50 text-red-700 border-red-200 dark:bg-red-950/20"
+                        >
+                          ● Ocupada Hoy
+                        </Badge>
+                      );
+                    }
+
+                    return (
+                      <Badge
+                        variant='outline'
+                        className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/20"
+                      >
+                        ✓ Disponible Hoy
+                      </Badge>
+                    );
+                  })()}
+                </TableCell>
+                <TableCell className='text-right'>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant='ghost' size='icon'>
+                        <MoreHorizontal className='h-4 w-4' />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align='end' className='w-40'>
+                      <DropdownMenuLabel>Opciones</DropdownMenuLabel>
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        <EditBedrooms
+                          bedroom={bedroom}
+                          seasons={seasons}
+                          roomTypes={roomTypes}
+                        />
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onSelect={(e) => e.preventDefault()}
+                        className='text-destructive'
+                      >
+                        <DeleteBedrooms bedroomsId={bedroom.id} />
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
-      </form>
+      </div>
     </div>
   );
-};
-
-export default TableBedrooms;
+}

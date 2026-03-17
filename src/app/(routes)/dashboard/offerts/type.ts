@@ -1,10 +1,11 @@
-import { Bedrooms } from "@prisma/client";
 // Tipos para los datos
 export type Bedroom = {
   id: number;
-  typeBedroom: string;
   lowSeasonPrice: number;
   highSeasonPrice: number;
+  TypeBedrooms?: {
+    nameType: string;
+  };
 };
 
 export type Season = {
@@ -75,7 +76,7 @@ export interface DeletePromotionResponse {
   message?: string;
 }
 
-export type BedroomsWithImages = Bedrooms & {
+export type BedroomsWithImages = Bedroom & {
   galleryImages: {
     id: number;
     bedroomId: number;

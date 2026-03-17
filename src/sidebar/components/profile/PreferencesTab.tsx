@@ -58,7 +58,7 @@ export function PreferencesTab() {
                 </div>
 
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Ajusta tus preferencias de apariencia y notificaciones.
+                    Ajusta tus preferencias de apariencia.
                 </p>
             </CardContent>
         </Card>

@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 
 export const getAllTestimonialsForAdmin = async () => {
   try {
-    const testimonials = await prisma.testimonials.findMany({
+    const testimonials = await prisma.testimonial.findMany({
       orderBy: {
         createdAt: "desc",
       },
@@ -15,6 +15,7 @@ export const getAllTestimonialsForAdmin = async () => {
             id: true,
             username: true,
             email: true,
+            image: true,
           },
         },
       },
@@ -35,7 +36,7 @@ export const getAllTestimonialsForAdmin = async () => {
 
 export const approveTestimonial = async (testimonialId: number) => {
   try {
-    const testimonial = await prisma.testimonials.update({
+    const testimonial = await prisma.testimonial.update({
       where: { id: testimonialId },
       data: { isApproved: true },
       include: {
@@ -44,6 +45,7 @@ export const approveTestimonial = async (testimonialId: number) => {
             id: true,
             username: true,
             email: true,
+            image: true,
           },
         },
       },
@@ -69,7 +71,7 @@ export const approveTestimonial = async (testimonialId: number) => {
 
 export const rejectTestimonial = async (testimonialId: number) => {
   try {
-    const testimonial = await prisma.testimonials.update({
+    const testimonial = await prisma.testimonial.update({
       where: { id: testimonialId },
       data: { isApproved: false },
       include: {
@@ -78,6 +80,7 @@ export const rejectTestimonial = async (testimonialId: number) => {
             id: true,
             username: true,
             email: true,
+            image: true,
           },
         },
       },
@@ -105,7 +108,7 @@ export const rejectTestimonial = async (testimonialId: number) => {
 
 export const deleteTestimonial = async (testimonialId: number) => {
   try {
-    await prisma.testimonials.delete({
+    await prisma.testimonial.delete({
       where: { id: testimonialId },
     });
 
@@ -131,9 +134,9 @@ export const deleteTestimonial = async (testimonialId: number) => {
 export const getTestimonialStats = async () => {
   try {
     const [total, approved, pending, rejected] = await Promise.all([
-      prisma.testimonials.count(),
-      prisma.testimonials.count({ where: { isApproved: true } }),
-      prisma.testimonials.count({ where: { isApproved: false } }),
+      prisma.testimonial.count(),
+      prisma.testimonial.count({ where: { isApproved: true } }),
+      prisma.testimonial.count({ where: { isApproved: false } }),
       Promise.resolve(0),
     ]);
 
