@@ -43,22 +43,30 @@ function InvoiceForm() {
   const [isSaving, setIsSaving] = useState(false);
   const [loadingRes, setLoadingRes] = useState(false);
 
-  // Auto-load from URL params
+  // Auto-load from URL params and fetch immediately
   useEffect(() => {
     const defaultReservationId = searchParams.get("reservationId");
     if (defaultReservationId) {
       setReservationId(defaultReservationId);
+      // Fetch immediately to ensure it loads on first render without relying on the second effect
+      if (items.length === 0 && !loadingRes) {
+        fetchLastReservation(defaultReservationId);
+      }
     }
   }, [searchParams]);
 
   useEffect(() => {
+    // Solo reaccionar cuando el usuario escriba manualmente en el input
+    // Evitamos re-disparar si ya estamos cargando o ya hay items
     if (
       reservationId &&
-      searchParams.get("reservationId") &&
+      !searchParams.get("reservationId") &&
       items.length === 0 &&
       !loadingRes
     ) {
-      fetchLastReservation(reservationId);
+      // Opcional: Podrías querer que busque automáticamente al terminar de escribir un ID, 
+      // pero normalmente eso se hace con el botón. Dejaremos este efecto por compatibilidad
+      // por si el usuario esperaba que al escribir buscara (aunque lo ideal es usar el botón).
     }
   }, [reservationId]);
 

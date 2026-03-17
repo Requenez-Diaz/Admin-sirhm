@@ -262,7 +262,7 @@ export function ViewReservation({ reservationId }: ViewReservationProps) {
                 <Button
                   onClick={() => {
                     setOpen(false);
-                    router.push(`/dashboard/invoices/new?clientId=${reservation.userId}`);
+                    router.push(`/dashboard/invoices/new?reservationId=${reservation.id}`);
                   }}
                   className="flex-1 rounded-xl py-6 text-base bg-amber-600 hover:bg-amber-700 text-white flex items-center gap-2"
                 >
