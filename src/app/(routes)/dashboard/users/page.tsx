@@ -1,56 +1,55 @@
 import findManyUsers from "@/app/actions/users/get-users";
-import { DeleteUsers } from "@/app/cards/usersCards/delete-users";
-import { EditUsers } from "@/app/cards/usersCards/edit_users";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableHeader, TableRow, TableHead } from "@/components/ui/table";
+import { UserCog } from "lucide-react";
 import React from "react";
+import {
+  TableUserHeader,
+  TableUserRow,
+  TableUserFooter,
+  TableUserEmptyState,
+} from "./components";
 
 export default async function Page() {
   const users = await findManyUsers();
 
-  const totalUsers = users.length;
   return (
-    <div className=' shadow-md rounded-lg overflow-hidden'>
-      <div className='py-12 px-4 sm:px-6 lg:px-8'>
-        <div className='overflow-x-auto'>
-          <Table className='min-w-full divide-y divide-gray-200'>
-            <TableCaption>Listado de usuarios: {totalUsers}</TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead className='w-[100px]'>ID</TableHead>
-                <TableHead>Usuarios</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users &&
-                users.map((user, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{user.id}</TableCell>
-                    <TableCell>{user.username}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.roleName}</TableCell>
-                    <TableCell>
-                      <div className='flex flex-row items-center'>
-                        <EditUsers userId={user.id} />
-                        <DeleteUsers userId={user.id} />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-        </div>
+    <div className="p-6 space-y-6">
+      <TableUserHeader />
+
+      <div className="rounded-xl border border-border overflow-hidden bg-background shadow-sm">
+        <Table>
+          <TableHeader className="bg-muted/50">
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="w-[100px] font-bold text-foreground">
+                <div className="flex items-center gap-2">
+                  <UserCog className="h-4 w-4 text-slate-400" /> ID
+                </div>
+              </TableHead>
+              <TableHead className="font-bold text-foreground uppercase text-xs tracking-wider">
+                Usuario
+              </TableHead>
+              <TableHead className="font-bold text-foreground uppercase text-xs tracking-wider">
+                Email
+              </TableHead>
+              <TableHead className="font-bold text-foreground uppercase text-xs tracking-wider">
+                Rol
+              </TableHead>
+              <TableHead className="text-right font-bold text-foreground uppercase text-xs tracking-wider">
+                Acciones
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <tbody>
+            {users && users.length > 0 ? (
+              users.map((user) => <TableUserRow key={user.id} user={user} />)
+            ) : (
+              <TableUserEmptyState />
+            )}
+          </tbody>
+        </Table>
       </div>
+
+      <TableUserFooter totalCount={users?.length || 0} />
     </div>
   );
 }
