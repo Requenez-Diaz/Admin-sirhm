@@ -68,9 +68,13 @@ export const getReservations = async (): Promise<ReservationRow[]> => {
 
     const invoices = await prisma.invoice.findMany({
       where: {
-        clientId: { in: reservations.map((r) => r.user_id) },
-      },
+        reservationId: { in: reservations.map((r) => r.id) },
+      } as any,
     });
+
+    const invoiceMap = new Map(
+      (invoices as any[]).map((inv) => [inv.reservationId as number, true]),
+    );
 
     const formatted: ReservationRow[] = reservations.map((reservation) => {
       const details = reservation.ReservationDetails ?? [];
@@ -127,12 +131,8 @@ export const getReservations = async (): Promise<ReservationRow[]> => {
         0,
       );
 
-      // Is Invoiced Check
-      const isInvoiced = invoices.some(
-        (inv) =>
-          inv.clientId === reservation.user_id &&
-          inv.date >= reservation.createdAt,
-      );
+      // Is Invoiced Check - specific to this reservation
+      const isInvoiced = invoiceMap.has(reservation.id);
 
       const fullName = reservation.User?.username ?? "";
       const [firstName, ...lastParts] = fullName.split(" ");

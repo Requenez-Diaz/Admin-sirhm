@@ -82,14 +82,11 @@ export const getReservationById = async (
 
     if (!reservation) return null;
 
-    // Check if there's an invoice for this client created at or after the reservation date
+    // Check if there's an invoice specifically for this reservation
     const invoice = await prisma.invoice.findFirst({
       where: {
-        clientId: reservation.user_id,
-        date: {
-          gte: reservation.createdAt,
-        },
-      },
+        reservationId: reservation.id,
+      } as any,
     });
 
     const isInvoiced = !!invoice;

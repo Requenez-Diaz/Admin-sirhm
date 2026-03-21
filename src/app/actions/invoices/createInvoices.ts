@@ -3,14 +3,18 @@
 import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
-export async function createInvoice(data: { clientId: number; items: any[] }) {
+export async function createInvoice(data: {
+  clientId: number;
+  items: any[];
+  reservationId?: number;
+}) {
   try {
     const newInvoice = await prisma.$transaction(async (tx) => {
-      // Creamos la factura en la tabla 'Invoce'
       const invoice = await tx.invoice.create({
         data: {
           clientId: data.clientId,
           date: new Date(),
+          reservationId: data.reservationId,
           invoceDetail: {
             create: data.items.map((i) => ({
               item: i.item,
@@ -18,12 +22,13 @@ export async function createInvoice(data: { clientId: number; items: any[] }) {
               amount: i.amount,
             })),
           },
-        },
+        } as any,
       });
       return invoice;
     });
 
     revalidatePath("/dashboard/invoices");
+    revalidatePath("/dashboard/bookings");
 
     return { success: true, id: newInvoice.id };
   } catch (error) {

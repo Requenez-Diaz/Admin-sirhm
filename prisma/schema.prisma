@@ -41,6 +41,7 @@ model Reservation {
   status             BookingsStatus       @default(PENDING)
   User               User                 @relation(fields: [user_id], references: [id])
   ReservationDetails ReservationDetails[]
+   Invoice            Invoice?
 }
 
 model Testimonial {
@@ -72,7 +73,9 @@ model Invoice {
   id           Int            @id @default(autoincrement())
   clientId     Int
   date         DateTime
+  reservationId Int?           @unique
   invoceDetail InvoceDetail[]
+  Reservation  Reservation?  @relation(fields: [reservationId], references: [id])
 }
 
 model InvoceDetail {
