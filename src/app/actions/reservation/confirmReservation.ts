@@ -13,7 +13,9 @@ export async function confirmReservation(reservationId: number) {
         ReservationDetails: {
           select: {
             bedrooms_id: true,
-            Bedrooms: { select: { TypeBedrooms: { select: { nameType: true } } } },
+            Bedrooms: {
+              select: { TypeBedrooms: { select: { nameType: true } } },
+            },
           },
         },
       },
@@ -35,6 +37,11 @@ export async function confirmReservation(reservationId: number) {
     await prisma.$transaction(async (tx) => {
       await tx.reservation.update({
         where: { id: reservationId },
+        data: { status: newStatus },
+      });
+
+      await tx.reservationDetails.updateMany({
+        where: { reservation_id: reservationId },
         data: { status: newStatus },
       });
     });
