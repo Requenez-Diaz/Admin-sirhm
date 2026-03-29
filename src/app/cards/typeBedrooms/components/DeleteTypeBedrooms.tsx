@@ -1,9 +1,8 @@
 "use client";
 
-import { Trash2, Loader2, AlertTriangle } from "lucide-react";
+import { Loader2, AlertTriangle } from "lucide-react";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast"; // Verifica si es /hooks/use-toast en tu versión
+import { useToast } from "@/components/ui/use-toast";
 import { deleteTypeBedroom } from "@/app/actions/roomsType/rooms-type";
 import {
   AlertDialog,
@@ -17,9 +16,24 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-export function DeleteTypeButton({ id }: { id: number }) {
+export function DeleteTypeButton({
+  id,
+  externalOpen,
+  onExternalOpenChange,
+}: {
+  id: number;
+  externalOpen?: boolean;
+  onExternalOpenChange?: (open: boolean) => void;
+}) {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  const internalOpen = useState(false)[0];
+  const setInternalOpen = useState(false)[1];
+
+  const isControlled = externalOpen !== undefined;
+  const open = isControlled ? externalOpen : internalOpen;
+  const setOpen = isControlled ? onExternalOpenChange! : setInternalOpen;
 
   const handleDelete = async () => {
     setLoading(true);
@@ -31,6 +45,7 @@ export function DeleteTypeButton({ id }: { id: number }) {
         title: "Registro eliminado",
         description: "La categoría se borró correctamente.",
       });
+      setOpen(false);
     } else {
       toast({
         variant: "destructive",
@@ -41,17 +56,9 @@ export function DeleteTypeButton({ id }: { id: number }) {
   };
 
   return (
-    <AlertDialog>
-      {/* El disparador es el botón de la basura */}
+    <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button
-          variant='ghost'
-          size='sm'
-          className='h-8 w-8 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive'
-          disabled={loading}
-        >
-          <Trash2 className='w-4 h-4' />
-        </Button>
+        <button className='hidden' />
       </AlertDialogTrigger>
 
       <AlertDialogContent>

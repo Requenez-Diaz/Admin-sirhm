@@ -27,10 +27,24 @@ interface TypeBedroomFormProps {
     nameType: string;
     description: string;
   };
+  externalOpen?: boolean;
+  onExternalOpenChange?: (open: boolean) => void;
 }
 
-export default function TypeBedroomForm({ initialData }: TypeBedroomFormProps) {
-  const [open, setOpen] = useState(false);
+export default function TypeBedroomForm({
+  initialData,
+  externalOpen,
+  onExternalOpenChange,
+}: TypeBedroomFormProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+
+  const isControlled = externalOpen !== undefined;
+  const open = isControlled ? externalOpen : internalOpen;
+  const setOpen =
+    isControlled && onExternalOpenChange
+      ? onExternalOpenChange
+      : setInternalOpen;
+
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -72,76 +86,76 @@ export default function TypeBedroomForm({ initialData }: TypeBedroomFormProps) {
       <DialogTrigger asChild>
         {isEditing ? (
           <Button
-            variant='ghost'
-            size='sm'
-            className='h-8 w-8 p-0 text-blue-500'
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0 text-blue-500"
           >
-            <Edit className='w-4 h-4' />
+            <Edit className="w-4 h-4" />
           </Button>
         ) : (
-          <Button className='flex gap-2' variant={"success"}>
-            <Plus className='w-4 h-4' />
+          <Button className="flex gap-2" variant={"success"}>
+            <Plus className="w-4 h-4" />
             <span>Nuevo Tipo</span>
           </Button>
         )}
       </DialogTrigger>
 
-      <DialogContent className='sm:max-w-[425px]'>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className='text-2xl font-black uppercase tracking-tight'>
+          <DialogTitle className="text-2xl font-black uppercase tracking-tight">
             {isEditing ? "Editar Categoría" : "Agregar Categoría"}
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className='space-y-6 pt-4'>
-          <div className='space-y-2'>
-            <label className='text-xs font-bold uppercase text-muted-foreground'>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pt-4">
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase text-muted-foreground">
               Nombre del Tipo
             </label>
             <Input
               {...register("nameType", { required: true })}
-              placeholder='Ej: Suite Presidencial'
+              placeholder="Ej: Suite Presidencial"
             />
           </div>
 
-          <div className='space-y-2'>
-            <label className='text-xs font-bold uppercase text-muted-foreground'>
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase text-muted-foreground">
               Descripción
             </label>
             <Textarea
               {...register("description", { required: true })}
-              placeholder='Características de la categoría...'
-              className='resize-none h-32'
+              placeholder="Características de la categoría..."
+              className="resize-none h-32"
             />
           </div>
 
-          <div className='flex justify-end gap-3 pt-2'>
+          <div className="flex justify-end gap-3 pt-2">
             <Button
-              type='button'
-              variant='ghost'
+              type="button"
+              variant="ghost"
               onClick={() => setOpen(false)}
               disabled={loading}
-              className='flex items-center gap-2'
+              className="flex items-center gap-2"
             >
-              <Icon action='undo' className='w-4 h-4' />
+              <Icon action="undo" className="w-4 h-4" />
               Cancelar
             </Button>
             <Button
-              type='submit'
+              type="submit"
               variant={"success"}
               disabled={loading}
-              className='min-w-[120px] flex items-center gap-2'
+              className="min-w-[120px] flex items-center gap-2"
             >
               {loading ? (
-                <Loader2 className='w-4 h-4 animate-spin' />
+                <Loader2 className="w-4 h-4 animate-spin" />
               ) : isEditing ? (
                 <>
-                  <Icon action='save' className='w-4 h-4' />
+                  <Icon action="save" className="w-4 h-4" />
                   Guardar Cambios
                 </>
               ) : (
                 <>
-                  <Icon action='save' className='w-4 h-4' />
+                  <Icon action="save" className="w-4 h-4" />
                   Crear Tipo
                 </>
               )}
