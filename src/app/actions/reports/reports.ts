@@ -35,15 +35,9 @@ export async function getReservationReport(
         status: "CONFIRMED",
         ...(start || adjustedEnd
           ? {
-              ReservationDetails: {
-                some: {
-                  AND: [
-                    ...(adjustedEnd
-                      ? [{ dateStart: { lte: adjustedEnd } }]
-                      : []),
-                    ...(start ? [{ dateEnd: { gte: start } }] : []),
-                  ],
-                },
+              createdAt: {
+                ...(start ? { gte: start } : {}),
+                ...(adjustedEnd ? { lte: adjustedEnd } : {}),
               },
             }
           : {}),
@@ -100,6 +94,7 @@ export async function getReservationReport(
             ? ((uniqueOccupiedRooms.size / totalRoomsCount) * 100).toFixed(1)
             : "0",
         totalReservas: reservations.length,
+        conteoOcupadas: uniqueOccupiedRooms.size,
       },
     };
   } catch (error) {
