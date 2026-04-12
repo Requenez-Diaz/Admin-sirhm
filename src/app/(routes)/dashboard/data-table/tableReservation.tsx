@@ -34,7 +34,6 @@ interface ReservationRow {
   bedroomsType: string;
   arrivalDate: string | null;
   departureDate: string | null;
-  offert: string | null;
   totalPrice: number;
   isInvoiced: boolean;
   roomDetails: {
@@ -137,9 +136,6 @@ const TableReservation: React.FC<TableReservationProps> = ({
               </TableHead>
               <TableHead className="text-xs sm:text-sm text-foreground font-bold text-right">
                 Llegada - Salida
-              </TableHead>
-              <TableHead className="text-xs sm:text-sm text-foreground font-bold text-right">
-                Ofertas
               </TableHead>
               <TableHead className="text-xs sm:text-sm text-foreground font-bold text-right">
                 Total
