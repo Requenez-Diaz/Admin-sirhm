@@ -94,9 +94,6 @@ export function TableReservationRow({ reservation }: TableReservationRowProps) {
         }) || "—"}
       </TableCell>
 
-      <TableCell className="text-xs sm:text-sm text-right font-medium">
-        {reservation.offert ?? "N/A"}
-      </TableCell>
       <TableCell className="text-xs sm:text-sm text-right font-bold text-primary">
         C$ {Math.floor(reservation.totalPrice)}
       </TableCell>

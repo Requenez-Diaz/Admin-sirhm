@@ -26,7 +26,6 @@ export type ReservationRow = {
   bedroomsType: string;
   arrivalDate: string | null;
   departureDate: string | null;
-  offert: string | null;
   totalPrice: number;
   isInvoiced: boolean;
   roomDetails: RoomDetail[];
@@ -34,18 +33,11 @@ export type ReservationRow = {
 
 export const getReservations = async (): Promise<ReservationRow[]> => {
   try {
-    const today = new Date();
-
     const reservations = await prisma.reservation.findMany({
       where: {
         OR: [
           { status: { in: ["PENDING", "CONFIRMED"] } },
-          {
-            status: "CANCELLED",
-            ReservationDetails: {
-              some: { dateStart: { gte: today } },
-            },
-          },
+          { status: "CANCELLED" },
         ],
       },
       orderBy: { createdAt: "desc" },
@@ -79,16 +71,17 @@ export const getReservations = async (): Promise<ReservationRow[]> => {
     const formatted: ReservationRow[] = reservations.map((reservation) => {
       const details = reservation.ReservationDetails ?? [];
 
-      // Filter only active (non-cancelled) details
-      const activeDetails = details.filter((d) => d.status !== "CANCELLED");
+      // Use all details for cancelled reservations, active only for others
+      const isCancelled = reservation.status === "CANCELLED";
+      const _activeDetails = isCancelled
+        ? details
+        : details.filter((d) => d.status !== "CANCELLED");
 
       // Extract and filter dates
-      const starts = activeDetails
+      const starts = details
         .map((d) => d.dateStart)
         .filter((d): d is Date => !!d);
-      const ends = activeDetails
-        .map((d) => d.dateEnd)
-        .filter((d): d is Date => !!d);
+      const ends = details.map((d) => d.dateEnd).filter((d): d is Date => !!d);
 
       const minStart = starts.length
         ? new Date(Math.min(...starts.map((d) => d.getTime())))
@@ -99,7 +92,7 @@ export const getReservations = async (): Promise<ReservationRow[]> => {
         : null;
 
       // Calculate totals
-      const guests = activeDetails.reduce(
+      const guests = details.reduce(
         (acc, d) => acc + (d.guestQuantity ?? 0),
         0,
       );
@@ -107,7 +100,7 @@ export const getReservations = async (): Promise<ReservationRow[]> => {
       const uniqueBedroomIds = new Set<number>();
       const bedroomTypesSet = new Set<string>();
 
-      activeDetails.forEach((d) => {
+      details.forEach((d) => {
         if (d.Bedrooms?.id) uniqueBedroomIds.add(d.Bedrooms.id);
 
         const typeName = d.Bedrooms?.TypeBedrooms?.nameType;
@@ -117,19 +110,8 @@ export const getReservations = async (): Promise<ReservationRow[]> => {
       const rooms = uniqueBedroomIds.size;
       const bedroomsType = Array.from(bedroomTypesSet).join(", ") || "Sin tipo";
 
-      // Promotions
-      const promoSet = new Set<string>();
-      activeDetails.forEach((d) => {
-        const code = d.Promotions?.codePromotions;
-        if (code) promoSet.add(code);
-      });
-      const offert = promoSet.size ? Array.from(promoSet).join(", ") : null;
-
-      // Total Price Calculation (Direct sum as price already includes nights)
-      const totalPrice = activeDetails.reduce(
-        (acc, d) => acc + (d.price ?? 0),
-        0,
-      );
+      // Total Price Calculation
+      const totalPrice = details.reduce((acc, d) => acc + (d.price ?? 0), 0);
 
       // Is Invoiced Check - specific to this reservation
       const isInvoiced = invoiceMap.has(reservation.id);
@@ -158,7 +140,6 @@ export const getReservations = async (): Promise<ReservationRow[]> => {
         bedroomsType,
         arrivalDate: minStart ? minStart.toISOString() : null,
         departureDate: maxEnd ? maxEnd.toISOString() : null,
-        offert: offert,
         totalPrice,
         isInvoiced,
         roomDetails,
