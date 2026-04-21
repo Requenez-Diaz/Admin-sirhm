@@ -31,15 +31,19 @@ export default async function InvoicesPage() {
         </Button>
       </div>
 
-      <div className='border rounded-xl bg-card overflow-hidden shadow-sm'>
-        <table className='w-full text-left text-sm'>
+      {/* Contenedor Adaptativo */}
+      <div className='border rounded-xl bg-card overflow-x-auto relative shadow-sm'>
+        <table className='w-full text-left text-sm min-w-full'>
           <thead className='bg-muted/50 border-b'>
             <tr className='text-[10px] font-black uppercase tracking-widest text-muted-foreground'>
-              <th className='p-4'>Referencia</th>
-              <th className='p-4'>Cliente ID</th>
-              <th className='p-4'>Fecha</th>
-              <th className='p-4'>Total</th>
-              <th className='p-4 text-right'>Acciones</th>
+              <th className='p-4 whitespace-nowrap'>Referencia</th>
+              <th className='p-4 whitespace-nowrap'>Cliente ID</th>
+              <th className='p-4 whitespace-nowrap'>Fecha</th>
+              <th className='p-4 whitespace-nowrap'>Total</th>
+              {/* Encabezado Fijo */}
+              <th className='p-4 text-right sticky right-0 z-20 bg-muted/95 backdrop-blur-sm shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.1)]'>
+                Acciones
+              </th>
             </tr>
           </thead>
           <tbody className='divide-y'>
@@ -54,21 +58,24 @@ export default async function InvoicesPage() {
                   key={inv.id}
                   className='hover:bg-muted/30 transition-colors group'
                 >
-                  <td className='p-4'>
+                  <td className='p-4 whitespace-nowrap'>
                     <Badge variant='outline' className='font-mono'>
                       #INV-{inv.id.toString().padStart(5, "0")}
                     </Badge>
                   </td>
-                  <td className='p-4 font-medium'>Cliente #{inv.clientId}</td>
-                  <td className='p-4 text-muted-foreground'>
+                  <td className='p-4 font-medium whitespace-nowrap'>
+                    Cliente #{inv.clientId}
+                  </td>
+                  <td className='p-4 text-muted-foreground whitespace-nowrap'>
                     {inv.date.toLocaleDateString("es-NI", {
                       dateStyle: "medium",
                     })}
                   </td>
-                  <td className='p-4 font-bold text-primary'>
+                  <td className='p-4 font-bold text-primary whitespace-nowrap'>
                     C$ {total.toLocaleString()}
                   </td>
-                  <td className='p-4'>
+
+                  <td className='p-4 sticky right-0 z-10 bg-background/95 backdrop-blur-sm text-right shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.1)] group-hover:bg-muted/50 transition-colors'>
                     <InvoiceActions invoiceId={inv.id} />
                   </td>
                 </tr>
