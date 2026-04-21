@@ -96,22 +96,26 @@ export function TableTypeRow({ type }: { type: TypeBedroom }) {
   return (
     <>
       <tr className='hover:bg-muted/30 transition-colors text-sm group'>
-        <td className='px-6 py-4 font-mono text-xs text-muted-foreground'>
+        <td className='px-6 py-4 font-mono text-xs text-muted-foreground whitespace-nowrap'>
           #{type.id}
         </td>
-        <td className='px-6 py-4 font-bold text-foreground'>{type.nameType}</td>
-        <td className='px-6 py-4 text-muted-foreground max-w-xs truncate'>
+        <td className='px-6 py-4 font-bold text-foreground whitespace-nowrap'>
+          {type.nameType}
+        </td>
+        <td className='px-6 py-4 text-muted-foreground max-w-xs truncate whitespace-nowrap'>
           {type.description}
         </td>
-        <td className='px-6 py-4 text-center'>
-          <span className='px-2 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-black border border-primary/20'>
+        <td className='px-6 py-4 text-center whitespace-nowrap'>
+          <span className='px-2 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-black border border-primary/20 whitespace-nowrap'>
             {type._count?.Bedrooms || 0} HABs
           </span>
         </td>
-        <td className='px-6 py-4 text-right'>
+
+        {/* COLUMNA DE ACCIONES PEGAJOSA (STICKY) */}
+        <td className='px-6 py-4 text-right sticky right-0 z-10 bg-background/95 backdrop-blur-sm shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.1)] group-hover:bg-muted/50 transition-colors'>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant='ghost' className='h-8 w-8 p-0'>
+              <Button variant='ghost' className='h-8 w-8 p-0 hover:bg-muted'>
                 <MoreHorizontal className='h-4 w-4' />
               </Button>
             </DropdownMenuTrigger>
@@ -132,10 +136,11 @@ export function TableTypeRow({ type }: { type: TypeBedroom }) {
         </td>
       </tr>
 
+      {/* Modales de Edición y Eliminación (Sin cambios en lógica) */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className='sm:max-w-md'>
           <DialogHeader>
-            <DialogTitle className='uppercase font-black'>
+            <DialogTitle className='uppercase font-black text-blue-600'>
               Editar Categoría
             </DialogTitle>
           </DialogHeader>
@@ -165,9 +170,13 @@ export function TableTypeRow({ type }: { type: TypeBedroom }) {
             <Button variant='outline' onClick={() => setEditOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleEdit} disabled={loading}>
+            <Button
+              onClick={handleEdit}
+              disabled={loading}
+              className='bg-blue-600 hover:bg-blue-700'
+            >
               {loading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}{" "}
-              Guardar
+              Guardar Cambios
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -176,26 +185,27 @@ export function TableTypeRow({ type }: { type: TypeBedroom }) {
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Estás completamente seguro?</AlertDialogTitle>
+            <AlertDialogTitle>¿Confirmar eliminación?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción eliminará la categoría{" "}
-              <strong>{type.nameType}</strong> y no se puede deshacer.
+              Esta acción eliminará permanentemente la categoría{" "}
+              <strong className='text-foreground'>{type.nameType}</strong>. No
+              podrás deshacer esta operación.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel>Volver</AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
                 handleDelete();
               }}
-              className='bg-red-600 hover:bg-red-700'
+              className='bg-red-600 hover:bg-red-700 text-white'
               disabled={loading}
             >
               {loading ? (
                 <Loader2 className='h-4 w-4 animate-spin' />
               ) : (
-                "Confirmar eliminación"
+                "Sí, eliminar categoría"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

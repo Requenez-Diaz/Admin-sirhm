@@ -42,7 +42,6 @@ export default function TableBedrooms({ bedrooms, seasons, roomTypes }: any) {
         typeName.toLowerCase().includes(search.toLowerCase()) ||
         b.numberBedroom.toString().includes(search);
 
-      // Lógica dinámica para el filtro de estado
       const now = new Date();
       const isReservedNow = b.ReservationDetails?.some((rd: any) => {
         const start = new Date(rd.dateStart);
@@ -63,7 +62,6 @@ export default function TableBedrooms({ bedrooms, seasons, roomTypes }: any) {
 
   return (
     <div className='p-4 space-y-6'>
-      {/* CABECERA AGREGADA */}
       <div className='flex flex-col gap-1'>
         <div className='flex items-center gap-2 text-slate-900 dark:text-slate-100'>
           <BedDouble className='h-6 w-6 text-blue-600' />
@@ -88,10 +86,11 @@ export default function TableBedrooms({ bedrooms, seasons, roomTypes }: any) {
             <DropdownMenuTrigger asChild>
               <Button
                 variant='outline'
-                className={`w-[140px] justify-between ${statusFilter === "all"
-                  ? "bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:text-white"
-                  : ""
-                  }`}
+                className={`w-[140px] justify-between ${
+                  statusFilter === "all"
+                    ? "bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:text-white"
+                    : ""
+                }`}
               >
                 {statusFilter === "all"
                   ? "Todos"
@@ -113,7 +112,9 @@ export default function TableBedrooms({ bedrooms, seasons, roomTypes }: any) {
               <DropdownMenuItem onClick={() => setStatusFilter("ocupada")}>
                 Ocupadas Hoy
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setStatusFilter("mantenimiento")}>
+              <DropdownMenuItem
+                onClick={() => setStatusFilter("mantenimiento")}
+              >
                 Fuera de Servicio
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -122,31 +123,41 @@ export default function TableBedrooms({ bedrooms, seasons, roomTypes }: any) {
         <AddBedrooms roomTypes={roomTypes} seasons={seasons} />
       </div>
 
-      <div className='rounded-xl border shadow-sm overflow-hidden'>
+      {/* CONTENEDOR CON OVERFLOW PARA SCROLL ADAPTATIVO */}
+      <div className='rounded-xl border shadow-sm overflow-x-auto relative bg-background'>
         <Table>
           <TableHeader className='bg-muted/50'>
             <TableRow>
-              <TableHead className='w-[80px]'>N° Hab.</TableHead>
-              <TableHead>Tipo / Descripción</TableHead>
-              <TableHead className='text-center'>Capacidad</TableHead>
-              <TableHead className='text-center'>
+              <TableHead className='w-[80px] whitespace-nowrap'>
+                N° Hab.
+              </TableHead>
+              <TableHead className='whitespace-nowrap'>
+                Tipo / Descripción
+              </TableHead>
+              <TableHead className='text-center whitespace-nowrap'>
+                Capacidad
+              </TableHead>
+              <TableHead className='text-center whitespace-nowrap'>
                 Tarifas (Baja / Alta)
               </TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead className='text-right'>Acciones</TableHead>
+              <TableHead className='whitespace-nowrap'>Estado</TableHead>
+              {/* CABECERA FIJA DE ACCIONES */}
+              <TableHead className='sticky right-0 z-20 bg-muted/95 backdrop-blur-sm text-right font-bold shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.1)]'>
+                Acciones
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filtered.map((bedroom: any) => (
               <TableRow
                 key={bedroom.id}
-                className='hover:bg-muted/30 transition-colors'
+                className='hover:bg-muted/30 transition-colors group'
               >
                 <TableCell className='font-mono font-bold text-center'>
                   {bedroom.numberBedroom}
                 </TableCell>
                 <TableCell>
-                  <div className='font-semibold'>
+                  <div className='font-semibold whitespace-nowrap'>
                     {bedroom.TypeBedrooms?.nameType || bedroom.typeBedroom}
                   </div>
                   <div className='text-xs text-muted-foreground truncate max-w-[180px]'>
@@ -154,43 +165,43 @@ export default function TableBedrooms({ bedrooms, seasons, roomTypes }: any) {
                   </div>
                 </TableCell>
                 <TableCell className='text-center'>
-                  <div className='flex items-center justify-center gap-1'>
+                  <div className='flex items-center justify-center gap-1 whitespace-nowrap'>
                     <Users className='w-3 h-3 text-muted-foreground' />{" "}
                     {bedroom.capacity}
                   </div>
                 </TableCell>
 
                 <TableCell className='text-center'>
-                  <div className='flex flex-col items-center gap-1'>
+                  <div className='flex flex-col items-center gap-1 min-w-[120px]'>
                     <div className='flex items-center gap-1 text-emerald-600 font-medium text-sm'>
                       <ArrowDownCircle className='w-3 h-3' />
-                      C$
-                      {Number(bedroom.lowSeasonPrice).toLocaleString()}
+                      C$ {Number(bedroom.lowSeasonPrice).toLocaleString()}
                     </div>
                     <div className='flex items-center gap-1 text-orange-600 font-medium text-sm border-t border-border pt-1'>
                       <ArrowUpCircle className='w-3 h-3' />
-                      C$
-                      {Number(bedroom.highSeasonPrice).toLocaleString()}
+                      C$ {Number(bedroom.highSeasonPrice).toLocaleString()}
                     </div>
                   </div>
                 </TableCell>
 
-                <TableCell>
+                <TableCell className='whitespace-nowrap'>
                   {(() => {
                     const now = new Date();
-                    const isReservedNow = bedroom.ReservationDetails?.some((rd: any) => {
-                      const start = new Date(rd.dateStart);
-                      const end = new Date(rd.dateEnd);
-                      return now >= start && now < end;
-                    });
+                    const isReservedNow = bedroom.ReservationDetails?.some(
+                      (rd: any) => {
+                        const start = new Date(rd.dateStart);
+                        const end = new Date(rd.dateEnd);
+                        return now >= start && now < end;
+                      },
+                    );
 
                     if (!bedroom.status) {
                       return (
                         <Badge
                           variant='outline'
-                          className="bg-slate-50 text-slate-700 border-slate-300 dark:bg-slate-900/40 dark:text-slate-300"
+                          className='bg-slate-50 text-slate-700 border-slate-300 dark:bg-slate-900/40 dark:text-slate-300'
                         >
-                          ⛔ Fuera de Servicio
+                          ⛔ Mantenimiento
                         </Badge>
                       );
                     }
@@ -199,9 +210,9 @@ export default function TableBedrooms({ bedrooms, seasons, roomTypes }: any) {
                       return (
                         <Badge
                           variant='outline'
-                          className="bg-red-50 text-red-700 border-red-200 dark:bg-red-950/20"
+                          className='bg-red-50 text-red-700 border-red-200 dark:bg-red-950/20'
                         >
-                          ● Ocupada Hoy
+                          ● Ocupada
                         </Badge>
                       );
                     }
@@ -209,14 +220,16 @@ export default function TableBedrooms({ bedrooms, seasons, roomTypes }: any) {
                     return (
                       <Badge
                         variant='outline'
-                        className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/20"
+                        className='bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/20'
                       >
-                        ✓ Disponible Hoy
+                        ✓ Disponible
                       </Badge>
                     );
                   })()}
                 </TableCell>
-                <TableCell className='text-right'>
+
+                {/* CELDA FIJA DE ACCIONES */}
+                <TableCell className='sticky right-0 z-10 bg-background/95 backdrop-blur-sm text-right shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.1)] group-hover:bg-muted/50 transition-colors'>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant='ghost' size='icon'>
