@@ -50,16 +50,16 @@ export function TableReservationRow({ reservation }: TableReservationRowProps) {
   return (
     <TableRow
       key={reservation.id}
-      className="border-border hover:bg-muted/30 transition-colors"
+      className='border-border hover:bg-muted/30 transition-colors group'
     >
-      <TableCell className="text-xs sm:text-sm font-medium">
+      <TableCell className='text-xs sm:text-sm font-medium'>
         {reservation.id}
       </TableCell>
-      <TableCell className="text-xs sm:text-sm">{firstName || "—"}</TableCell>
-      <TableCell className="hidden sm:table-cell text-xs sm:text-sm">
+      <TableCell className='text-xs sm:text-sm'>{firstName || "—"}</TableCell>
+      <TableCell className='hidden sm:table-cell text-xs sm:text-sm'>
         {lastName || "—"}
       </TableCell>
-      <TableCell className="hidden md:table-cell text-xs sm:text-sm">
+      <TableCell className='hidden md:table-cell text-xs sm:text-sm'>
         {reservation.email ?? "—"}
       </TableCell>
       <TableCell>
@@ -67,20 +67,20 @@ export function TableReservationRow({ reservation }: TableReservationRowProps) {
           {statusLabels[reservation.status]}
         </Badge>
       </TableCell>
-      <TableCell className="hidden sm:table-cell text-center">
+      <TableCell className='hidden lg:table-cell text-center'>
         {reservation.guests}
       </TableCell>
-      <TableCell className="hidden sm:table-cell text-center">
+      <TableCell className='hidden lg:table-cell text-center'>
         {reservation.rooms}
       </TableCell>
-      <TableCell className="text-xs sm:text-sm">
+      <TableCell className='text-xs sm:text-sm italic'>
         {reservation.bedroomsType || "—"}
       </TableCell>
-      <TableCell className="text-xs sm:text-sm text-right whitespace-nowrap">
+      <TableCell className='text-xs sm:text-sm text-right whitespace-nowrap'>
         {duration} {durationLabel}
       </TableCell>
 
-      <TableCell className="text-xs sm:text-sm text-right whitespace-nowrap font-mono text-muted-foreground">
+      <TableCell className='text-xs sm:text-sm text-right whitespace-nowrap font-mono text-muted-foreground px-4'>
         {arrival?.toLocaleDateString("es-ES", {
           day: "2-digit",
           month: "2-digit",
@@ -94,17 +94,21 @@ export function TableReservationRow({ reservation }: TableReservationRowProps) {
         }) || "—"}
       </TableCell>
 
-      <TableCell className="text-xs sm:text-sm text-right font-bold text-primary">
-        C$ {Math.floor(reservation.totalPrice) || Math.floor(reservation.originalPrice)}
+      <TableCell className='text-xs sm:text-sm text-right font-bold text-primary whitespace-nowrap'>
+        C${" "}
+        {Math.floor(reservation.totalPrice) ||
+          Math.floor(reservation.originalPrice)}
       </TableCell>
-      <TableCell className="text-right">
+
+      {/* CELDA DE ACCIONES FIJA A LA DERECHA */}
+      <TableCell className='sticky right-0 z-10 bg-background/95 backdrop-blur-sm text-right shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.1)] group-hover:bg-muted/50 transition-colors'>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-muted">
-              <MoreHorizontal className="h-4 w-4" />
+            <Button variant='ghost' className='h-8 w-8 p-0 hover:bg-muted'>
+              <MoreHorizontal className='h-4 w-4' />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-52">
+          <DropdownMenuContent align='end' className='w-52'>
             <DropdownMenuLabel>Acciones de Reserva</DropdownMenuLabel>
             {reservation.status === "PENDING" && (
               <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
@@ -120,7 +124,7 @@ export function TableReservationRow({ reservation }: TableReservationRowProps) {
               </DropdownMenuItem>
             )}
             {reservation.status !== "CANCELLED" && reservation.isInvoiced && (
-              <DropdownMenuItem disabled className="text-muted-foreground">
+              <DropdownMenuItem disabled className='text-muted-foreground'>
                 Facturada (No cancelable)
               </DropdownMenuItem>
             )}

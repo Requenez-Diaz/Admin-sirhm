@@ -19,10 +19,6 @@ import {
 
 type BookingStatus = "PENDING" | "CONFIRMED" | "CANCELLED";
 
-interface TableReservationProps {
-  reservations: ReservationRow[];
-}
-
 interface ReservationRow {
   id: number;
   status: BookingStatus;
@@ -45,6 +41,10 @@ interface ReservationRow {
     dateStart: string | null;
     dateEnd: string | null;
   }[];
+}
+
+interface TableReservationProps {
+  reservations: ReservationRow[];
 }
 
 const TableReservation: React.FC<TableReservationProps> = ({
@@ -94,7 +94,7 @@ const TableReservation: React.FC<TableReservationProps> = ({
   };
 
   return (
-    <div className="overflow-x-auto p-4 space-y-6">
+    <div className='p-4 space-y-6'>
       <TableReservationTitle />
       <TableReservationActions
         searchTerm={searchTerm}
@@ -104,44 +104,46 @@ const TableReservation: React.FC<TableReservationProps> = ({
         counters={counters}
       />
 
-      <div className="rounded-md border border-border overflow-hidden bg-background">
-        <Table className="min-w-full">
-          <TableHeader className="bg-muted/50">
-            <TableRow className="hover:bg-transparent border-border">
-              <TableHead className="w-12 text-xs sm:text-sm text-foreground font-bold">
+      {/* Contenedor con scroll horizontal habilitado */}
+      <div className='rounded-md border border-border bg-background overflow-x-auto relative shadow-sm'>
+        <Table className='min-w-full'>
+          <TableHeader className='bg-muted/50'>
+            <TableRow className='hover:bg-transparent border-border'>
+              <TableHead className='w-12 text-xs sm:text-sm text-foreground font-bold'>
                 ID
               </TableHead>
-              <TableHead className="text-xs sm:text-sm text-foreground font-bold">
+              <TableHead className='text-xs sm:text-sm text-foreground font-bold'>
                 Nombre
               </TableHead>
-              <TableHead className="hidden sm:table-cell text-xs sm:text-sm text-foreground font-bold">
+              <TableHead className='hidden sm:table-cell text-xs sm:text-sm text-foreground font-bold'>
                 Apellido
               </TableHead>
-              <TableHead className="hidden md:table-cell text-xs sm:text-sm text-foreground font-bold">
+              <TableHead className='hidden md:table-cell text-xs sm:text-sm text-foreground font-bold'>
                 Email
               </TableHead>
-              <TableHead className="text-xs sm:text-sm text-foreground font-bold">
+              <TableHead className='text-xs sm:text-sm text-foreground font-bold'>
                 Estado
               </TableHead>
-              <TableHead className="hidden sm:table-cell text-xs sm:text-sm text-foreground font-bold text-center">
+              <TableHead className='hidden lg:table-cell text-xs sm:text-sm text-foreground font-bold text-center'>
                 Huéspedes
               </TableHead>
-              <TableHead className="hidden sm:table-cell text-xs sm:text-sm text-foreground font-bold text-center">
+              <TableHead className='hidden lg:table-cell text-xs sm:text-sm text-foreground font-bold text-center'>
                 Habitaciones
               </TableHead>
-              <TableHead className="text-xs sm:text-sm text-foreground font-bold">
+              <TableHead className='text-xs sm:text-sm text-foreground font-bold'>
                 Tipo
               </TableHead>
-              <TableHead className="text-xs sm:text-sm text-foreground font-bold">
+              <TableHead className='text-xs sm:text-sm text-foreground font-bold text-right'>
                 Estancia
               </TableHead>
-              <TableHead className="text-xs sm:text-sm text-foreground font-bold text-right">
+              <TableHead className='text-xs sm:text-sm text-foreground font-bold text-right'>
                 Llegada - Salida
               </TableHead>
-              <TableHead className="text-xs sm:text-sm text-foreground font-bold text-right">
+              <TableHead className='text-xs sm:text-sm text-foreground font-bold text-right'>
                 Total
               </TableHead>
-              <TableHead className="text-xs sm:text-sm text-foreground font-bold text-right">
+              {/* Columna Acciones FIJA */}
+              <TableHead className='sticky right-0 z-20 bg-muted/95 backdrop-blur-sm text-xs sm:text-sm text-foreground font-bold text-right shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.1)]'>
                 Acciones
               </TableHead>
             </TableRow>
@@ -164,7 +166,7 @@ const TableReservation: React.FC<TableReservationProps> = ({
         </Table>
       </div>
 
-      <div className="mt-6">
+      <div className='mt-6'>
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
