@@ -35,6 +35,7 @@ interface ReservationRow {
   arrivalDate: string | null;
   departureDate: string | null;
   totalPrice: number;
+  originalPrice: number;
   isInvoiced: boolean;
   roomDetails: {
     id: number;

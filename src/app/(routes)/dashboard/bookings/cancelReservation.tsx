@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import Icon from "@/components/ui/icons/icons";
 import { cancelReservation } from "@/app/actions/reservation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export function CancellReservation({
@@ -21,13 +22,16 @@ export function CancellReservation({
   isInvoiced,
   detailId,
   roomName,
+  onSuccess,
 }: {
   reservationId: number;
   isInvoiced?: boolean;
   detailId?: number;
   roomName?: string;
+  onSuccess?: () => void;
 }) {
   const { toast } = useToast();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -42,6 +46,10 @@ export function CancellReservation({
         description: result.message,
       });
       setOpen(false);
+      setTimeout(() => {
+        router.refresh();
+        if (onSuccess) onSuccess();
+      }, 100);
     } else {
       toast({
         title: "Error",
@@ -80,25 +88,25 @@ export function CancellReservation({
               : buttonLabel
           }
         >
-          <Icon action="cancell" className="w-4 h-4 opacity-80" />
+          <Icon action='cancell' className='w-4 h-4 opacity-80' />
           {isInvoiced ? "Facturada (No cancelable)" : buttonLabel}
         </button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
           <DialogTitle>{dialogTitle}</DialogTitle>
           <DialogDescription>{dialogDescription}</DialogDescription>
         </DialogHeader>
 
-        <DialogFooter className="flex justify-end pt-4 gap-4">
+        <DialogFooter className='flex justify-end pt-4 gap-4'>
           <DialogClose asChild>
-            <Button type="button" variant="outline" disabled={loading}>
+            <Button type='button' variant='outline' disabled={loading}>
               No
             </Button>
           </DialogClose>
           <Button
-            type="button"
-            variant="destructive"
+            type='button'
+            variant='destructive'
             onClick={handleConfirm}
             disabled={loading || isInvoiced}
           >

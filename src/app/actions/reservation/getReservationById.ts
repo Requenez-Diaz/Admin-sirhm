@@ -52,11 +52,13 @@ export const getReservationById = async (
         },
         ReservationDetails: {
           select: {
+            id: true,
             price: true,
             dateStart: true,
             dateEnd: true,
             guestQuantity: true,
             bedrooms_id: true,
+            status: true,
             Bedrooms: {
               select: {
                 id: true,
@@ -138,7 +140,7 @@ export const getReservationById = async (
       }
 
       return {
-        id: d.Bedrooms?.id ?? 0,
+        id: d.id,
         name: d.Bedrooms?.TypeBedrooms?.nameType ?? "Habitación",
         description: d.Bedrooms?.description ?? "",
         capacity: d.Bedrooms?.capacity ?? 0,
@@ -147,12 +149,15 @@ export const getReservationById = async (
         nights: nights,
         subtotal: subtotal,
         seasonName: seasonName,
+        status: d.status,
       };
     });
 
     const rooms = uniqueBedroomIds.size;
     const bedroomsType = Array.from(bedroomNamesSet).join(", ");
-    const totalAmount = roomDetails.reduce((acc, r) => acc + r.subtotal, 0);
+    const totalAmount = roomDetails
+      .filter((r) => r.status !== "CANCELLED")
+      .reduce((acc, r) => acc + r.subtotal, 0);
 
     const promoSet = new Set<string>();
     details.forEach((d) => {
