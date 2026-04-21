@@ -35,9 +35,15 @@ export async function getReservationReport(
         status: "CONFIRMED",
         ...(start || adjustedEnd
           ? {
-              createdAt: {
-                ...(start ? { gte: start } : {}),
-                ...(adjustedEnd ? { lte: adjustedEnd } : {}),
+              ReservationDetails: {
+                some: {
+                  AND: [
+                    ...(adjustedEnd
+                      ? [{ dateStart: { lte: adjustedEnd } }]
+                      : []),
+                    ...(start ? [{ dateEnd: { gte: start } }] : []),
+                  ],
+                },
               },
             }
           : {}),

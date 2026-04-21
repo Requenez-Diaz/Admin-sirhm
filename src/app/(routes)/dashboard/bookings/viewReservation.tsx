@@ -18,6 +18,7 @@ import { Status } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { ReceiptText } from "lucide-react";
 import { ConfirmReservation } from "./confirmReservation";
+import { CancellReservation } from "./cancelReservation";
 
 interface RoomDetail {
   id: number;
@@ -79,7 +80,6 @@ export function ViewReservation({ reservationId }: ViewReservationProps) {
 
     const d = new Date(date);
     if (isNaN(d.getTime())) return "—";
-
 
     const adjustedDate = new Date(
       d.getUTCFullYear(),
@@ -178,7 +178,6 @@ export function ViewReservation({ reservationId }: ViewReservationProps) {
               </div>
             </div>
 
-
             <div className='space-y-4'>
               <h3 className='font-semibold text-lg dark:text-gray-200 px-1'>
                 Habitaciones Reservadas
@@ -260,6 +259,24 @@ export function ViewReservation({ reservationId }: ViewReservationProps) {
                           C${room.subtotal.toLocaleString()}
                         </span>
                       </div>
+
+                      {(room as any).status !== "CANCELLED" &&
+                        !reservation.isInvoiced && (
+                          <div className='pt-2'>
+                            <CancellReservation
+                              reservationId={reservation.id}
+                              isInvoiced={reservation.isInvoiced}
+                              detailId={room.id}
+                              roomName={room.name}
+                              onSuccess={() => fetchReservation(true)}
+                            />
+                          </div>
+                        )}
+                      {(room as any).status === "CANCELLED" && (
+                        <div className='pt-2'>
+                          <Badge variant='destructive'>Cancelada</Badge>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))
@@ -279,7 +296,6 @@ export function ViewReservation({ reservationId }: ViewReservationProps) {
                 C${reservation.totalAmount?.toLocaleString() ?? 0}
               </span>
             </div>
-
 
             <div className='grid grid-cols-2 gap-4 text-sm bg-gray-100 dark:bg-slate-900 p-4 rounded-lg border dark:border-gray-800'>
               <div className='flex justify-between'>

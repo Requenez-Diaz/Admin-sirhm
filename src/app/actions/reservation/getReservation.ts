@@ -27,6 +27,7 @@ export type ReservationRow = {
   arrivalDate: string | null;
   departureDate: string | null;
   totalPrice: number;
+  originalPrice: number;
   isInvoiced: boolean;
   roomDetails: RoomDetail[];
 };
@@ -110,8 +111,13 @@ export const getReservations = async (): Promise<ReservationRow[]> => {
       const rooms = uniqueBedroomIds.size;
       const bedroomsType = Array.from(bedroomTypesSet).join(", ") || "Sin tipo";
 
-      // Total Price Calculation
-      const totalPrice = details.reduce((acc, d) => acc + (d.price ?? 0), 0);
+      // Total Price Calculation - sin habitaciones canceladas
+      const totalPrice = details
+        .filter((d) => d.status !== "CANCELLED")
+        .reduce((acc, d) => acc + (d.price ?? 0), 0);
+
+      // Original Price - todas las habitaciones
+      const originalPrice = details.reduce((acc, d) => acc + (d.price ?? 0), 0);
 
       // Is Invoiced Check - specific to this reservation
       const isInvoiced = invoiceMap.has(reservation.id);
@@ -141,6 +147,7 @@ export const getReservations = async (): Promise<ReservationRow[]> => {
         arrivalDate: minStart ? minStart.toISOString() : null,
         departureDate: maxEnd ? maxEnd.toISOString() : null,
         totalPrice,
+        originalPrice,
         isInvoiced,
         roomDetails,
       };

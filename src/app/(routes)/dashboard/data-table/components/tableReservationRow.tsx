@@ -95,7 +95,7 @@ export function TableReservationRow({ reservation }: TableReservationRowProps) {
       </TableCell>
 
       <TableCell className="text-xs sm:text-sm text-right font-bold text-primary">
-        C$ {Math.floor(reservation.totalPrice)}
+        C$ {Math.floor(reservation.totalPrice) || Math.floor(reservation.originalPrice)}
       </TableCell>
       <TableCell className="text-right">
         <DropdownMenu>
@@ -111,35 +111,17 @@ export function TableReservationRow({ reservation }: TableReservationRowProps) {
                 <ConfirmReservation reservationId={reservation.id} />
               </DropdownMenuItem>
             )}
-            {reservation.roomDetails.length > 1 ? (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuLabel className="text-xs text-muted-foreground">
-                  Cancelar habitación
-                </DropdownMenuLabel>
-                {reservation.roomDetails
-                  .filter((room) => room.status !== "CANCELLED")
-                  .map((room) => (
-                    <DropdownMenuItem
-                      key={room.id}
-                      asChild
-                      onSelect={(e) => e.preventDefault()}
-                    >
-                      <CancellReservation
-                        reservationId={reservation.id}
-                        isInvoiced={reservation.isInvoiced}
-                        detailId={room.id}
-                        roomName={room.name}
-                      />
-                    </DropdownMenuItem>
-                  ))}
-              </>
-            ) : (
+            {reservation.status !== "CANCELLED" && !reservation.isInvoiced && (
               <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
                 <CancellReservation
                   reservationId={reservation.id}
                   isInvoiced={reservation.isInvoiced}
                 />
+              </DropdownMenuItem>
+            )}
+            {reservation.status !== "CANCELLED" && reservation.isInvoiced && (
+              <DropdownMenuItem disabled className="text-muted-foreground">
+                Facturada (No cancelable)
               </DropdownMenuItem>
             )}
             <DropdownMenuSeparator />
