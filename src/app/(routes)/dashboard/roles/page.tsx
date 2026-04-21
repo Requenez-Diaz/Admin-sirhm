@@ -1,5 +1,11 @@
 import getRole from "@/app/actions/role/get-role";
-import { Table, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableHead,
+  TableHeader,
+  TableRow,
+  TableBody,
+} from "@/components/ui/table";
 import { Fingerprint } from "lucide-react";
 import React from "react";
 import {
@@ -18,33 +24,36 @@ export default async function Page() {
       <TableRoleHeader />
       <TableRoleActions />
 
-      <div className='rounded-xl border border-border overflow-hidden bg-background shadow-sm'>
-        <Table>
+      {/* Contenedor con scroll horizontal y relativo para el sticky */}
+      <div className='rounded-xl border border-border overflow-x-auto relative bg-background shadow-sm'>
+        <Table className='min-w-full'>
           <TableHeader className='bg-muted/50'>
             <TableRow className='hover:bg-transparent'>
-              <TableHead className='w-[100px] font-bold text-foreground'>
+              <TableHead className='w-[100px] font-bold text-foreground whitespace-nowrap'>
                 <div className='flex items-center gap-2'>
                   <Fingerprint className='h-4 w-4 text-slate-400' /> ID
                 </div>
               </TableHead>
-              <TableHead className='font-bold text-foreground uppercase text-xs tracking-wider'>
+              <TableHead className='font-bold text-foreground uppercase text-xs tracking-wider whitespace-nowrap'>
                 Nombre del Rol
               </TableHead>
-              <TableHead className='font-bold text-foreground uppercase text-xs tracking-wider'>
+              <TableHead className='font-bold text-foreground uppercase text-xs tracking-wider whitespace-nowrap'>
                 Descripción del Rol
               </TableHead>
-              <TableHead className='text-right font-bold text-foreground uppercase text-xs tracking-wider'>
+
+              {/* Encabezado de Acciones Fijo */}
+              <TableHead className='sticky right-0 z-20 bg-muted/95 backdrop-blur-sm text-right font-bold text-foreground uppercase text-xs tracking-wider shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.1)]'>
                 Acciones
               </TableHead>
             </TableRow>
           </TableHeader>
-          <tbody>
+          <TableBody>
             {role.length > 0 ? (
               role.map((roles) => <TableRoleRow key={roles.id} role={roles} />)
             ) : (
               <TableRoleEmptyState />
             )}
-          </tbody>
+          </TableBody>
         </Table>
       </div>
 
