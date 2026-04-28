@@ -12,7 +12,6 @@ import {
   BedDouble,
   CalendarCheck,
   ShieldCheck,
-  Tag,
   BarChart3,
   MessageSquareQuote,
   UsersRound,
@@ -42,11 +41,6 @@ const links = [
     name: "roles",
     href: "/dashboard/roles",
     icon: ShieldCheck,
-  },
-  {
-    name: "Ofertas",
-    href: "/dashboard/offerts",
-    icon: Tag,
   },
   {
     name: "Facturación",
@@ -173,7 +167,12 @@ export default function MainSidebar({ onStateChange }: SidebarProps) {
                   )}
                 >
                   <div className='relative'>
-                    <link.icon className={cn("h-5 w-5 flex-shrink-0", isActive && "text-blue-600 dark:text-blue-400")} />
+                    <link.icon
+                      className={cn(
+                        "h-5 w-5 flex-shrink-0",
+                        isActive && "text-blue-600 dark:text-blue-400",
+                      )}
+                    />
                   </div>
                   {(isExpanded || isPinned) && (
                     <span className='ml-3 capitalize'>{link.name}</span>
