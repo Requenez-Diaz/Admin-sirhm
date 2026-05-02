@@ -74,7 +74,17 @@ export function TableReservationRow({ reservation }: TableReservationRowProps) {
         {reservation.rooms}
       </TableCell>
       <TableCell className='text-xs sm:text-sm italic'>
-        {reservation.bedroomsType || "—"}
+        {reservation.roomDetails.length > 1 ? (
+          <div className='flex flex-wrap gap-1'>
+            {reservation.roomDetails.map((room) => (
+              <span key={room.id} className={room.status === "CANCELLED" ? "line-through text-muted-foreground" : ""}>
+                {room.name}
+              </span>
+            ))}
+          </div>
+        ) : (
+          reservation.bedroomsType || "—"
+        )}
       </TableCell>
       <TableCell className='text-xs sm:text-sm text-right whitespace-nowrap'>
         {duration} {durationLabel}

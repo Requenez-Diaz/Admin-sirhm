@@ -41,7 +41,10 @@ export async function confirmReservation(reservationId: number) {
       });
 
       await tx.reservationDetails.updateMany({
-        where: { reservation_id: reservationId },
+        where: {
+          reservation_id: reservationId,
+          status: { not: BookingsStatus.CANCELLED },
+        },
         data: { status: newStatus },
       });
     });
