@@ -8,6 +8,8 @@ import { Loader2, Trash2 } from "lucide-react";
 import ImageUploadGallery from "./upload-file-gallery";
 import { uploadGalleryImage } from "@/app/actions/uploadsImage/uploadImageGallery";
 
+const cacheBuster = () => `?v=${Date.now()}`;
+
 export default function GalleryImageUploader({
   bedroomId,
   initialImages = [],
@@ -15,10 +17,11 @@ export default function GalleryImageUploader({
 }: any) {
   const [isUploading, setIsUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
+  const [images, setImages] = useState(initialImages);
   const { toast } = useToast();
 
   const handleUpload = async (imageData: any) => {
-    setPreview(imageData.imageUrl); // Preview inmediato
+    setPreview(imageData.imageUrl);
     setIsUploading(true);
     try {
       const formData = new FormData();
@@ -31,6 +34,10 @@ export default function GalleryImageUploader({
       if (res.success) {
         toast({ title: "Imagen subida" });
         setPreview(null);
+        setImages((prev: any) => [
+          ...prev,
+          { id: res.data.id, imageContent: res.data.imageContent },
+        ]);
         onImageUploaded();
       }
     } catch (error) {
@@ -47,13 +54,13 @@ export default function GalleryImageUploader({
         Galería
       </h3>
       <div className='grid grid-cols-3 sm:grid-cols-4 gap-2'>
-        {initialImages.map((img: any) => (
+        {images.map((img: any) => (
           <div
             key={img.id}
             className='relative aspect-square rounded-md overflow-hidden border group'
           >
             <Image
-              src={img.imageContent}
+              src={img.imageContent + cacheBuster()}
               alt='Gallery'
               fill
               className='object-cover'
