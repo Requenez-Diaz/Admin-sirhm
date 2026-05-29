@@ -61,16 +61,20 @@ export async function getReservationReport(
     const uniqueOccupiedRooms = new Set();
 
     const data = reservations.map((res) => {
-      const totalMontoReserva = res.ReservationDetails.reduce(
+      const activeDetails = res.ReservationDetails.filter(
+        (d) => d.status !== "CANCELLED",
+      );
+
+      const totalMontoReserva = activeDetails.reduce(
         (acc, d) => acc + (d.price ?? 0),
         0,
       );
       globalTotalRevenue += totalMontoReserva;
-      res.ReservationDetails.forEach((d) =>
+      activeDetails.forEach((d) =>
         uniqueOccupiedRooms.add(d.bedrooms_id),
       );
 
-      const firstDetail = res.ReservationDetails[0];
+      const firstDetail = activeDetails[0];
       const estancia = firstDetail
         ? `${new Date(firstDetail.dateStart).toLocaleDateString("es-ES")} - ${new Date(firstDetail.dateEnd).toLocaleDateString("es-ES")}`
         : "N/A";
@@ -84,7 +88,7 @@ export async function getReservationReport(
         cliente: res.User?.username || "N/A",
         email: res.User?.email || "N/A",
         monto: totalMontoReserva,
-        habitaciones: res.ReservationDetails.map(
+        habitaciones: activeDetails.map(
           (d) => d.Bedrooms.numberBedroom,
         ).join(", "),
       };

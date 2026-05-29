@@ -85,7 +85,11 @@ function InvoiceForm() {
     const res = await getLastReservationByClient(idToSearch, clientName);
 
     if (res.success && res.data) {
-      const allItems = res.data.ReservationDetails.map((detail: any) => {
+      const activeDetails = res.data.ReservationDetails.filter(
+        (detail: any) => detail.status !== "CANCELLED",
+      );
+
+      const allItems = activeDetails.map((detail: any) => {
         const noches =
           Math.ceil(
             (new Date(detail.dateEnd).getTime() -
