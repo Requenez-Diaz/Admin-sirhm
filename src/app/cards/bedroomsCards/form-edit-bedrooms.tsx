@@ -7,9 +7,10 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/components/ui/use-toast";
 import { updateBedroom } from "@/app/actions/bedrooms";
-import { Loader2, Save, } from "lucide-react";
+import { Loader2, Save } from "lucide-react";
 import Icon from "@/components/ui/icons/icons";
 import { TypeBedrooms } from "@prisma/client";
+import ImageUpload from "./upload-file";
 
 import {
   Form,
@@ -48,6 +49,9 @@ export function FormEditBedrooms({ bedroom, seasons, roomTypes, setOpen }: any) 
   const router = useRouter();
   const { toast } = useToast();
   const [isPending, setIsPending] = useState(false);
+  const [imageUrl, setImageUrl] = useState(bedroom.image || "");
+  const [mimeType, setMimeType] = useState("");
+  const [fileName, setFileName] = useState("");
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -74,6 +78,9 @@ export function FormEditBedrooms({ bedroom, seasons, roomTypes, setOpen }: any) 
         typeBedroomId: Number(data.typeBedroomId),
         bedroomsId: bedroom.id.toString(),
         seasonsId: data.seasonsId === "none" ? null : Number(data.seasonsId),
+        imageUrl,
+        mimeType,
+        fileName,
       });
 
       if (res.success) {
@@ -107,9 +114,9 @@ export function FormEditBedrooms({ bedroom, seasons, roomTypes, setOpen }: any) 
         onSubmit={form.handleSubmit(onSubmit)}
         className='flex flex-col gap-6'
       >
-        {/* CONTENEDOR CON SCROLL PARA MÓVIL */}
+  
         <div className='space-y-6 overflow-y-auto max-h-[60vh] md:max-h-[65vh] pr-2 scrollbar-thin'>
-          {/* SECCIÓN DE ESTADO OPERATIVO (AUTOMATIZADO) */}
+   
           <div className='p-4 rounded-xl border-2 border-dashed bg-muted/20'>
             <FormField
               control={form.control}
@@ -162,7 +169,7 @@ export function FormEditBedrooms({ bedroom, seasons, roomTypes, setOpen }: any) 
             />
           </div>
 
-          {/* GRID: 1 columna en móvil, 2 en PC */}
+   
           <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
             <FormField
               control={form.control}
@@ -294,6 +301,21 @@ export function FormEditBedrooms({ bedroom, seasons, roomTypes, setOpen }: any) 
             />
           </div>
 
+          <div className='border-t pt-4'>
+            <ImageUpload
+              onImageUpload={(data) => {
+                setImageUrl(data.imageUrl);
+                setMimeType(data.mimeType);
+                setFileName(data.fileName);
+              }}
+              onImageRemove={() => {
+                setImageUrl("");
+                setMimeType("");
+                setFileName("");
+              }}
+            />
+          </div>
+
           <GalleryImageUploader
             bedroomId={bedroom.id}
             initialImages={bedroom.galleryImages}
@@ -301,7 +323,6 @@ export function FormEditBedrooms({ bedroom, seasons, roomTypes, setOpen }: any) 
           />
         </div>
 
-        {/* FOOTER FIJO ABAJO */}
         <DialogFooter className='flex flex-row gap-2 pt-4 border-t'>
           <Button
             type='button'

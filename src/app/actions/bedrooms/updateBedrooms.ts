@@ -13,6 +13,9 @@ export const updateBedroom = async (data: {
   capacity: number;
   status: string;
   seasonsId: number | null;
+  imageUrl?: string;
+  mimeType?: string;
+  fileName?: string;
 }) => {
   const {
     bedroomsId,
@@ -24,28 +27,49 @@ export const updateBedroom = async (data: {
     capacity,
     status,
     seasonsId,
+    imageUrl,
+    mimeType,
+    fileName,
   } = data;
 
   const active = status === "1";
 
   try {
+    const updateData: any = {
+      description,
+      lowSeasonPrice,
+      highSeasonPrice,
+      numberBedroom,
+      capacity,
+      status: active,
+      typeBedroomId,
+      seasonsId,
+    };
+
+    if (imageUrl) {
+      updateData.image = imageUrl;
+      if (mimeType && fileName) {
+        updateData.galleryImages = {
+          create: [
+            {
+              imageContent: imageUrl,
+              mimeType,
+              fileName,
+            },
+          ],
+        };
+      }
+    }
+
     await prisma.bedroom.update({
       where: {
         id: parseInt(bedroomsId),
       },
-      data: {
-        description,
-        lowSeasonPrice,
-        highSeasonPrice,
-        numberBedroom,
-        capacity,
-        status: active,
-        typeBedroomId,
-        seasonsId,
-      },
+      data: updateData,
     });
 
-    revalidatePath("/bedrooms");
+    revalidatePath("/dashboard/bedrooms");
+    revalidatePath("/");
 
     return {
       success: true,
