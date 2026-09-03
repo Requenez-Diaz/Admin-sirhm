@@ -33,10 +33,8 @@ export function TableUserRow({ user }: TableUserRowProps) {
         #{user.id.toString().padStart(3, "0")}
       </TableCell>
 
-      <TableCell className='px-4 py-3'>
-        <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black bg-indigo-100 text-black dark:bg-white dark:text-black-300 border border-indigo-200 dark:border-indigo-800 uppercase whitespace-nowrap'>
-          {user.username}
-        </span>
+      <TableCell className='px-4 py-3 text-slate-900 dark:text-slate-100 text-sm font-medium whitespace-nowrap'>
+        {user.username}
       </TableCell>
 
       <TableCell className='px-4 py-3 text-slate-600 dark:text-slate-400 text-sm whitespace-nowrap'>
